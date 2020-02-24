@@ -69,16 +69,16 @@ namespace Triceratops.Api.Models.StackConfiguration
             await Task.WhenAll(deletions);
         }
 
-        protected static Tuple<string, string> GetImageSpecFromImageName(string imageName)
+        protected static (string, string) GetImageSpecFromImageName(string imageName)
         {
             if (imageName.Contains(':'))
             {
                 var split = imageName.Split(':');
-                return new Tuple<string, string>(split[0], split[1]);
+                return (split[0], split[1]);
             }
             else
             {
-                return new Tuple<string, string>(imageName, "latest");
+                return (imageName, "latest");
             }
         }
 
