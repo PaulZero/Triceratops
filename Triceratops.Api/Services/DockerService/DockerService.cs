@@ -22,14 +22,15 @@ namespace Triceratops.Api.Services.DockerService
         }
 
 
-        public async Task<string> CreateContainer(string imageName, string containerName)
+        public async Task<string> CreateContainer(string imageName, string containerName, IList<string> env = default)
         {
             try
             {
                 var response = await _dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters
                 {
                     Image = imageName,
-                    Name = containerName
+                    Name = containerName,
+                    Env = new List<string>(env),
                 });
 
                 if (response.Warnings.Any())
@@ -110,8 +111,8 @@ namespace Triceratops.Api.Services.DockerService
 
         private static DockerClient CreateDockerClient()
         {
-            return new DockerClientConfiguration(new Uri("tcp://host.docker.internal:2375"))
-                .CreateClient();
+            return new DockerClientConfiguration(new Uri("tcp://192.168.99.100:2375"))
+                .CreateClient();    
         }
     }
 }

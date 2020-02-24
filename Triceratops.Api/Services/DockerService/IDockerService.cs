@@ -7,7 +7,7 @@ namespace Triceratops.Api.Services.DockerService
 {
     public interface IDockerService
     {
-        Task<string> CreateContainer(string imageName, string containerName);
+        Task<string> CreateContainer(string imageName, string containerName, IList<string> env = default);
 
         Task RunContainer(string containerId, params string[] parameters);
 
