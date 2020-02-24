@@ -22,7 +22,7 @@ namespace Triceratops.Api.Services.DockerService
         }
 
 
-        public async Task<string> CreateContainer(string imageName, string containerName, IList<string> env = default)
+        public async Task<string> CreateContainerAsync(string imageName, string containerName, IEnumerable<string> env = default)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace Triceratops.Api.Services.DockerService
             }
         }
 
-        public async Task StopContainer(string containerId)
+        public async Task StopContainerAsync(string containerId)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace Triceratops.Api.Services.DockerService
             }
         }
 
-        public async Task DeleteContainer(string containerId, bool force = false)
+        public async Task DeleteContainerAsync(string containerId, bool force = false)
         {
             try
             {
@@ -77,7 +77,7 @@ namespace Triceratops.Api.Services.DockerService
             }
         }
 
-        public async Task DownloadImage(string imageName, string version = "latest")
+        public async Task DownloadImageAsync(string imageName, string version = "latest")
         {
             try
             {
@@ -97,7 +97,7 @@ namespace Triceratops.Api.Services.DockerService
             }
         }
 
-        public async Task RunContainer(string containerId, params string[] parameters)
+        public async Task RunContainerAsync(string containerId, params string[] parameters)
         {
             try
             {

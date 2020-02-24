@@ -11,7 +11,7 @@ using Docker.DotNet.Models;
 using System.Net;
 using System.IO;
 using Triceratops.Api.Services.DockerService;
-using Triceratops.Api.Models.StackConfiguration;
+using Triceratops.Api.Models.StackConfiguration.Minecraft;
 
 namespace Triceratops.Api.Controllers
 {
@@ -34,10 +34,10 @@ namespace Triceratops.Api.Controllers
             if (!hasRun)
             {
                 var mc = new MinecraftStackConfiguration(_dockerService, "jons-house-of-weasels");
-                await mc.Build();
-                await mc.Start();
-                await mc.Stop();
-                await mc.Destroy();
+                await mc.BuildAsync();
+                await mc.StartAsync();
+                await mc.StopAsync();
+                await mc.DestroyAsync();
                 hasRun = true;
             }
 

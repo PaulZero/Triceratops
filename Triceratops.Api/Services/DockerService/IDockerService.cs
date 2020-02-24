@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Triceratops.Api.Services.DockerService
 {
     public interface IDockerService
     {
-        Task<string> CreateContainer(string imageName, string containerName, IList<string> env = default);
+        Task<string> CreateContainerAsync(string imageName, string containerName, IEnumerable<string> env = default);
 
-        Task RunContainer(string containerId, params string[] parameters);
+        Task RunContainerAsync(string containerId, params string[] parameters);
 
-        Task StopContainer(string containerId);
+        Task StopContainerAsync(string containerId);
 
-        Task DeleteContainer(string containerId, bool force = false);
+        Task DeleteContainerAsync(string containerId, bool force = false);
 
-        Task DownloadImage(string imageName, string version = "latest");
+        Task DownloadImageAsync(string imageName, string version = "latest");
     }
 }

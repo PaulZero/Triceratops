@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Triceratops.Api.Models.StackConfiguration
 {
     interface IStackConfiguration
     {
-        public Task DownloadImages();
+        public Task DownloadImagesAsync();
 
-        public Task Build();
+        public Task BuildAsync();
 
-        public Task Start();
+        public Task StartAsync();
 
-        public Task Stop();
+        public Task StopAsync();
 
-        public Task Destroy();
+        public Task DestroyAsync();
     }
 }
