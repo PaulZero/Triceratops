@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Triceratops.Api.Models.Persistence.Stacks;
 using Triceratops.Api.Models.StackConfiguration;
 using Triceratops.Api.Models.StackConfiguration.Minecraft;
+using Triceratops.Api.Models.StackConfiguration.MinecraftBedrock;
 
 namespace Triceratops.Api.Services.DbService.Memory
 {
@@ -15,14 +16,19 @@ namespace Triceratops.Api.Services.DbService.Memory
 
         public MemoryDb()
         {
-            var stack = Stacks.SaveAsync(new ContainerStack { 
-                StackConfigurationType = typeof(MinecraftStackConfiguration)
-            }).Result;
+            var stackRecord = new ContainerStack
+            {
+                StackType = typeof(MinecraftBedrockStack)
+            };
+
+            stackRecord.SetConfig(new MinecraftBedrockStackConfig());
+
+            Stacks.SaveAsync(stackRecord).Wait();
 
             Containers.SaveAsync(new Container
             {
-                StackId = stack.Id,
-                ImageName = "example/made-up-container"
+                StackId = stackRecord.Id,                
+                ImageName = "itzg/minecraft-bedrock-server"
             });
         }
     }
@@ -63,9 +69,9 @@ namespace Triceratops.Api.Services.DbService.Memory
             return Task.FromResult(entity);
         }
 
-        public Task<ContainerStack[]> FetchByTypeAsync<T>() where T : IStackConfiguration
+        public Task<ContainerStack[]> FetchByTypeAsync<T>() where T : IStack
         {
-            var results = Entities.Where(s => s.StackConfigurationType == typeof(T)).ToArray();
+            var results = Entities.Where(s => s.StackType == typeof(T)).ToArray();
 
             return Task.FromResult(results);
         }

@@ -28,7 +28,7 @@ namespace Triceratops.Api.Services.DbService
         Task<ContainerStack[]> FetchAllAsync();
 
         Task<ContainerStack[]> FetchByTypeAsync<T>()
-            where T : IStackConfiguration;
+            where T : IStack;
 
         Task<ContainerStack> Save(ContainerStack stack);
     }

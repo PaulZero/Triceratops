@@ -6,7 +6,7 @@ using Triceratops.Api.Services.DockerService;
 
 namespace Triceratops.Api.Models.StackConfiguration
 {
-    public abstract class AbstractStackConfiguration : IStackConfiguration
+    public abstract class AbstractStack : IStack
     {
         private const string ContainerPrefixSeparator = "-";
 
@@ -18,7 +18,7 @@ namespace Triceratops.Api.Models.StackConfiguration
 
         private readonly ContainerStack _stack;
 
-        public AbstractStackConfiguration(IDockerService dockerService, ContainerStack stack)
+        public AbstractStack(IDockerService dockerService, ContainerStack stack)
         {
             _dockerService = dockerService;
             _stack = stack;
@@ -104,7 +104,7 @@ namespace Triceratops.Api.Models.StackConfiguration
 
             public IEnumerable<string> EnvironmentVariables => _environmentVariables.Distinct();
 
-            private readonly AbstractStackConfiguration _stackConfig;
+            private readonly AbstractStack _stackConfig;
 
             private readonly List<string> _environmentVariables = new List<string>();
 
@@ -112,7 +112,7 @@ namespace Triceratops.Api.Models.StackConfiguration
 
             private bool _hasCreatedContainer;
 
-            public ContainerBuilder(AbstractStackConfiguration stackConfig, string imageName, string containerName)
+            public ContainerBuilder(AbstractStack stackConfig, string imageName, string containerName)
             {
                 _stackConfig = stackConfig;
                 ImageName = imageName;

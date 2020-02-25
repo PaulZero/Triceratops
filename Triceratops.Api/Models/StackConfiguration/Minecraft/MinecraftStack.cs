@@ -4,13 +4,13 @@ using Triceratops.Api.Services.DockerService;
 
 namespace Triceratops.Api.Models.StackConfiguration.Minecraft
 {
-    public class MinecraftStackConfiguration : AbstractStackConfiguration
+    public class MinecraftStack : AbstractStack
     {
         private const string ContainerName = "minecraft";
 
         private const string ImageName = "itzg/minecraft-server";
 
-        public MinecraftStackConfiguration(IDockerService dockerService, ContainerStack stack)
+        public MinecraftStack(IDockerService dockerService, ContainerStack stack)
             : base(dockerService, stack)
         {
             AddImage(ImageName);

@@ -60,7 +60,7 @@ namespace Triceratops.Api.Controllers
                 return new
                 {
                     stackId = s.Id,
-                    type = s.StackConfigurationType.Name,
+                    type = s.StackType.Name,
                     containers = containerResult
                 };
             });
