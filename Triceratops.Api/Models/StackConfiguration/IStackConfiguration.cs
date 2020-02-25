@@ -2,7 +2,7 @@
 
 namespace Triceratops.Api.Models.StackConfiguration
 {
-    interface IStackConfiguration
+    public interface IStackConfiguration
     {
         public Task DownloadImagesAsync();
 

@@ -7,7 +7,7 @@ namespace Triceratops.Api.Models.StackConfiguration.Minecraft
     {
         private const string ContainerName = "minecraft";
 
-        private const string ImageName = "itzg/minecraft-server";        
+        private const string ImageName = "itzg/minecraft-server";
 
         public MinecraftStackConfiguration(IDockerService dockerService, string containerPrefix)
             : base(dockerService, containerPrefix)

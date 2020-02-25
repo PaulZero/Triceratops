@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Triceratops.Api.Services.DbService;
 using Triceratops.Api.Services.DockerService;
 
 namespace Triceratops.Api
@@ -26,6 +27,9 @@ namespace Triceratops.Api
             services.AddControllersWithViews();
 
             services.AddSingleton<IDockerService>(s => new DockerService());
+
+            services.AddSingleton(s => DbServiceFactory.CreateFromEnvironmentVariables(s.GetRequiredService<IConfiguration>()));
+            services.AddSingleton(s => s.GetRequiredService<IDbService>().StackRepo);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
