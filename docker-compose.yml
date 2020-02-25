@@ -1,0 +1,11 @@
+﻿version: '3.7'
+
+services:
+  triceratops:
+    build:
+      context: .
+      dockerfile: "Triceratops.Api/Dockerfile"
+    environment:
+      DB_USE_MEMORY: "true"
+    ports:
+      - 1889:80
