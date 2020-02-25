@@ -22,7 +22,7 @@ namespace Triceratops.Api.Models.StackConfiguration.MinecraftBedrock
 
             await CreateContainerBuilder(ImageName, ContainerName)
                 .UsePrefix()
-                .WithEnvironmentVariables("AUTH=true")
+                .WithEnvironmentVariables("EULA=TRUE", "GAMEMODE=survival", "DIFFICULTY=normal")
                 .CreateContainerAsync();
         }
     }
