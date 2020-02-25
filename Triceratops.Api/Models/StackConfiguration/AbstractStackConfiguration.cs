@@ -1,26 +1,27 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Triceratops.Api.Models.Persistence.Stacks;
 using Triceratops.Api.Services.DockerService;
 
 namespace Triceratops.Api.Models.StackConfiguration
 {
     public abstract class AbstractStackConfiguration : IStackConfiguration
     {
-        private const string ContainerPrefixSeparator = "__";
-
-        private readonly string _stackPrefix;
-
-        private readonly IDockerService _dockerService;
+        private const string ContainerPrefixSeparator = "-";
 
         private readonly IList<string> _containerIds = new List<string>();
 
+        private readonly IDockerService _dockerService;
+
         private readonly IList<string> _imageNames = new List<string>();
 
-        public AbstractStackConfiguration(IDockerService dockerService, string stackPrefix = "")
+        private readonly ContainerStack _stack;
+
+        public AbstractStackConfiguration(IDockerService dockerService, ContainerStack stack)
         {
             _dockerService = dockerService;
-            _stackPrefix = stackPrefix;
+            _stack = stack;
         }
 
         public virtual async Task DownloadImagesAsync()
@@ -80,7 +81,7 @@ namespace Triceratops.Api.Models.StackConfiguration
 
         protected string WithPrefix(string containerName)
         {
-            return _stackPrefix + ContainerPrefixSeparator + containerName;
+            return _stack.Id + ContainerPrefixSeparator + containerName;
         }
 
         protected static (string Image, string Version) GetImageSpecFromImageName(string imageName)
@@ -125,7 +126,7 @@ namespace Triceratops.Api.Models.StackConfiguration
                     return this;
                 }
 
-                ContainerName = $"{_stackConfig._stackPrefix}{ContainerPrefixSeparator}{ContainerName}";
+                ContainerName = $"{_stackConfig._stack.Id}{ContainerPrefixSeparator}{ContainerName}";
 
                 _hasAppliedPrefix = true;
 

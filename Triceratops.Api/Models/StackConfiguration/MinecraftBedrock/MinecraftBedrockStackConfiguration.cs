@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Triceratops.Api.Models.Persistence.Stacks;
 using Triceratops.Api.Services.DockerService;
 
 namespace Triceratops.Api.Models.StackConfiguration.MinecraftBedrock
@@ -9,8 +10,8 @@ namespace Triceratops.Api.Models.StackConfiguration.MinecraftBedrock
 
         private const string ImageName = "itzg/minecraft-bedrock-server";
 
-        public MinecraftBedrockStackConfiguration(IDockerService dockerService, string containerPrefix)
-            : base(dockerService, containerPrefix)
+        public MinecraftBedrockStackConfiguration(IDockerService dockerService, ContainerStack stack)
+            : base(dockerService, stack)
         {
             AddImage(ImageName);
         }

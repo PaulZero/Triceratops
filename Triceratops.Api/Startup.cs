@@ -29,7 +29,7 @@ namespace Triceratops.Api
             services.AddSingleton<IDockerService>(s => new DockerService());
 
             services.AddSingleton(s => DbServiceFactory.CreateFromEnvironmentVariables(s.GetRequiredService<IConfiguration>()));
-            services.AddSingleton(s => s.GetRequiredService<IDbService>().StackRepo);
+            services.AddSingleton(s => s.GetRequiredService<IDbService>().Stacks);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

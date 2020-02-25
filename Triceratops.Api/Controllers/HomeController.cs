@@ -23,14 +23,14 @@ namespace Triceratops.Api.Controllers
 
         private readonly IDockerService _dockerService;
 
-        private readonly IDbStackRepo _stackRepo;
+        private readonly IDbService _dbService;
 
         private static bool hasRun;
 
-        public HomeController(ILogger<HomeController> logger, IDockerService dockerService, IDbStackRepo stackRepo)
+        public HomeController(ILogger<HomeController> logger, IDockerService dockerService, IDbService dbService)
         {
             _dockerService = dockerService;
-            _stackRepo = stackRepo;
+            _dbService = dbService;
         }
 
         public async Task<IActionResult> Index()
@@ -45,9 +45,27 @@ namespace Triceratops.Api.Controllers
             //    hasRun = true;
             //}
 
-            var stacks = await _stackRepo.FetchAll();
+            var stacks = await _dbService.Stacks.FetchAllAsync();
 
-            return Json(new { ok = true, types = stacks.Select(s => s.StackConfigurationType.Name) });
+            var result = stacks.Select(s =>
+            {
+                var containers = s.GetContainersAsync(_dbService.Containers).Result;
+                var containerResult = containers.Select(c => new
+                {
+                    containerId = c.Id,
+                    stackId = c.StackId,
+                    imageName = c.ImageName
+                });
+
+                return new
+                {
+                    stackId = s.Id,
+                    type = s.StackConfigurationType.Name,
+                    containers = containerResult
+                };
+            });
+
+            return Json(new { ok = true, stacks = result });
         }
     }
 }

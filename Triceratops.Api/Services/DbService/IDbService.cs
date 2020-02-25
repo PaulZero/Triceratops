@@ -6,18 +6,37 @@ namespace Triceratops.Api.Services.DbService
 {
     public interface IDbService
     {
-        IDbStackRepo StackRepo { get; }
+        IDbContainerRepo Containers { get; }
+
+        IDbStackRepo Stacks { get; }
     }
 
-    public interface IDbStackRepo
+    public interface IDbRepo<T>
+        where T : IDbEntity
+    {
+        Task<T> SaveAsync(T entity);
+
+        Task<T[]> SaveAsync(params T[] entities);
+
+        Task DeleteAsync(params T[] entities);
+    }
+
+    public interface IDbStackRepo : IDbRepo<ContainerStack>
     {
         Task<ContainerStack> FetchByIdAsync(uint id);
 
-        Task<ContainerStack[]> FetchAll();
+        Task<ContainerStack[]> FetchAllAsync();
 
-        Task<ContainerStack[]> FetchByType<T>()
+        Task<ContainerStack[]> FetchByTypeAsync<T>()
             where T : IStackConfiguration;
 
         Task<ContainerStack> Save(ContainerStack stack);
+    }
+
+    public interface IDbContainerRepo : IDbRepo<Container>
+    {
+        Task<Container> FetchByIdAsync(uint id);
+
+        Task<Container[]> FetchByStackId(uint stackId);
     }
 }
