@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Triceratops.Api.Models.Servers;
 using Triceratops.Api.Models.Servers.Minecraft;
 
