@@ -4,8 +4,3 @@ services:
   triceratops.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "80"
-  triceratops.mongo:
-    ports:
-      - "27017"
