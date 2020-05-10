@@ -1,17 +1,16 @@
-version: '3.4'
+﻿version: '3.7'
 
 services:
-  triceratops.api:
-    image: ${DOCKER_REGISTRY-}triceratopsapi
+  triceratops:
     build:
       context: .
-      dockerfile: Triceratops.Api/Dockerfile
+      dockerfile: "Triceratops.Api/Dockerfile"
+      network: host
     environment:
       DB_USE_MEMORY: "true"
-  triceratops.mongo:
-    hostname: "triceratops.mongo"
     ports:
-     - "27017:27017"
+      - 1889:80
+  database:
     image: "mongo"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root

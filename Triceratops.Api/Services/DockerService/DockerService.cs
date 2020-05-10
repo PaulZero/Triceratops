@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Triceratops.Api.Models;
 
 namespace Triceratops.Api.Services.DockerService
 {
     public class DockerService : IDockerService
     {
+        private const string ContainerNamePrefix = "TRICERATOPS_";
+
         private readonly DockerClient _dockerClient;
 
         public DockerService() : this(CreateDockerClient())
@@ -21,33 +24,48 @@ namespace Triceratops.Api.Services.DockerService
             _dockerClient = client;
         }
 
-
-        public async Task<string> CreateContainerAsync(string imageName, string containerName, IEnumerable<string> env = default)
+        public async Task<bool> CreateContainerAsync(Container container)
         {
             try
             {
-                var response = await _dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters
+                var containers = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters
                 {
-                    Image = imageName,
-                    Name = containerName,
-                    Env = new List<string>(env),
+                    All = true
                 });
 
-                if (response.Warnings.Any())
-                {
-                    // Do some stuff with the warnings.
+                var myContainers = containers.Where(c => c.Names.Any(n => n.StartsWith($"/{ContainerNamePrefix}"))).ToArray();
 
-                    Debug.WriteLine($"{response.Warnings.Count} warnings were generated");                
-                }
+                var id = await CreateContainerAsync(container.ImageName, container.ImageVersion, $"{ContainerNamePrefix}{container.Name}");
 
-                return response.ID;
-            }
-            catch (Exception exception)
+                container.DockerId = id;
+
+                return true;
+            } 
+            catch
             {
-                Debug.WriteLine($"Failed to create container: {exception.Message}");
-
-                return null;
+                return false;
             }
+        }
+
+        public async Task<string> CreateContainerAsync(string imageName, string imageVersion, string containerName, IEnumerable<string> env = default)
+        {
+            await DownloadImageAsync(imageName, imageVersion);
+
+            var response = await _dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters
+            {
+                Image = imageName,
+                Name = containerName,
+                Env = env?.ToList()
+            });
+
+            if (response.Warnings.Any())
+            {
+                // Do some stuff with the warnings.
+
+                Debug.WriteLine($"{response.Warnings.Count} warnings were generated");                
+            }
+
+            return response.ID;
         }
 
         public async Task StopContainerAsync(string containerId)
@@ -77,7 +95,19 @@ namespace Triceratops.Api.Services.DockerService
             }
         }
 
-        public async Task DownloadImageAsync(string imageName, string version = "latest")
+        public async Task RunContainerAsync(string containerId, params string[] parameters)
+        {
+            try
+            {
+                await _dockerClient.Containers.StartContainerAsync(containerId, new ContainerStartParameters());
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine($"Failed to run container: {exception.Message}");
+            }
+        }
+
+        private async Task DownloadImageAsync(string imageName, string version)
         {
             try
             {
@@ -97,22 +127,10 @@ namespace Triceratops.Api.Services.DockerService
             }
         }
 
-        public async Task RunContainerAsync(string containerId, params string[] parameters)
-        {
-            try
-            {
-                await _dockerClient.Containers.StartContainerAsync(containerId, new ContainerStartParameters());
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine($"Failed to run container: {exception.Message}");
-            }
-        }
-
         private static DockerClient CreateDockerClient()
         {
-            return new DockerClientConfiguration(new Uri("tcp://192.168.99.100:2375"))
-                .CreateClient();    
+            return new DockerClientConfiguration(new Uri("tcp://host.docker.internal:2375"))
+                .CreateClient();
         }
     }
 }

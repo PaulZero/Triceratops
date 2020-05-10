@@ -1,71 +1,62 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Triceratops.Api.Models;
-using Docker.DotNet;
-using Docker.DotNet.Models;
-using System.Net;
-using System.IO;
-using Triceratops.Api.Services.DockerService;
-using Triceratops.Api.Models.StackConfiguration.Minecraft;
-using Microsoft.Extensions.Configuration;
-using Triceratops.Api.Services.DbService;
+using Triceratops.Api.Services.ServerService;
+using Newtonsoft.Json;
+using System.Text;
+using Triceratops.Api.Models.Servers.Minecraft;
+using MongoDB.Driver;
+using System.Linq;
 
 namespace Triceratops.Api.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private IServerService ServerService { get; }
 
-        private readonly IDockerService _dockerService;
-
-        private readonly IDbService _dbService;
-
-        private static bool hasRun;
-
-        public HomeController(ILogger<HomeController> logger, IDockerService dockerService, IDbService dbService)
+        public HomeController(IServerService serverService)
         {
-            _dockerService = dockerService;
-            _dbService = dbService;
+            ServerService = serverService;
         }
 
         public async Task<IActionResult> Index()
         {
-            //if (!hasRun)
-            //{
-            //    var mc = new MinecraftStackConfiguration(_dockerService, "jons-house-of-weasels");
-            //    await mc.BuildAsync();
-            //    await mc.StartAsync();
-            //    await mc.StopAsync();
-            //    await mc.DestroyAsync();
-            //    hasRun = true;
-            //}
+            var servers = await ServerService.GetServersAsync();
 
-            var stacks = await _dbService.Stacks.FetchAllAsync();
+            var poop = JsonConvert.SerializeObject(servers, Formatting.Indented);
 
-            var result = stacks.Select(s =>
+            return Content(poop, "application/json", Encoding.UTF8);
+        }
+
+        [Route("/create-minecraft-server")]
+        public async Task<IActionResult> CreateMinecraftServer()
+        {
+            var config = new MinecraftConfiguration
             {
-                var containers = s.GetContainersAsync(_dbService.Containers).Result;
-                var containerResult = containers.Select(c => new
-                {
-                    containerId = c.Id,
-                    stackId = c.StackId,
-                    imageName = c.ImageName
-                });
+                ServerName = "Steve",
+                MaxPlayers = 16
+            };
 
-                return new
-                {
-                    stackId = s.Id,
-                    type = s.StackType.Name,
-                    containers = containerResult
-                };
+            var server = await MinecraftServer.CreateAsync(config, ServerService);
+
+            return Json(new
+            {
+                ok = true
             });
+        }
 
-            return Json(new { ok = true, stacks = result });
+        [Route("/start-server")]
+        public async Task<IActionResult> StartServer()
+        {
+            var servers = await ServerService.GetServersAsync();
+
+            if (servers.Any())
+            {
+                await ServerService.StartServerAsync(servers.First());
+
+                return Json(new { ok = true, message = "A server has been started..." });
+            }
+
+            return Json(new { ok = false, message = "No servers exist..." });
         }
     }
 }

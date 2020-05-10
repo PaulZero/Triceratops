@@ -8,7 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Triceratops.Api.Services.DbService;
+using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
+using Triceratops.Api.Services.ServerService;
 
 namespace Triceratops.Api
 {
@@ -26,10 +28,16 @@ namespace Triceratops.Api
         {
             services.AddControllersWithViews();
 
-            services.AddSingleton<IDockerService>(s => new DockerService());
+            services.AddSingleton<IDockerService>(s => new DockerService());            
 
             services.AddSingleton(s => DbServiceFactory.CreateFromEnvironmentVariables(s.GetRequiredService<IConfiguration>()));
-            services.AddSingleton(s => s.GetRequiredService<IDbService>().Stacks);
+            services.AddSingleton(s => s.GetRequiredService<IDbService>().Servers);
+            services.AddSingleton(s => s.GetRequiredService<IDbService>().Containers);
+
+            services.AddSingleton<IServerService>(s => new ServerService(
+                s.GetRequiredService<IDbService>(),
+                s.GetRequiredService<IDockerService>()
+            ));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
