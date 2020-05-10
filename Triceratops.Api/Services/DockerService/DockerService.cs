@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
+using Triceratops.Api.Services.DockerService.Models;
 
 namespace Triceratops.Api.Services.DockerService
 {
@@ -44,6 +45,24 @@ namespace Triceratops.Api.Services.DockerService
             catch
             {
                 return false;
+            }
+        }
+
+        public async Task<ContainerDetails> GetContainerStatusAsync(Container container)
+        {
+            try
+            {
+                var response = await _dockerClient.Containers.InspectContainerAsync(container.DockerId);
+
+                return new ContainerDetails(response);
+            }
+            catch (DockerContainerNotFoundException)
+            {
+                return ContainerDetails.ContainerMissing;
+            }
+            catch
+            {
+                return ContainerDetails.ErrorInspectingContainer;
             }
         }
 

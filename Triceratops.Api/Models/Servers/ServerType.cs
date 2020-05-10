@@ -9,6 +9,7 @@ namespace Triceratops.Api.Models.Servers
     {
         Minecraft,
         MinecraftBedrock,
-        Terraria
+        Terraria,
+        Unknown
     }
 }

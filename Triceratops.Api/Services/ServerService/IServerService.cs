@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
+using Triceratops.Api.Models.View;
 
 namespace Triceratops.Api.Services.ServerService
 {
@@ -12,7 +13,7 @@ namespace Triceratops.Api.Services.ServerService
     /// </summary>
     public interface IServerService
     {
-        Task<Server[]> GetServersAsync();
+        Task<ServerViewModel[]> GetServersAsync();
 
         Task CreateServerAsync(Server server);
 

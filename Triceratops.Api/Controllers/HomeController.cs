@@ -6,6 +6,7 @@ using System.Text;
 using Triceratops.Api.Models.Servers.Minecraft;
 using MongoDB.Driver;
 using System.Linq;
+using Triceratops.Api.Services.DockerService;
 
 namespace Triceratops.Api.Controllers
 {
@@ -13,9 +14,12 @@ namespace Triceratops.Api.Controllers
     {
         private IServerService ServerService { get; }
 
-        public HomeController(IServerService serverService)
+        private IDockerService DockerService { get; }
+
+        public HomeController(IServerService serverService, IDockerService dockerService)
         {
             ServerService = serverService;
+            DockerService = dockerService;
         }
 
         public async Task<IActionResult> Index()
@@ -51,7 +55,7 @@ namespace Triceratops.Api.Controllers
 
             if (servers.Any())
             {
-                await ServerService.StartServerAsync(servers.First());
+                //await ServerService.StartServerAsync(servers.First());
 
                 return Json(new { ok = true, message = "A server has been started..." });
             }

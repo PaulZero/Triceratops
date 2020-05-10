@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
+using Triceratops.Api.Services.DockerService.Models;
 
 namespace Triceratops.Api.Services.DockerService
 {
@@ -10,6 +11,8 @@ namespace Triceratops.Api.Services.DockerService
     public interface IDockerService
     {
         Task<bool> CreateContainerAsync(Container container);
+
+        Task<ContainerDetails> GetContainerStatusAsync(Container container);
 
         Task<string> CreateContainerAsync(string imageName, string imageVersion, string containerName, IEnumerable<string> env = default);
 
