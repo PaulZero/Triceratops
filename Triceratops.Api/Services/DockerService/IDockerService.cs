@@ -14,8 +14,6 @@ namespace Triceratops.Api.Services.DockerService
 
         Task<ContainerDetails> GetContainerStatusAsync(Container container);
 
-        Task<string> CreateContainerAsync(string imageName, string imageVersion, string containerName, IEnumerable<string> env = default);
-
         Task RunContainerAsync(string containerId, params string[] parameters);
 
         Task StopContainerAsync(string containerId);

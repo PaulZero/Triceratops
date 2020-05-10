@@ -29,14 +29,13 @@ namespace Triceratops.Api.Services.DockerService
         {
             try
             {
-                var containers = await _dockerClient.Containers.ListContainersAsync(new ContainersListParameters
-                {
-                    All = true
-                });
-
-                var myContainers = containers.Where(c => c.Names.Any(n => n.StartsWith($"/{ContainerNamePrefix}"))).ToArray();
-
-                var id = await CreateContainerAsync(container.ImageName, container.ImageVersion, $"{ContainerNamePrefix}{container.Name}");
+                var id = await CreateContainerAsync(
+                    container.ImageName,
+                    container.ImageVersion,
+                    $"{ContainerNamePrefix}{container.Name}",
+                    container.Port,
+                    container.Arguments
+                );
 
                 container.DockerId = id;
 
@@ -66,7 +65,13 @@ namespace Triceratops.Api.Services.DockerService
             }
         }
 
-        public async Task<string> CreateContainerAsync(string imageName, string imageVersion, string containerName, IEnumerable<string> env = default)
+        private async Task<string> CreateContainerAsync(
+            string imageName,
+            string imageVersion,
+            string containerName,
+            ushort port,
+            IEnumerable<string> env = default
+        )
         {
             await DownloadImageAsync(imageName, imageVersion);
 
@@ -74,14 +79,18 @@ namespace Triceratops.Api.Services.DockerService
             {
                 Image = imageName,
                 Name = containerName,
-                Env = env?.ToList()
+                Env = env?.ToList(),
+                ExposedPorts = new Dictionary<string, EmptyStruct>
+                {
+                    [port.ToString()] = new EmptyStruct()
+                }
             });
 
             if (response.Warnings.Any())
             {
                 // Do some stuff with the warnings.
 
-                Debug.WriteLine($"{response.Warnings.Count} warnings were generated");                
+                Debug.WriteLine($"{response.Warnings.Count} warnings were generated");
             }
 
             return response.ID;

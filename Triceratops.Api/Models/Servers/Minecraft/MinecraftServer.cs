@@ -34,7 +34,12 @@ namespace Triceratops.Api.Models.Servers.Minecraft
             {
                 Name = server.Name,
                 ImageName = DockerImageName,
-                ImageVersion = DockerImageTag
+                ImageVersion = DockerImageTag,
+                Port = configuration.Port,
+                Arguments = new string[]
+                {
+                    "EULA=TRUE"
+                }
             });
 
             await serverService.CreateServerAsync(server);

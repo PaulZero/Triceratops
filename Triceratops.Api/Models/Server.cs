@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Triceratops.Api.Models
 {
@@ -36,6 +37,9 @@ namespace Triceratops.Api.Models
 
         [BsonIgnore]
         public List<Container> Containers { get; set; } = new List<Container>();
+
+        [BsonIgnore]
+        public ushort[] Ports => Containers.Select(c => c.Port).ToArray();
 
         public Server()
         {

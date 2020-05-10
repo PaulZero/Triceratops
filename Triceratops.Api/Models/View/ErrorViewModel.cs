@@ -1,4 +1,4 @@
-namespace Triceratops.Api.Models
+namespace Triceratops.Api.Models.View
 {
     /// <summary>
     /// A horrible piece of built in ASP.NET. If you delete it, it won't build

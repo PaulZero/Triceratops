@@ -20,6 +20,51 @@ namespace Triceratops.Api.Controllers
             return Json(await Servers.GetServerViewListAsync());
         }
 
+        [Route("/servers/start/{guid}")]
+        public async Task<IActionResult> StartServer(Guid guid)
+        {
+            var server = await Servers.GetServerByGuidAsync(guid);
+
+            if (server == null)
+            {
+                return Json(new { ok = false, message = "Server does not exist" });
+            }
+
+            await Servers.StartServerAsync(server);
+
+            return Json(new { ok = false, message = "Server started" });
+        }
+
+        [Route("/servers/stop/{guid}")]
+        public async Task<IActionResult> StopServer(Guid guid)
+        {
+            var server = await Servers.GetServerByGuidAsync(guid);
+
+            if (server == null)
+            {
+                return Json(new { ok = false, message = "Server does not exist" });
+            }
+
+            await Servers.StopServerAsync(server);
+
+            return Json(new { ok = false, message = "Server stopped" });
+        }
+
+        [Route("/servers/restart/{guid}")]
+        public async Task<IActionResult> RestartServer(Guid guid)
+        {
+            var server = await Servers.GetServerByGuidAsync(guid);
+
+            if (server == null)
+            {
+                return Json(new { ok = false, message = "Server does not exist" });
+            }
+
+            await Servers.RestartServerAsync(server);
+
+            return Json(new { ok = false, message = "Server restarted" });
+        }
+
         [Route("/servers/delete/{guid}")]
         public async Task<IActionResult> DeleteServer(Guid guid)
         {
