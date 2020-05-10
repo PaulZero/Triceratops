@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
 using Triceratops.Api.Models.View;
@@ -19,7 +20,7 @@ namespace Triceratops.Api.Services.ServerService
             DockerService = dockerService;
         }
 
-        public async Task<ServerViewModel[]> GetServersAsync()
+        public async Task<ServerViewModel[]> GetServerViewListAsync()
         {
             var servers = await DbService.Servers.FindAllAsync();
             var serverViewModels = new List<ServerViewModel>();
@@ -37,6 +38,11 @@ namespace Triceratops.Api.Services.ServerService
             }
 
             return serverViewModels.ToArray();
+        }
+
+        public async Task<Server> GetServerByGuidAsync(Guid guid)
+        {
+           return await DbService.Servers.FindByGuidAsync(guid);
         }
 
         public async Task CreateServerAsync(Server server)

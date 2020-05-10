@@ -9,6 +9,8 @@ namespace Triceratops.Api.Models.View
 {
     public class ServerViewModel
     {
+        public string ServerId => _server.ServerIdString;
+
         public string Name => _server.Name;
 
         public string Game => Enum.GetName(typeof(ServerType), GetServerType());

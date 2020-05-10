@@ -46,6 +46,13 @@ namespace Triceratops.Api.Services.DbService.Mongo
             return await result.FirstOrDefaultAsync();
         }
 
+        public async Task<Server> FindByGuidAsync(Guid guid)
+        {
+            var result = await MongoCollection.FindAsync(CreateFindByGuidFilter(guid));
+
+            return await result.FirstOrDefaultAsync();
+        }
+
         public async Task SaveAsync(Server server)
         {
             if (server.Id == default)
@@ -83,6 +90,11 @@ namespace Triceratops.Api.Services.DbService.Mongo
         private FilterDefinition<Server> CreateFindByIdFilter(ObjectId id)
         {
             return Builders<Server>.Filter.Where(s => s.Id == id);
+        }
+
+        private FilterDefinition<Server> CreateFindByGuidFilter(Guid guid)
+        {
+            return Builders<Server>.Filter.Where(s => s.ServerIdString == guid.ToString());
         }
     }
 }

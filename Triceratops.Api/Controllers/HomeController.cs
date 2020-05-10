@@ -24,7 +24,7 @@ namespace Triceratops.Api.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var servers = await ServerService.GetServersAsync();
+            var servers = await ServerService.GetServerViewListAsync();
 
             var poop = JsonConvert.SerializeObject(servers, Formatting.Indented);
 
@@ -51,7 +51,7 @@ namespace Triceratops.Api.Controllers
         [Route("/start-server")]
         public async Task<IActionResult> StartServer()
         {
-            var servers = await ServerService.GetServersAsync();
+            var servers = await ServerService.GetServerViewListAsync();
 
             if (servers.Any())
             {

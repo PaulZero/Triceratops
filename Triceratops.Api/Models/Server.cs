@@ -13,6 +13,15 @@ namespace Triceratops.Api.Models
         [BsonId]
         public ObjectId Id { get; set; }
 
+        [BsonIgnore]
+        public Guid ServerId
+        {
+            get => Guid.Parse(ServerIdString);
+            set => ServerIdString = value.ToString();
+        }
+
+        public string ServerIdString { get; set; }
+
         public string Name { get; set; }
 
         public string JsonConfiguration { get; set; }
@@ -29,6 +38,11 @@ namespace Triceratops.Api.Models
 
         [BsonIgnore]
         public List<Container> Containers { get; set; } = new List<Container>();
+
+        public Server()
+        {
+            ServerId = Guid.NewGuid();
+        }
 
         public object DeserialiseConfiguration()
         {
