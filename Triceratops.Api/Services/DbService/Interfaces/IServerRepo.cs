@@ -1,5 +1,4 @@
-﻿using MongoDB.Bson;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
 
@@ -12,9 +11,7 @@ namespace Triceratops.Api.Services.DbService.Interfaces
         /// <summary>
         /// Find a server by its ID, along with the containers below it.
         /// </summary>
-        public Task<Server> FindByIdAsync(ObjectId id);
-
-        Task<Server> FindByGuidAsync(Guid guid);
+        public Task<Server> FindByIdAsync(Guid id);
 
         /// <summary>
         /// Save the specified server - This should do a deep save, and write the containers linked as well.

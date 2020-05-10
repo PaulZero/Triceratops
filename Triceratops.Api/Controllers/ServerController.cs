@@ -23,7 +23,7 @@ namespace Triceratops.Api.Controllers
         [Route("/servers/start/{guid}")]
         public async Task<IActionResult> StartServer(Guid guid)
         {
-            var server = await Servers.GetServerByGuidAsync(guid);
+            var server = await Servers.GetServerByIdAsync(guid);
 
             if (server == null)
             {
@@ -38,7 +38,7 @@ namespace Triceratops.Api.Controllers
         [Route("/servers/stop/{guid}")]
         public async Task<IActionResult> StopServer(Guid guid)
         {
-            var server = await Servers.GetServerByGuidAsync(guid);
+            var server = await Servers.GetServerByIdAsync(guid);
 
             if (server == null)
             {
@@ -53,7 +53,7 @@ namespace Triceratops.Api.Controllers
         [Route("/servers/restart/{guid}")]
         public async Task<IActionResult> RestartServer(Guid guid)
         {
-            var server = await Servers.GetServerByGuidAsync(guid);
+            var server = await Servers.GetServerByIdAsync(guid);
 
             if (server == null)
             {
@@ -68,7 +68,7 @@ namespace Triceratops.Api.Controllers
         [Route("/servers/delete/{guid}")]
         public async Task<IActionResult> DeleteServer(Guid guid)
         {
-            var server = await Servers.GetServerByGuidAsync(guid);
+            var server = await Servers.GetServerByIdAsync(guid);
 
             if (server == null)
             {

@@ -1,4 +1,4 @@
-﻿using MongoDB.Bson;
+﻿using System;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
 
@@ -6,9 +6,9 @@ namespace Triceratops.Api.Services.DbService.Interfaces
 {
     public interface IContainerRepo
     {
-        Task<Container> FindByIdAsync(ObjectId id);
+        Task<Container> FindByIdAsync(Guid id);
 
-        Task<Container[]> FindByServerIdAsync(ObjectId stackId);
+        Task<Container[]> FindByServerIdAsync(Guid stackId);
 
         Task SaveAsync(Container container);
 

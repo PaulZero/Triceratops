@@ -1,5 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,30 +37,21 @@ namespace Triceratops.Api.Services.DbService.Mongo
             return items.ToArray();
         }
 
-        public async Task<Server> FindByIdAsync(ObjectId id)
+        public async Task<Server> FindByIdAsync(Guid id)
         {
             var result = await MongoCollection.FindAsync(CreateFindByIdFilter(id));
 
             return await result.FirstOrDefaultAsync();
         }
 
-        public async Task<Server> FindByGuidAsync(Guid guid)
-        {
-            var result = await MongoCollection.FindAsync(CreateFindByGuidFilter(guid));
-
-            return await result.FirstOrDefaultAsync();
-        }
-
         public async Task SaveAsync(Server server)
         {
-            if (server.Id == default)
+            foreach (var container in server.Containers)
             {
-                server.Id = ObjectId.GenerateNewId();
-
-                foreach (var container in server.Containers)
+                if (container.ServerId == default)
                 {
                     container.ServerId = server.Id;
-                }
+                }                
             }
 
             await MongoCollection.ReplaceOneAsync(
@@ -86,14 +76,9 @@ namespace Triceratops.Api.Services.DbService.Mongo
             }
         }
 
-        private FilterDefinition<Server> CreateFindByIdFilter(ObjectId id)
+        private FilterDefinition<Server> CreateFindByIdFilter(Guid id)
         {
             return Builders<Server>.Filter.Where(s => s.Id == id);
-        }
-
-        private FilterDefinition<Server> CreateFindByGuidFilter(Guid guid)
-        {
-            return Builders<Server>.Filter.Where(s => s.ServerIdString == guid.ToString());
         }
     }
 }

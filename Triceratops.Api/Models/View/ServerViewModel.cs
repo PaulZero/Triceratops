@@ -7,7 +7,7 @@ namespace Triceratops.Api.Models.View
 {
     public class ServerViewModel
     {
-        public string ServerId => _server.ServerIdString;
+        public string ServerId => _server.Id.ToString();
 
         public string Name => _server.Name;
 

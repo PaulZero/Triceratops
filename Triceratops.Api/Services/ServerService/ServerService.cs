@@ -40,9 +40,9 @@ namespace Triceratops.Api.Services.ServerService
             return serverViewModels.ToArray();
         }
 
-        public async Task<Server> GetServerByGuidAsync(Guid guid)
+        public async Task<Server> GetServerByIdAsync(Guid guid)
         {
-           return await DbService.Servers.FindByGuidAsync(guid);
+           return await DbService.Servers.FindByIdAsync(guid);
         }
 
         public async Task CreateServerAsync(Server server)

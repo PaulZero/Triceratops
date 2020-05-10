@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Triceratops.Api.Models;
 using Triceratops.Api.Services.DockerService.Models;
 

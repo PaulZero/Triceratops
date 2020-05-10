@@ -1,18 +1,16 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+﻿using System;
 
 namespace Triceratops.Api.Models
 {
     public class Container
     {
-        [BsonId]
-        public ObjectId Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         public string Name { get; set; }
 
         public string DockerId { get; set; }
 
-        public ObjectId ServerId { get; set; }
+        public Guid ServerId { get; set; }
 
         public string ImageName { get; set; }
 

@@ -13,7 +13,7 @@ namespace Triceratops.Api.Services.ServerService
     {
         Task<ServerViewModel[]> GetServerViewListAsync();
 
-        Task<Server> GetServerByGuidAsync(Guid guid);
+        Task<Server> GetServerByIdAsync(Guid guid);
 
         Task CreateServerAsync(Server server);
 
