@@ -6,10 +6,10 @@ EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["../Triceratops.Dashboard/Triceratops.Dashboard.csproj", "../Triceratops.Dashboard/"]
-RUN dotnet restore "../Triceratops.Dashboard/Triceratops.Dashboard.csproj"
+COPY ["Triceratops.Dashboard/Triceratops.Dashboard.csproj", "Triceratops.Dashboard/"]
+RUN dotnet restore "Triceratops.Dashboard/Triceratops.Dashboard.csproj"
 COPY . .
-WORKDIR "/src/../Triceratops.Dashboard"
+WORKDIR "/src/Triceratops.Dashboard"
 RUN dotnet build "Triceratops.Dashboard.csproj" -c Release -o /app/build
 
 FROM build AS publish
