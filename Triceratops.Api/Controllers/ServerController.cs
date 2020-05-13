@@ -1,83 +1,125 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Triceratops.Api.Models.View.Transformers.Interfaces;
 using Triceratops.Api.Services.ServerService;
+using Triceratops.Libraries.Models.View;
 
 namespace Triceratops.Api.Controllers
 {
-    public class ServerController : Controller
+    public class ServerController : AbstractApiController
     {
         protected IServerService Servers { get; }
 
-        public ServerController(IServerService serverService)
+        protected IViewModelTransformer ViewModelTransformer { get; }
+
+        public ServerController(IServerService serverService, IViewModelTransformer viewModelTransformer)
         {
             Servers = serverService;
+            ViewModelTransformer = viewModelTransformer;
         }
 
-        [Route("/servers/list")]
+        [HttpGet("/servers/list")]
         public async Task<IActionResult> ListServers()
         {
-            return Json(await Servers.GetServerViewListAsync());
+            try
+            {
+                var servers = await Servers.GetServerListAsync();
+                var viewModels = await ViewModelTransformer.WrapServersAsync(servers);
+
+                return ViewModel(viewModels);
+
+            }
+            catch (Exception exception)
+            {
+                return Error($"Failed to fetch list of servers: {exception.Message}");
+            }
         }
 
-        [Route("/servers/start/{guid}")]
+        [HttpGet("/servers/{guid}")]
+        public async Task<IActionResult> GetServer(Guid guid)
+        {
+            try
+            {
+                var server = await Servers.GetServerByIdAsync(guid);
+                var viewModel = await ViewModelTransformer.WrapServerAsync(server);
+
+                return ViewModel(viewModel);
+            }
+            catch (Exception exception)
+            {
+                return Error($"Failed to fetch server: {exception.Message}");
+            }
+        }
+
+        [HttpPost("/servers/{guid}/start")]
         public async Task<IActionResult> StartServer(Guid guid)
         {
-            var server = await Servers.GetServerByIdAsync(guid);
-
-            if (server == null)
+            try
             {
-                return Json(new { ok = false, message = "Server does not exist" });
+                var server = await Servers.GetServerByIdAsync(guid);
+
+                await Servers.StartServerAsync(server);
+
+                return Success("Server started successfully");
             }
-
-            await Servers.StartServerAsync(server);
-
-            return Json(new { ok = false, message = "Server started" });
+            catch (Exception exception)
+            {
+                return Error($"Failed to start server: {exception.Message}");
+            }
         }
 
-        [Route("/servers/stop/{guid}")]
+        [HttpPost("/servers/{guid}/stop")]
         public async Task<IActionResult> StopServer(Guid guid)
         {
-            var server = await Servers.GetServerByIdAsync(guid);
-
-            if (server == null)
+            try
             {
-                return Json(new { ok = false, message = "Server does not exist" });
+                var server = await Servers.GetServerByIdAsync(guid);
+
+                await Servers.StopServerAsync(server);
+
+                return Success("Server stopped successfully");
             }
-
-            await Servers.StopServerAsync(server);
-
-            return Json(new { ok = false, message = "Server stopped" });
+            catch (Exception exception)
+            {
+                return Error($"Failed to stop server: {exception.Message}");
+            }
         }
 
-        [Route("/servers/restart/{guid}")]
+        [HttpPost("/servers/{guid}/restart")]
         public async Task<IActionResult> RestartServer(Guid guid)
         {
-            var server = await Servers.GetServerByIdAsync(guid);
-
-            if (server == null)
+            try
             {
-                return Json(new { ok = false, message = "Server does not exist" });
+                var server = await Servers.GetServerByIdAsync(guid);
+
+                await Servers.RestartServerAsync(server);
+
+                return Success("Server restarted successfully");
             }
-
-            await Servers.RestartServerAsync(server);
-
-            return Json(new { ok = false, message = "Server restarted" });
+            catch (Exception exception)
+            {
+                return Error($"Failed to restart server: {exception.Message}");
+            }
         }
 
-        [Route("/servers/delete/{guid}")]
+        [HttpPost("/servers/{guid}/delete")]
         public async Task<IActionResult> DeleteServer(Guid guid)
         {
-            var server = await Servers.GetServerByIdAsync(guid);
-
-            if (server == null)
+            try
             {
-                return Json(new { ok = false, message = "Server does not exist" });
+                var server = await Servers.GetServerByIdAsync(guid);
+
+                await Servers.DeleteServerAsync(server);
+
+                return Success("Server deleted successfully");
             }
-
-            await Servers.DeleteServerAsync(server);
-
-            return Json(new { ok = false, message = "Server deleted" });
+            catch (Exception exception)
+            {
+                return Error($"Failed to delete server: {exception.Message}");
+            }
         }
     }
 }

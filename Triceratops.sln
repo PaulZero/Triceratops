@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Api", "Tricerat
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Dashboard", "Triceratops.Dashboard\Triceratops.Dashboard.csproj", "{8E967A9D-2E7C-471A-84EB-35EA67332B58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triceratops.Libraries", "Triceratops.Libraries\Triceratops.Libraries.csproj", "{587989EC-C910-4380-A1DA-983505C4896E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{587989EC-C910-4380-A1DA-983505C4896E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{587989EC-C910-4380-A1DA-983505C4896E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{587989EC-C910-4380-A1DA-983505C4896E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{587989EC-C910-4380-A1DA-983505C4896E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

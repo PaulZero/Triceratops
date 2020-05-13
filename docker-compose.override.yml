@@ -4,3 +4,6 @@ services:
   triceratops.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+  triceratops.dashboard:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development

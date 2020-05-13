@@ -20,24 +20,9 @@ namespace Triceratops.Api.Services.ServerService
             DockerService = dockerService;
         }
 
-        public async Task<ServerViewModel[]> GetServerViewListAsync()
+        public async Task<Server[]> GetServerListAsync()
         {
-            var servers = await DbService.Servers.FindAllAsync();
-            var serverViewModels = new List<ServerViewModel>();
-
-            foreach (var server in servers)
-            {
-                var viewModel = new ServerViewModel(server);
-
-                foreach (var container in server.Containers)
-                {
-                    viewModel.AddContainer(new ContainerViewModel(container, await DockerService.GetContainerStatusAsync(container)));
-                }
-
-                serverViewModels.Add(viewModel);
-            }
-
-            return serverViewModels.ToArray();
+            return await DbService.Servers.FindAllAsync();
         }
 
         public async Task<Server> GetServerByIdAsync(Guid guid)

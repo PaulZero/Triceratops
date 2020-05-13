@@ -1,11 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Triceratops.Api.Services.ServerService;
-using Newtonsoft.Json;
-using System.Text;
 using Triceratops.Api.Models.Servers.Minecraft;
-using MongoDB.Driver;
-using System.Linq;
 using Triceratops.Api.Services.DockerService;
 
 namespace Triceratops.Api.Controllers
@@ -14,21 +10,14 @@ namespace Triceratops.Api.Controllers
     {
         private IServerService ServerService { get; }
 
-        private IDockerService DockerService { get; }
-
-        public HomeController(IServerService serverService, IDockerService dockerService)
+        public HomeController(IServerService serverService)
         {
             ServerService = serverService;
-            DockerService = dockerService;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            var servers = await ServerService.GetServerViewListAsync();
-
-            var poop = JsonConvert.SerializeObject(servers, Formatting.Indented);
-
-            return Content(poop, "application/json", Encoding.UTF8);
+            return Json(new { Message = "This is the API, you probably want to go to the dashboard."});
         }
 
         [Route("/create-minecraft-server")]
@@ -46,21 +35,6 @@ namespace Triceratops.Api.Controllers
             {
                 ok = true
             });
-        }
-
-        [Route("/start-server")]
-        public async Task<IActionResult> StartServer()
-        {
-            var servers = await ServerService.GetServerViewListAsync();
-
-            if (servers.Any())
-            {
-                //await ServerService.StartServerAsync(servers.First());
-
-                return Json(new { ok = true, message = "A server has been started..." });
-            }
-
-            return Json(new { ok = false, message = "No servers exist..." });
         }
     }
 }

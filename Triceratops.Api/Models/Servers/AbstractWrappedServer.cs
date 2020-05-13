@@ -1,4 +1,5 @@
 ﻿using System;
+using Triceratops.Libraries.Enums;
 
 namespace Triceratops.Api.Models.Servers
 {

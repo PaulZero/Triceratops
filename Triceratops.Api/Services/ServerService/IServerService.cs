@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
-using Triceratops.Api.Models.View;
 
 namespace Triceratops.Api.Services.ServerService
 {
@@ -11,7 +10,7 @@ namespace Triceratops.Api.Services.ServerService
     /// </summary>
     public interface IServerService
     {
-        Task<ServerViewModel[]> GetServerViewListAsync();
+        Task<Server[]> GetServerListAsync();
 
         Task<Server> GetServerByIdAsync(Guid guid);
 

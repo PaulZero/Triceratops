@@ -2,15 +2,25 @@ version: '3.4'
 
 services:
   triceratops.api:
+    hostname: "triceratops.api"
     image: ${DOCKER_REGISTRY-}triceratopsapi
     ports:
-     - "8080:80"
+     - "9090:80"
     restart: always
     build:
       context: .
       dockerfile: Triceratops.Api/Dockerfile
     environment:
       DB_USE_MEMORY: "true"
+  triceratops.dashboard:
+    hostname: "triceratops.dashboard"
+    image: ${DOCKER_REGISTRY-}triceratopsdashboard
+    ports:
+     - "8080:80"
+    restart: always
+    build:
+      context: .
+      dockerfile: Triceratops.Dashboard/Dockerfile
   triceratops.mongo:
     image: "mongo"
     hostname: "triceratops.mongo"

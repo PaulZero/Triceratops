@@ -1,0 +1,24 @@
+﻿@model Triceratops.Libraries.Models.View.ServerViewModel[]
+@using Triceratops.Dashboard.Controllers
+@using Triceratops.Dashboard.Views;
+
+@{
+    ViewData["Title"] = "Servers";
+}
+
+<div class="text-center">
+    <h1>Servers</h1>
+
+    @foreach (var server in Model)
+    {
+        <h2>@server.Name (@server.ServerType)</h2>
+        <p>
+            @{ 
+                var serverRouteValues = new { guid = server.ServerId };
+            }
+            @Html.ConditionalRouteLink(!server.AllRunning, "Start", "StartServer", serverRouteValues) |
+            @Html.ConditionalRouteLink(server.AllRunning, "Stop", "StopServer", serverRouteValues) |
+            @Html.ConditionalRouteLink(server.AllRunning, "Restart", "RestartServer", serverRouteValues)
+        </p>
+    }
+</div>

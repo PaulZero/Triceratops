@@ -1,4 +1,4 @@
-﻿namespace Triceratops.Api.Models.Servers
+﻿namespace Triceratops.Libraries.Enums
 {
     public enum ServerType
     {
