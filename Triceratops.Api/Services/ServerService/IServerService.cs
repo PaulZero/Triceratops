@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
@@ -17,7 +18,7 @@ namespace Triceratops.Api.Services.ServerService
 
         Task<Server> CreateServerFromConfigurationAsync(AbstractServerConfiguration configuration);
 
-        Task CreateServerAsync(Server server);
+        Task CreateServerAsync(Server server, List<string> commands = null);
 
         Task StartServerAsync(Server server);
 

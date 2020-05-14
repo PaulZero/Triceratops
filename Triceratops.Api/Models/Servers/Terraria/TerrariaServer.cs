@@ -10,9 +10,9 @@ namespace Triceratops.Api.Models.Servers.Terraria
 {
     public class TerrariaServer : AbstractWrappedServer<TerrariaConfiguration>
     {
-        protected const string DockerImageName = "ryshe/terraria";
+        protected const string DockerImageName = "triceratops_terraria";
 
-        protected const string DockerImageTag = "latest";
+        protected const string DockerImageTag = "1.0";
 
         public TerrariaServer(Server serverEntity) : base(serverEntity)
         {
@@ -47,7 +47,10 @@ namespace Triceratops.Api.Models.Servers.Terraria
                 }
             });
 
-            await serverService.CreateServerAsync(server);
+            await serverService.CreateServerAsync(server, new List<string>
+            {
+                "n"
+            });
 
             return new TerrariaServer(server);
         }

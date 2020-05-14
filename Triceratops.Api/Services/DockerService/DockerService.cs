@@ -1,9 +1,14 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
+using ICSharpCode.SharpZipLib.Tar;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
 using Triceratops.Api.Services.DockerService.Models;
@@ -14,18 +19,64 @@ namespace Triceratops.Api.Services.DockerService
     {
         private const string ContainerNamePrefix = "TRICERATOPS_";
 
-        private readonly DockerClient _dockerClient;
-
-        public DockerService() : this(CreateDockerClient())
+        public DockerService()
         {
+            Task.WaitAll(Prepare());
         }
 
-        public DockerService(DockerClient client)
+        public async Task Prepare()
         {
-            _dockerClient = client;
+            var dockerDirectories = Directory.GetDirectories("Dockerfiles");
+
+            foreach (var directory in dockerDirectories)
+            {
+                var files = Directory.GetFiles(directory).Select(f => new FileInfo(f));
+                var imageConfigFile = files.FirstOrDefault(f => f.Name == "ImageConfig.json");
+                var dockerFile = files.FirstOrDefault(f => f.Name == "Dockerfile");
+
+                if (imageConfigFile == null || dockerFile == null)
+                {
+                    continue;
+                }
+
+                var imageConfig = JsonConvert.DeserializeObject<ImageConfig>(File.ReadAllText(imageConfigFile.FullName));
+
+                await BuildDockerImage(dockerFile, imageConfig);
+            }
         }
 
-        public async Task<bool> CreateContainerAsync(Container container)
+        private async Task BuildDockerImage(FileInfo dockerFile, ImageConfig imageConfig)
+        {
+            using var tarball = new MemoryStream();
+            using var archive = new TarOutputStream(tarball)
+            {
+                IsStreamOwner = false
+            };
+
+            var entry = TarEntry.CreateTarEntry(dockerFile.Name);
+            var fileStream = File.OpenRead(dockerFile.FullName);
+            entry.Size = fileStream.Length;
+            archive.PutNextEntry(entry);
+
+            await fileStream.CopyToAsync(archive);
+
+            archive.CloseEntry();
+            archive.Close();
+
+            tarball.Position = 0;
+
+            using var dockerClient = CreateDockerClient();
+
+            await dockerClient.Images.BuildImageFromDockerfileAsync(tarball, new ImageBuildParameters
+            {
+                Tags = new List<string>
+                {
+                    imageConfig.Tag
+                }
+            });
+        }
+
+        public async Task<bool> CreateContainerAsync(Container container, List<string> commands = null)
         {
             try
             {
@@ -51,7 +102,8 @@ namespace Triceratops.Api.Services.DockerService
         {
             try
             {
-                var response = await _dockerClient.Containers.InspectContainerAsync(container.DockerId);
+                using var dockerClient = CreateDockerClient();
+                var response = await dockerClient.Containers.InspectContainerAsync(container.DockerId);
 
                 return new ContainerDetails(response);
             }
@@ -75,12 +127,36 @@ namespace Triceratops.Api.Services.DockerService
         {
             await DownloadImageAsync(imageName, imageVersion);
 
-            var response = await _dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters
+            var exposedPorts = new Dictionary<string, EmptyStruct>();
+            var portBindings = new Dictionary<string, IList<PortBinding>>();
+
+            foreach (var portBinding in serverPorts)
             {
-                Image = imageName,
+                var containerPort = portBinding.ContainerPort.ToString();
+                var hostPort = portBinding.HostPort.ToString();
+
+                exposedPorts.Add(containerPort, new EmptyStruct());
+                portBindings.Add(containerPort, new List<PortBinding>
+                {
+                    new PortBinding
+                    {
+                        HostIP = "0.0.0.0",
+                        HostPort = hostPort
+                    }
+                });
+            }
+            using var dockerClient = CreateDockerClient();
+
+            var response = await dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters
+            {
+                Image = $"{imageName}:{imageVersion}",
                 Name = containerName,
                 Env = env?.ToList(),
-                ExposedPorts = serverPorts.ToDictionary(p => p.HostPort.ToString(), p => new EmptyStruct())
+                ExposedPorts = exposedPorts,
+                HostConfig = new HostConfig
+                {
+                    PortBindings = portBindings
+                }
             });
 
             if (response.Warnings.Any())
@@ -97,7 +173,9 @@ namespace Triceratops.Api.Services.DockerService
         {
             try
             {
-                await _dockerClient.Containers.StopContainerAsync(containerId, new ContainerStopParameters());
+                using var dockerClient = CreateDockerClient();
+
+                await dockerClient.Containers.StopContainerAsync(containerId, new ContainerStopParameters());
             }
             catch (Exception exception)
             {
@@ -109,7 +187,9 @@ namespace Triceratops.Api.Services.DockerService
         {
             try
             {
-                await _dockerClient.Containers.RemoveContainerAsync(containerId, new ContainerRemoveParameters
+                using var dockerClient = CreateDockerClient();
+
+                await dockerClient.Containers.RemoveContainerAsync(containerId, new ContainerRemoveParameters
                 {
                     Force = force
                 });
@@ -124,7 +204,9 @@ namespace Triceratops.Api.Services.DockerService
         {
             try
             {
-                await _dockerClient.Containers.StartContainerAsync(containerId, new ContainerStartParameters());
+                using var dockerClient = CreateDockerClient();
+
+                await dockerClient.Containers.StartContainerAsync(containerId, new ContainerStartParameters());
             }
             catch (Exception exception)
             {
@@ -136,7 +218,14 @@ namespace Triceratops.Api.Services.DockerService
         {
             try
             {
-                await _dockerClient.Images.CreateImageAsync(
+                if (imageName.StartsWith("triceratops_"))
+                {
+                    return;
+                }
+
+                using var dockerClient = CreateDockerClient();
+
+                await dockerClient.Images.CreateImageAsync(
                     new ImagesCreateParameters
                     {
                         FromImage = imageName,

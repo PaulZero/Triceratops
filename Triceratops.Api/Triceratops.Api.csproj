@@ -17,10 +17,23 @@
     <PackageReference Include="Docker.DotNet" Version="3.125.2" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.10" />
     <PackageReference Include="MongoDB.Driver" Version="2.10.4" />
+    <PackageReference Include="SharpZipLib" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Triceratops.Libraries\Triceratops.Libraries.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Dockerfiles\Terraria\ImageConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Dockerfiles\Terraria\Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 

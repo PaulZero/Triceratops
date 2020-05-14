@@ -37,11 +37,11 @@ namespace Triceratops.Api.Services.ServerService
            return await DbService.Servers.FindByIdAsync(guid);
         }
 
-        public async Task CreateServerAsync(Server server)
+        public async Task CreateServerAsync(Server server, List<string> commands = null)
         {
             foreach (var container in server.Containers)
             {
-                if (await DockerService.CreateContainerAsync(container))
+                if (await DockerService.CreateContainerAsync(container, commands))
                 {
                     await DbService.Containers.SaveAsync(container);
                 } 
