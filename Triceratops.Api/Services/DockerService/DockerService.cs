@@ -40,7 +40,7 @@ namespace Triceratops.Api.Services.DockerService
                 container.DockerId = id;
 
                 return true;
-            } 
+            }
             catch
             {
                 return false;
@@ -154,7 +154,9 @@ namespace Triceratops.Api.Services.DockerService
 
         private static DockerClient CreateDockerClient()
         {
-            return new DockerClientConfiguration(new Uri("tcp://host.docker.internal:2375"))
+            var apiUri = Environment.GetEnvironmentVariable("DOCKER_API_URI") ?? "tcp://host.docker.internal:2375";
+
+            return new DockerClientConfiguration(new Uri(apiUri))
                 .CreateClient();
         }
     }
