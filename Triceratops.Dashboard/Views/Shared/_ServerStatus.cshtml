@@ -1,0 +1,24 @@
+﻿@using Triceratops.Dashboard.Views
+@model Triceratops.Libraries.Models.View.ServerViewModel
+
+<h3>@Model.Name (@Model.ServerType)</h3>
+<p>
+    @{
+        var serverRouteValues = new Dictionary<string, string> { ["guid"] = Model.ServerId };
+    }
+
+    <div class="btn-group" role="group">
+        @if (!Model.AllRunning)
+        {
+            <a class="btn btn-sm btn-success" asp-route="StartServer" asp-all-route-data="serverRouteValues">Start</a>
+            <span class="btn btn-sm btn-light disabled">Stop</span>
+            <span class="btn btn-sm btn-light disabled">Restart</span>
+        }
+        else
+        {
+            <span class="btn btn-sm btn-light disabled">Start</span>
+            <a class="btn btn-sm btn-danger" asp-route="StopServer" asp-all-route-data="serverRouteValues">Stop</a>
+            <a class="btn btn-sm btn-warning" asp-route="RestartServer" asp-all-route-data="serverRouteValues">Restart</a>
+        }
+    </div>
+</p>
