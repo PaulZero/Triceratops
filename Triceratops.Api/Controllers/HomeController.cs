@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Triceratops.Api.Services.ServerService;
 using Triceratops.Api.Models.Servers.Minecraft;
 using Triceratops.Api.Services.DockerService;
+using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
 
 namespace Triceratops.Api.Controllers
 {

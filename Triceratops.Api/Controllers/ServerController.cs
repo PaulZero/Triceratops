@@ -1,10 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Triceratops.Api.Models.View.Transformers.Interfaces;
 using Triceratops.Api.Services.ServerService;
+using Triceratops.Libraries.Models.Api.Request;
+using Triceratops.Libraries.Models.ServerConfiguration;
+using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
+using Triceratops.Libraries.Models.ServerConfiguration.Terraria;
 using Triceratops.Libraries.Models.View;
 
 namespace Triceratops.Api.Controllers
@@ -102,6 +107,38 @@ namespace Triceratops.Api.Controllers
             catch (Exception exception)
             {
                 return Error($"Failed to restart server: {exception.Message}");
+            }
+        }
+
+        [HttpPost("/servers/create")]
+        public async Task<IActionResult> CreateServer([FromBody]CreateServerRequest request)
+        {
+            try
+            {
+                AbstractServerConfiguration configuration = null;
+
+                if (request.ConfigurationType == typeof(MinecraftConfiguration))
+                {
+                    configuration = JsonConvert.DeserializeObject<MinecraftConfiguration>(request.JsonConfiguration);                    
+                }
+                else if (request.ConfigurationType == typeof(TerrariaConfiguration))
+                {
+                    configuration = JsonConvert.DeserializeObject<TerrariaConfiguration>(request.JsonConfiguration);
+                }
+
+                if (configuration != null)
+                {
+                    var server = await Servers.CreateServerFromConfigurationAsync(configuration);
+                    var viewModel = await ViewModelTransformer.WrapServerAsync(server);
+
+                    return ViewModel(viewModel);
+                }
+
+                return Error($"Unsupported configuration: {request.ConfigurationTypeName}");
+            }
+            catch (Exception exception)
+            {
+                return Error($"Failed to create new server: {exception.Message}");
             }
         }
 

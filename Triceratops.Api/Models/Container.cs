@@ -16,7 +16,7 @@ namespace Triceratops.Api.Models
 
         public string ImageVersion { get; set; }
 
-        public ushort Port { get; set; }
+        public ServerPorts[] ServerPorts { get; set; }
 
         public string[] Arguments { get; set; }
     }

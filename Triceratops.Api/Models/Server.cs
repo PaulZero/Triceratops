@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Models.ServerConfiguration;
 
 namespace Triceratops.Api.Models
 {
@@ -19,12 +20,12 @@ namespace Triceratops.Api.Models
         [JsonIgnore]
         public Type ConfigurationType
         {
-            get => Type.GetType(ConfigurationTypeName);
+            get => typeof(AbstractServerConfiguration).Assembly.GetType(ConfigurationTypeName);
             set => ConfigurationTypeName = value.FullName;
         }
         public List<Container> Containers { get; set; } = new List<Container>();
 
-        public ushort[] Ports => Containers.Select(c => c.Port).ToArray();
+        public ushort[] HostPorts => Containers.SelectMany(c => c.ServerPorts.Select(b => b.HostPort)).ToArray();
 
         public object DeserialiseConfiguration()
         {

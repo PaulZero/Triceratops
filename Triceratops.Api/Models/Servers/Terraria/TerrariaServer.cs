@@ -1,26 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.ServerService;
 using Triceratops.Libraries.Enums;
-using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
+using Triceratops.Libraries.Models.ServerConfiguration.Terraria;
 
-namespace Triceratops.Api.Models.Servers.Minecraft
+namespace Triceratops.Api.Models.Servers.Terraria
 {
-    public class MinecraftServer : AbstractWrappedServer<MinecraftConfiguration>
+    public class TerrariaServer : AbstractWrappedServer<TerrariaConfiguration>
     {
-        protected const string DockerImageName = "itzg/minecraft-server";
+        protected const string DockerImageName = "ryshe/terraria";
 
         protected const string DockerImageTag = "latest";
 
-        public MinecraftServer(Server server) : base(server)
+        public TerrariaServer(Server serverEntity) : base(serverEntity)
         {
         }
 
-        public static async Task<MinecraftServer> CreateAsync(MinecraftConfiguration configuration, IServerService serverService)
+        public static async Task<TerrariaServer> CreateAsync(TerrariaConfiguration configuration, IServerService serverService)
         {
             if (!configuration.IsValid())
             {
-                throw new Exception("Cannot create a new Minecraft server from an invalid config");
+                throw new Exception("Cannot create a new Terraria server from an invalid config");
             }
 
             var server = new Server
@@ -32,26 +34,22 @@ namespace Triceratops.Api.Models.Servers.Minecraft
 
             server.Containers.Add(new Container
             {
-                Name = server.Name,
+                Name = configuration.ServerName,
                 ImageName = DockerImageName,
                 ImageVersion = DockerImageTag,
                 ServerPorts = new[]
                 {
                     new ServerPorts
                     {
-                        ContainerPort = configuration.ContainerPort,   
+                        ContainerPort = configuration.ContainerPort,
                         HostPort = configuration.HostPort
                     }
-                },
-                Arguments = new[]
-                {
-                    "EULA=TRUE"
                 }
             });
 
             await serverService.CreateServerAsync(server);
 
-            return new MinecraftServer(server);
+            return new TerrariaServer(server);
         }
     }
 }

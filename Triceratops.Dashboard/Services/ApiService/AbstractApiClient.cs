@@ -27,24 +27,35 @@ namespace Triceratops.Dashboard.Services.ApiService
             return SendRequestAsync<T>(relativeUrl, "GET");
         }
 
-        public Task<ApiResponse> PostAsync(string relativeUrl)
+        public Task<ApiResponse> PostAsync(string relativeUrl, object model = null)
         {
-            return PostAsync<ApiResponse>(relativeUrl);
+            return PostAsync<ApiResponse>(relativeUrl, model);
         }
 
-        public Task<T> PostAsync<T>(string relativeUrl)
+        public Task<T> PostAsync<T>(string relativeUrl, object model = null)
             where T : class, new()
         {
-            return SendRequestAsync<T>(relativeUrl, "POST");
+            return SendRequestAsync<T>(relativeUrl, "POST", model);
         }
 
-        private async Task<T> SendRequestAsync<T>(string relativeUrl, string method)
+        private async Task<T> SendRequestAsync<T>(string relativeUrl, string method, object model = null)
             where T : class, new()
         {
             try
             {
                 var request = WebRequest.CreateHttp($"{_baseUrl}{relativeUrl}");
                 request.Method = method;
+
+                if (model != null && method == "POST")
+                {
+                    request.ContentType = "application/json";
+
+                    using (var writer = new StreamWriter(await request.GetRequestStreamAsync()))
+                    {
+                        var json = JsonConvert.SerializeObject(model);
+                        await writer.WriteAsync(json);
+                    }
+                }
 
                 using (var response = await request.GetResponseAsync())                
                 {

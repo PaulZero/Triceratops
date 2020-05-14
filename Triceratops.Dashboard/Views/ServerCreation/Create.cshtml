@@ -1,0 +1,38 @@
+﻿@model Triceratops.Libraries.Models.ServerConfiguration.AbstractServerConfiguration
+@{
+    ViewData["Title"] = $"Create {Model.ServerType} Server";
+}
+
+<h1>Create @Model.ServerType Server</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-route="Server_Save">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            @foreach (var kvp in Model.GetEditableFields())
+            {
+                <h2>@kvp.Key</h2>
+
+                @foreach (var property in kvp.Value)
+                {
+                    <div class="form-group">
+                        <div>@Html.Label(property)</div>
+                        <div>@Html.TextBox(property)</div>
+                        <div class="text-danger">@Html.ValidationMessage(property)</div>
+                    </div>
+                }
+            }
+
+            @Html.HiddenFor(c => c.ServerType)
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

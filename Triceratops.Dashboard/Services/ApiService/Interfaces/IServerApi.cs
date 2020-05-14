@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Triceratops.Libraries.Models.ServerConfiguration;
 using Triceratops.Libraries.Models.View;
 
 namespace Triceratops.Dashboard.Services.ApiService.Interfaces
@@ -9,6 +10,8 @@ namespace Triceratops.Dashboard.Services.ApiService.Interfaces
         Task<ServerViewModel[]> GetServerListAsync();
 
         Task<ServerViewModel> GetServerByIdAsync(Guid guid);
+
+        Task<ServerViewModel> CreateServerAsync(AbstractServerConfiguration configuration);
 
         Task<bool> StartServerAsync(Guid guid);
 

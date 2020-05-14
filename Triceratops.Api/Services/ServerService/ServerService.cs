@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
+using Triceratops.Api.Models.Servers;
+using Triceratops.Api.Models.Servers.Minecraft;
+using Triceratops.Api.Models.Servers.Terraria;
 using Triceratops.Api.Models.View;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
+using Triceratops.Libraries.Models.ServerConfiguration;
+using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
+using Triceratops.Libraries.Models.ServerConfiguration.Terraria;
 
 namespace Triceratops.Api.Services.ServerService
 {
@@ -106,6 +113,42 @@ namespace Triceratops.Api.Services.ServerService
             foreach (var container in containers)
             {
                 await DockerService.StopContainerAsync(container.DockerId);
+            }
+        }
+
+        public async Task<Server> CreateServerFromConfigurationAsync(AbstractServerConfiguration configuration)
+        {
+            await ValidateNewServerConfiguration(configuration);
+
+            if (configuration is MinecraftConfiguration minecraftConfiguration)
+            {
+                var wrappedServer = await MinecraftServer.CreateAsync(minecraftConfiguration, this);
+
+                return wrappedServer.ServerEntity;
+            }
+
+            if (configuration is TerrariaConfiguration terrariaConfiguration)
+            {
+                var wrappedServer = await TerrariaServer.CreateAsync(terrariaConfiguration, this);
+
+                return wrappedServer.ServerEntity;
+            }
+
+            throw new Exception($"Unrecognised server configuration: {configuration.GetType().Name}");
+        }
+
+        private async Task ValidateNewServerConfiguration(AbstractServerConfiguration configuration)
+        {
+            var existingServers = await GetServerListAsync();
+
+            if (existingServers.Any(s => s.HostPorts.Contains(configuration.HostPort)))
+            {
+                throw new Exception($"Server with port {configuration.HostPort} already exists.");
+            }
+            
+            if (existingServers.Any(s => s.Name == configuration.ServerName))
+            {
+                throw new Exception($"Server with name {configuration.ServerName} already exists.");
             }
         }
     }

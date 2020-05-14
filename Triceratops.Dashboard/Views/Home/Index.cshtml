@@ -1,6 +1,6 @@
 ﻿@model Triceratops.Libraries.Models.View.ServerViewModel[]
-@using Triceratops.Dashboard.Controllers
-@using Triceratops.Dashboard.Views;
+@using Triceratops.Dashboard.Views
+@using Triceratops.Libraries.Helpers
 
 @{
     ViewData["Title"] = "Servers";
@@ -9,9 +9,18 @@
 <div class="text-center">
     <h1>Servers</h1>
 
+    <h2>Create New Server</h2>
+
+    @foreach (var serverType in ServerTypeHelper.AllowedServerTypes)
+    {
+        <p>@Html.RouteLink(serverType.ToString(), "Server_Create", new { serverType })</p>
+    }
+
+    <h2>Existing Servers</h2>
+
     @foreach (var server in Model)
     {
-        <h2>@server.Name (@server.ServerType)</h2>
+        <h3>@server.Name (@server.ServerType)</h3>
         <p>
             @{ 
                 var serverRouteValues = new { guid = server.ServerId };

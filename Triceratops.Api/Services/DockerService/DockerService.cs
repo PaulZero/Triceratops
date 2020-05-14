@@ -33,7 +33,7 @@ namespace Triceratops.Api.Services.DockerService
                     container.ImageName,
                     container.ImageVersion,
                     $"{ContainerNamePrefix}{container.Name}",
-                    container.Port,
+                    container.ServerPorts,
                     container.Arguments
                 );
 
@@ -69,7 +69,7 @@ namespace Triceratops.Api.Services.DockerService
             string imageName,
             string imageVersion,
             string containerName,
-            ushort port,
+            IEnumerable<ServerPorts> serverPorts,
             IEnumerable<string> env = default
         )
         {
@@ -80,10 +80,7 @@ namespace Triceratops.Api.Services.DockerService
                 Image = imageName,
                 Name = containerName,
                 Env = env?.ToList(),
-                ExposedPorts = new Dictionary<string, EmptyStruct>
-                {
-                    [port.ToString()] = new EmptyStruct()
-                }
+                ExposedPorts = serverPorts.ToDictionary(p => p.HostPort.ToString(), p => new EmptyStruct())
             });
 
             if (response.Warnings.Any())

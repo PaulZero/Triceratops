@@ -25,6 +25,7 @@ namespace Triceratops.Dashboard.Controllers
             _logger = logger;
         }
 
+        [HttpGet("/", Name = "Home")]
         public async Task<IActionResult> Index()
         {
             var servers = await _apiService.Servers.GetServerListAsync();

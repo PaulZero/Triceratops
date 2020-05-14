@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.Dashboard.Services.ApiService.Interfaces;
+using Triceratops.Libraries.Models.Api.Request;
+using Triceratops.Libraries.Models.ServerConfiguration;
 using Triceratops.Libraries.Models.View;
 
 namespace Triceratops.Dashboard.Services.ApiService
@@ -44,6 +46,13 @@ namespace Triceratops.Dashboard.Services.ApiService
             var response = await PostAsync($"/servers/{guid}/restart");
 
             return response.Success;
+        }
+
+        public Task<ServerViewModel> CreateServerAsync(AbstractServerConfiguration configuration)
+        {
+            var request = new CreateServerRequest(configuration);
+
+            return PostAsync<ServerViewModel>($"/servers/create", request);
         }
     }
 }

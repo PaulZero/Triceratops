@@ -34,7 +34,7 @@ namespace Triceratops.Api.Services.DbService.Mongo
                 s.MapIdField(s => s.Id);
                 s.UnmapProperty(s => s.Containers);
                 s.UnmapProperty(s => s.ConfigurationType);
-                s.UnmapProperty(s => s.Ports);
+                s.UnmapProperty(s => s.HostPorts);
             });
 
             BsonClassMap.RegisterClassMap<Container>(s =>

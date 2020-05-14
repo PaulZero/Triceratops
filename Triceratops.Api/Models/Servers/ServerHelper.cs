@@ -1,6 +1,7 @@
 ﻿using System;
-using Triceratops.Api.Models.Servers.Minecraft;
 using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Models.ServerConfiguration;
+using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
 
 namespace Triceratops.Api.Models.Servers
 {
@@ -10,7 +11,7 @@ namespace Triceratops.Api.Models.Servers
         {
             if (!typeof(AbstractServerConfiguration).IsAssignableFrom(configurationType))
             {
-                throw new Exception($"Invalid type specified - must be subclass of {nameof(AbstractServerConfiguration)}");
+                throw new Exception($"Invalid type specified - {configurationType.Name} must be subclass of {nameof(AbstractServerConfiguration)}");
             }
 
             if (configurationType == typeof(MinecraftConfiguration))

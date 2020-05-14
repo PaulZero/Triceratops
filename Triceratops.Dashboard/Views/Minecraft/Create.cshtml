@@ -1,0 +1,48 @@
+﻿@model Triceratops.Libraries.Models.ServerConfiguration.Minecraft.MinecraftConfiguration
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>MinecraftConfiguration</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-route="Minecraft_Save_Form">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ServerName" class="control-label"></label>
+                <input asp-for="ServerName" class="form-control" />
+                <span asp-validation-for="ServerName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxPlayers" class="control-label"></label>
+                <input asp-for="MaxPlayers" class="form-control" />
+                <span asp-validation-for="MaxPlayers" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HostPort" class="control-label"></label>
+                <input asp-for="HostPort" class="form-control" />
+                <span asp-validation-for="HostPort" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RconHostPort" class="control-label"></label>
+                <input asp-for="RconHostPort" class="form-control" />
+                <span asp-validation-for="RconHostPort" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

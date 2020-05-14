@@ -1,14 +1,15 @@
 ﻿using System;
 using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Models.ServerConfiguration;
 
 namespace Triceratops.Api.Models.Servers
 {
     public abstract class AbstractWrappedServer<TConfig>
         where TConfig : AbstractServerConfiguration
     {
-        public abstract ServerType ServerType { get; }
+        public ServerType ServerType => ServerConfiguration.ServerType;
 
-        protected Server ServerEntity { get; }
+        public Server ServerEntity { get; private set; }
 
         protected TConfig ServerConfiguration { get; }
 

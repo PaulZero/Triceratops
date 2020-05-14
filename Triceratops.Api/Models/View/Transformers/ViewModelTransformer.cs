@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Triceratops.Api.Models.Servers;
 using Triceratops.Api.Models.View.Transformers.Interfaces;
 using Triceratops.Api.Services.DockerService;
+using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Models.View;
 
 namespace Triceratops.Api.Models.View.Transformers
@@ -11,8 +12,6 @@ namespace Triceratops.Api.Models.View.Transformers
     public class ViewModelTransformer : IViewModelTransformer
     {
         private readonly IDockerService _dockerService;
-
-        private readonly ServerHelper _serverHelper = new ServerHelper();
 
         public ViewModelTransformer(IDockerService dockerService)
         {
@@ -46,7 +45,7 @@ namespace Triceratops.Api.Models.View.Transformers
             {
                 Name = server.Name,
                 ServerId = server.Id.ToString(),
-                ServerType = _serverHelper.GetServerTypeForConfigurationType(server.ConfigurationType),
+                ServerType = ServerTypeHelper.GetServerTypeForConfiguration(server.ConfigurationType),
                 Containers = containers
             };
         }
