@@ -1,0 +1,9 @@
+version: '3.4'
+
+services:
+  triceratops.api:
+    user: root
+    volumes:
+      - //var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOCKER_API_URI=unix:///var/run/docker.sock
