@@ -26,6 +26,8 @@ namespace Triceratops.Api.Services.DockerService
 
         public async Task Prepare()
         {
+            Directory.CreateDirectory("Dockerfiles");
+
             var dockerDirectories = Directory.GetDirectories("Dockerfiles");
 
             foreach (var directory in dockerDirectories)
