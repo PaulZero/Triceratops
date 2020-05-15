@@ -5,18 +5,20 @@ services:
     hostname: "triceratops.api"
     image: ${DOCKER_REGISTRY-}triceratopsapi
     ports:
-     - "9090:80"
+      - "9090:80"
     restart: always
     build:
       context: .
       dockerfile: Triceratops.Api/Dockerfile
     environment:
       DB_USE_MEMORY: "true"
+    volumes:
+      - gamedata:/app/gamedata
   triceratops.dashboard:
     hostname: "triceratops.dashboard"
     image: ${DOCKER_REGISTRY-}triceratopsdashboard
     ports:
-     - "8080:80"
+      - "8080:80"
     restart: always
     build:
       context: .
@@ -25,8 +27,12 @@ services:
     image: "mongo"
     hostname: "triceratops.mongo"
     ports:
-     - "27017:27017"
+      - "27017:27017"
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
+
+volumes:
+  gamedata:
+    name: triceratops.volumes.gamedata

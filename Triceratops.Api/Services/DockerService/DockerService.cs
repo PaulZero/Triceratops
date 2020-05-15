@@ -19,6 +19,8 @@ namespace Triceratops.Api.Services.DockerService
     {
         private const string ContainerNamePrefix = "TRICERATOPS_";
 
+        private string _gameDataMountPoint;
+
         public DockerService()
         {
             Task.WaitAll(Prepare());
@@ -26,6 +28,12 @@ namespace Triceratops.Api.Services.DockerService
 
         public async Task Prepare()
         {
+            using var client = CreateDockerClient();
+
+            var volume = await client.Volumes.InspectAsync("triceratops.volumes.gamedata");
+
+            _gameDataMountPoint = volume.Mountpoint;
+
             var dockerDirectories = Directory.GetDirectories("Dockerfiles");
 
             foreach (var directory in dockerDirectories)
@@ -83,7 +91,8 @@ namespace Triceratops.Api.Services.DockerService
                 var id = await CreateContainerAsync(
                     container.ImageName,
                     container.ImageVersion,
-                    $"{ContainerNamePrefix}{container.Name}",
+                    container.Name,
+                    container.MountVolumes,
                     container.ServerPorts,
                     container.Arguments
                 );
@@ -121,6 +130,7 @@ namespace Triceratops.Api.Services.DockerService
             string imageName,
             string imageVersion,
             string containerName,
+            IEnumerable<ServerMount> mounts,
             IEnumerable<ServerPorts> serverPorts,
             IEnumerable<string> env = default
         )
@@ -145,18 +155,35 @@ namespace Triceratops.Api.Services.DockerService
                     }
                 });
             }
+
             using var dockerClient = CreateDockerClient();
+
+            var containerDirectory = Directory.CreateDirectory($"/app/gamedata/{containerName}");
+            
+            foreach (var mount in mounts)
+            {
+                containerDirectory.CreateSubdirectory(mount.HostDirectory);
+            }
 
             var response = await dockerClient.Containers.CreateContainerAsync(new CreateContainerParameters
             {
                 Image = $"{imageName}:{imageVersion}",
-                Name = containerName,
+                Name = $"{ContainerNamePrefix}{containerName}",
                 Env = env?.ToList(),
                 ExposedPorts = exposedPorts,
                 HostConfig = new HostConfig
                 {
-                    PortBindings = portBindings
-                }
+                    PortBindings = portBindings,
+                    Mounts = mounts.Select(m =>
+                    {
+                        return new Mount
+                        {
+                            Source = $"{_gameDataMountPoint}/{containerName}/{m.HostDirectory}",
+                            Target = m.ContainerDirectory,
+                            Type = "bind"
+                        };
+                    }).ToList()
+                },
             });
 
             if (response.Warnings.Any())
@@ -193,6 +220,8 @@ namespace Triceratops.Api.Services.DockerService
                 {
                     Force = force
                 });
+
+                // TODO: Clean up the files in gamedata!
             }
             catch (Exception exception)
             {

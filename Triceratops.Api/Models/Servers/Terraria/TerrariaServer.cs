@@ -44,13 +44,23 @@ namespace Triceratops.Api.Models.Servers.Terraria
                         ContainerPort = configuration.ContainerPort,
                         HostPort = configuration.HostPort
                     }
+                },
+                MountVolumes = new[]
+                {
+                    new ServerMount
+                    {
+                        HostDirectory = "world",
+                        ContainerDirectory = "/world"
+                    },
+                    new ServerMount
+                    {
+                        HostDirectory = "tshock-plugins",
+                        ContainerDirectory = "/tshock/ServerPlugins"
+                    }
                 }
             });
 
-            await serverService.CreateServerAsync(server, new List<string>
-            {
-                "n"
-            });
+            await serverService.CreateServerAsync(server);
 
             return new TerrariaServer(server);
         }

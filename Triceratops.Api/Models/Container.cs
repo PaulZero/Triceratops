@@ -18,6 +18,8 @@ namespace Triceratops.Api.Models
 
         public ServerPorts[] ServerPorts { get; set; }
 
+        public ServerMount[] MountVolumes { get; set; }
+
         public string[] Arguments { get; set; }
     }
 }

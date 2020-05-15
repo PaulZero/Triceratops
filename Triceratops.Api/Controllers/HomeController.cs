@@ -4,38 +4,44 @@ using Triceratops.Api.Services.ServerService;
 using Triceratops.Api.Models.Servers.Minecraft;
 using Triceratops.Api.Services.DockerService;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
+using System.IO;
+using System.Text;
 
 namespace Triceratops.Api.Controllers
 {
     public class HomeController : Controller
     {
-        private IServerService ServerService { get; }
-
-        public HomeController(IServerService serverService)
-        {
-            ServerService = serverService;
-        }
-
         public IActionResult Index()
         {
             return Json(new { Message = "This is the API, you probably want to go to the dashboard."});
         }
 
-        [Route("/create-minecraft-server")]
-        public async Task<IActionResult> CreateMinecraftServer()
+        [Route("/volume")]
+        public IActionResult Volume()
         {
-            var config = new MinecraftConfiguration
-            {
-                ServerName = "Steve",
-                MaxPlayers = 16
-            };
+            var directory = new DirectoryInfo("/app/gamedata");
+            var stringBuilder = new StringBuilder();
 
-            var server = await MinecraftServer.CreateAsync(config, ServerService);
+            CreateDirectoryMap(directory, stringBuilder);
 
-            return Json(new
+            return Content(stringBuilder.ToString());
+        }
+
+        private void CreateDirectoryMap(DirectoryInfo directoryInfo, StringBuilder stringBuilder, int depth = 1)
+        {
+            var indent = new string(' ', depth * 2);
+
+            stringBuilder.AppendLine($"{indent}{directoryInfo.Name}");
+
+            foreach (var directory in directoryInfo.GetDirectories())
             {
-                ok = true
-            });
+                CreateDirectoryMap(directory, stringBuilder, depth + 1);
+            }
+
+            foreach (var file in directoryInfo.GetFiles())
+            {
+                stringBuilder.AppendLine($"{indent} - {file.Name}");
+            }
         }
     }
 }
