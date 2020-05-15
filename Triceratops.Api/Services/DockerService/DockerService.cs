@@ -34,8 +34,6 @@ namespace Triceratops.Api.Services.DockerService
 
             _gameDataMountPoint = volume.Mountpoint;
 
-            Directory.CreateDirectory("Dockerfiles");
-
             var dockerDirectories = Directory.GetDirectories("Dockerfiles");
 
             foreach (var directory in dockerDirectories)
@@ -161,7 +159,7 @@ namespace Triceratops.Api.Services.DockerService
             using var dockerClient = CreateDockerClient();
 
             var containerDirectory = Directory.CreateDirectory($"/app/gamedata/{containerName}");
-            
+
             foreach (var mount in mounts)
             {
                 containerDirectory.CreateSubdirectory(mount.HostDirectory);
