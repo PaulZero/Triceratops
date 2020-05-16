@@ -141,7 +141,7 @@ namespace Triceratops.Api.Services.DockerService
             var portBindings = new Dictionary<string, IList<PortBinding>>();
 
             if (mounts == null) {
-                mounts = new List<ServerMount>(0);
+                mounts = new ServerMount[0];
             }
 
             foreach (var portBinding in serverPorts)
