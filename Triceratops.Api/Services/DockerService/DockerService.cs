@@ -1,4 +1,4 @@
-﻿using Docker.DotNet;
+using Docker.DotNet;
 using Docker.DotNet.Models;
 using ICSharpCode.SharpZipLib.Tar;
 using Newtonsoft.Json;
@@ -139,6 +139,10 @@ namespace Triceratops.Api.Services.DockerService
 
             var exposedPorts = new Dictionary<string, EmptyStruct>();
             var portBindings = new Dictionary<string, IList<PortBinding>>();
+
+            if (mounts == null) {
+                mounts = new List<ServerMount>(0);
+            }
 
             foreach (var portBinding in serverPorts)
             {
