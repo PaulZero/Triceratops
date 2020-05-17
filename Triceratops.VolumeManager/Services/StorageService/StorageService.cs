@@ -107,26 +107,109 @@ namespace Triceratops.VolumeManager.Services.StorageService
             }
         }
 
-        public DownloadStream GetFileStream(string relativePath)
+        public Task<DownloadStream> ReadFileAsync(string relativePath)
         {
             if (IsFile(relativePath))
             {
                 var file = GetFileSystemItemFromRelativePath(relativePath) as FileInfo;
 
-                return new DownloadStream(File.OpenRead(file.FullName));
+                return Task.FromResult(new DownloadStream(File.OpenRead(file.FullName)));
             }
 
             throw new ArgumentException("The requested relative path does not refer to a file.", relativePath);
         }
 
+        public async Task<bool> WriteFileAsync(string relativePath, Stream stream)
+        {
+            string tempPath = null;
+            var fullPath = $"{VolumeRootDirectory}{relativePath}";
+
+            try
+            {
+                ValidateRelativePath(relativePath);
+
+                if (File.Exists(fullPath))
+                {
+                    tempPath = $"{TempDirectory}/{Guid.NewGuid()}.tmp";
+
+                    File.Move(fullPath, tempPath);
+                }
+
+                using var writeStream = File.Create(fullPath);
+
+                await stream.CopyToAsync(writeStream);
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError($"Unable to write file to {relativePath}: {exception.Message}");
+
+                if (!File.Exists(fullPath))
+                {
+                    _logger.LogError("Original file was deleted, attempting to restore.");
+
+                    if (string.IsNullOrWhiteSpace(tempPath))
+                    {
+                        _logger.LogError("Temp file not set, cannot restore file.");
+                    }
+                    else if (File.Exists(tempPath))
+                    {
+                        _logger.LogInformation("Temp file exists, attempting to restore file.");
+
+                        try
+                        {
+                            File.Move(tempPath, fullPath);
+
+                            _logger.LogInformation("Original file has been restored.");
+                        }
+                        catch
+                        {
+                            _logger.LogError($"Could not restore original file - {relativePath} is now missing!");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogError("Temp file does not exist, cannot restore file.");
+                    }
+                }
+
+                return false;
+            }
+            finally
+            {
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(tempPath) && File.Exists(tempPath))
+                    {
+                        File.Delete(tempPath);
+                    }
+                }
+                catch
+                {
+                    _logger.LogError($"Attempted to clean up temp file {tempPath} but it failed, oops.");
+                }
+            }
+        }
+
+        private void ValidateRelativePath(string relativePath, bool allowTopLevel = false)
+        {
+            var parts = relativePath.Split('/').Select(p => p.Trim());
+
+            if (!allowTopLevel && parts.Count() == 1)
+            {
+                throw new Exception("Relative paths cannot exist at the top level of the volume store.");
+            }
+
+            if (parts.Contains(".."))
+            {
+                throw new Exception("Cannot navigate the file system via a relative path.");
+            }
+        }
+
         private FileSystemInfo GetFileSystemItemFromRelativePath(string relativePath)
         {
-            if (relativePath.Split('/').Contains(".."))
-            {
-                _logger.LogWarning($"Invalid path was received and chucked out: {relativePath}");
-
-                throw new ArgumentException("No path fuckery is allowed!", nameof(relativePath));
-            }
+            ValidateRelativePath(relativePath, true);
 
             var fullPath = $"{VolumeRootDirectory}{relativePath}";
 

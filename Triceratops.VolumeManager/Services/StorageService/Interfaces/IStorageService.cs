@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using Triceratops.Libraries.Models.Storage;
 using Triceratops.VolumeManager.Models;
 
@@ -16,6 +17,8 @@ namespace Triceratops.VolumeManager.Services.StorageService.Interfaces
 
         bool IsDirectory(string relativePath);
 
-        DownloadStream GetFileStream(string relativePath);
+        Task<DownloadStream> ReadFileAsync(string relativePath);
+
+        Task<bool> WriteFileAsync(string relativePath, Stream stream);
     }
 }

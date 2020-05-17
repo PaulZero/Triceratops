@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,50 @@ namespace Triceratops.Libraries.Http
         {
             BaseUrl = baseUrl;
             Logger = logger;
+        }
+
+        protected async Task UploadAsync(string relativeUrl, Stream stream)
+        {
+            try
+            {
+                var request = CreateRequest(relativeUrl, AllowedHttpMethod.Post);
+
+                using var requestStream = await request.GetRequestStreamAsync();
+
+                await stream.CopyToAsync(requestStream);
+
+                using var response = await request.GetResponseAsync();
+            }
+            catch (Exception exception)
+            {
+                Logger.LogError($"Failed to upload file to {relativeUrl}: {exception.Message}");
+            }
+        }
+
+        protected async Task<ReceivedFile> DownloadAsync(string relativeUrl)
+        {
+            var request = CreateRequest(relativeUrl, AllowedHttpMethod.Get);
+            var response = await request.GetResponseAsync();
+
+            if (!response.Headers.AllKeys.Contains("Content-Disposition"))
+            {
+                throw new Exception($"No Content-Disposition header was received from {relativeUrl}");
+            }
+
+            var disposition = response.Headers.Get("Content-Disposition");
+            var fileName = disposition.Split(';')
+                .Select(s => s.Trim())
+                .FirstOrDefault(s => s.StartsWith("filename="))
+                ?.Replace("filename=", "") ?? "File.txt";
+
+            using var stream = response.GetResponseStream();
+            var memoryStream = new MemoryStream();
+
+            await stream.CopyToAsync(memoryStream);
+
+            memoryStream.Position = 0;
+
+            return new ReceivedFile(fileName, memoryStream);
         }
 
         protected Task<string> GetAsync(string relativeUrl, object requestBody = null)

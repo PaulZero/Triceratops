@@ -1,4 +1,5 @@
-﻿@model ServerViewModel
+﻿@using Triceratops.Libraries.Helpers;
+@model ServerViewModel
 
 @{
     ViewData["Title"] = "ServerDetails";
@@ -25,7 +26,12 @@
                     <ul>
                         @foreach (var file in directory.Files)
                         {
-                            <li>@file.Name</li>
+                            var routeParams = new Dictionary<string, string> {
+                                ["slug"] = Model.Slug,
+                                ["fileHash"] = HashHelper.CreateHash(file.RelativePath)
+                            };
+                            
+                            <li><a asp-route="EditServerFile" asp-all-route-data="routeParams">@file.Name</a></li>
                         }
                     </ul>
                 }

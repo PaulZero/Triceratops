@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Triceratops.Dashboard.Models;
 using Triceratops.Dashboard.Services.ApiService.Interfaces;
 using Triceratops.Dashboard.Services.VolumeService.Interfaces;
+using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Models.Api.Response;
 
 namespace Triceratops.Dashboard.Controllers
@@ -40,6 +43,32 @@ namespace Triceratops.Dashboard.Controllers
             var model = await WrapServerResponseAsync(server, true);
 
             return View(model);
+        }
+
+        [HttpGet("/servers/{slug}/files/edit/{fileHash}", Name = "EditServerFile")]
+        public async Task<IActionResult> EditServerFile(string slug, string fileHash)
+        {
+            var relativeFilePath = HashHelper.CreateString(fileHash);
+
+            var server = await _apiService.Servers.GetServerBySlugAsync(slug);
+            using var receivedFile = await _volumeService.DownloadFileAsync(relativeFilePath);
+
+            return View(new ServerFileViewModel
+            {
+                FileName = receivedFile.Name,
+                FileText = receivedFile.GetStreamAsString(),
+                ServerName = server.Name,
+                ServerSlug = server.Slug,
+                RelativeFilePath = relativeFilePath
+            });
+        }
+
+        [HttpPost("/servers/files/save", Name = "SaveServerFile")]
+        public async Task<IActionResult> SaveServerFile([FromForm]ServerFileViewModel model)
+        {
+            await _volumeService.UploadFileAsync(model.RelativeFilePath, new MemoryStream(Encoding.UTF8.GetBytes(model.FileText)));
+
+            return RedirectToRoute("ServerDetails", new { slug = model.ServerSlug });
         }
 
         private async Task<ServerViewModel> WrapServerResponseAsync(ServerResponse response, bool includeStorage = false)

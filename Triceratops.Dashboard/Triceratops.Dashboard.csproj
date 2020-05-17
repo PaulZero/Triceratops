@@ -17,6 +17,10 @@
     <ProjectReference Include="..\Triceratops.Libraries\Triceratops.Libraries.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\VolumeService\Models\" />
+  </ItemGroup>
+
 
 
 </Project>

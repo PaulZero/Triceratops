@@ -1,0 +1,43 @@
+﻿@model ServerFileViewModel
+@{
+    ViewData["Title"] = "EditServerFile";
+}
+
+<h1>Editing @Model.FileName</h1>
+
+<form asp-route="SaveServerFile">
+    <div class="form-group">
+        @Html.TextAreaFor(m => m.FileText, new { @class = "form-control" })
+    </div>
+    @Html.HiddenFor(m => m.ServerSlug)
+    @Html.HiddenFor(m => m.ServerName)
+    @Html.HiddenFor(m => m.RelativeFilePath)
+    @Html.HiddenFor(m => m.FileName)
+
+    <input type="submit" value="Save" />
+</form>
+
+
+<div>
+    @{ var serverSlugValues = new Dictionary<string, string> { ["slug"] = Model.ServerSlug }; }
+
+    <div style="text-align: center;"><a asp-route="ServerDetails" asp-all-route-data="serverSlugValues">Back to @Model.ServerName</a></div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/codemirror/lib/codemirror.js"></script>
+    <script>
+        var textarea = document.getElementById('@nameof(Model.FileText)');
+
+        var editor = CodeMirror.fromTextArea(textarea, {
+            lineNumbers: true,
+            theme: 'darcula',
+            autofocus: true
+        });
+    </script>
+}
+
+@section Styles {
+    <link href="~/lib/codemirror/lib/codemirror.css" type="text/css" rel="stylesheet" />
+    <link href="~/lib/codemirror/theme/darcula.css" type="text/css" rel="stylesheet" />
+}
