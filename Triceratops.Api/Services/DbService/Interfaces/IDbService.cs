@@ -5,5 +5,7 @@
         IContainerRepo Containers { get; }
 
         IServerRepo Servers { get; }
+
+        IVolumeRepo Volumes { get; }
     }
 }

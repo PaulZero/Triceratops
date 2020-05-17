@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
 using Triceratops.Api.Services.DockerService.Models;
@@ -10,7 +11,7 @@ namespace Triceratops.Api.Services.DockerService
     /// </summary>
     public interface IDockerService
     {
-        Task<bool> CreateContainerAsync(Container container, List<string> commands = null);
+        Task<bool> CreateContainerAsync(Container container);
 
         Task<ContainerDetails> GetContainerStatusAsync(Container container);
 
@@ -19,5 +20,7 @@ namespace Triceratops.Api.Services.DockerService
         Task StopContainerAsync(string containerId);
 
         Task DeleteContainerAsync(string containerId, bool force = false);
+
+        Task UpdateVolumeServerAsync(Server[] servers);
     }
 }

@@ -9,24 +9,24 @@ namespace Triceratops.Api.Services.DbService.Mongo
 {
     public class MongoServerRepo : IServerRepo
     {
-        private IDbService DbService { get; }
+        private readonly IDbService _dbService;
 
-        private IMongoCollection<Server> MongoCollection { get; }
+        private readonly IMongoCollection<Server> _mongoCollection;
 
         public MongoServerRepo(IDbService dbService, IMongoCollection<Server> mongoCollection)
         {
-            DbService = dbService;
-            MongoCollection = mongoCollection;
+            _dbService = dbService;
+            _mongoCollection = mongoCollection;
         }
 
         public async Task DeleteAsync(Server server)
         {
-            await MongoCollection.DeleteOneAsync(CreateFindByIdFilter(server.Id));
+            await _mongoCollection.DeleteOneAsync(CreateFindByIdFilter(server.Id));
         }
 
         public async Task<Server[]> FindAllAsync()
         {
-            var result = await MongoCollection.FindAsync(Builders<Server>.Filter.Empty);
+            var result = await _mongoCollection.FindAsync(Builders<Server>.Filter.Empty);
             var items = await result.ToListAsync();
 
             foreach (var server in items)
@@ -39,7 +39,7 @@ namespace Triceratops.Api.Services.DbService.Mongo
 
         public async Task<Server> FindByIdAsync(Guid id)
         {
-            var result = await MongoCollection.FindAsync(CreateFindByIdFilter(id));
+            var result = await _mongoCollection.FindAsync(CreateFindByIdFilter(id));
 
             return await result.FirstOrDefaultAsync();
         }
@@ -54,7 +54,7 @@ namespace Triceratops.Api.Services.DbService.Mongo
                 }                
             }
 
-            await MongoCollection.ReplaceOneAsync(
+            await _mongoCollection.ReplaceOneAsync(
                 CreateFindByIdFilter(server.Id),
                 server,
                 new ReplaceOptions { IsUpsert = true }
@@ -62,13 +62,13 @@ namespace Triceratops.Api.Services.DbService.Mongo
 
             foreach (var container in server.Containers)
             {
-                await DbService.Containers.SaveAsync(container);
+                await _dbService.Containers.SaveAsync(container);
             }
         }
 
         private async Task PopulateContainers(Server server)
         {
-            var collections = await DbService.Containers.FindByServerIdAsync(server.Id);
+            var collections = await _dbService.Containers.FindByServerIdAsync(server.Id);
 
             if (collections.Any())
             {

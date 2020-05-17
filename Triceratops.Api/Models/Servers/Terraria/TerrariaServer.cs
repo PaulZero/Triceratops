@@ -34,7 +34,7 @@ namespace Triceratops.Api.Models.Servers.Terraria
 
             server.Containers.Add(new Container
             {
-                Name = configuration.ServerName,
+                Name = $"Terraria_{server.Slug}",
                 ImageName = DockerImageName,
                 ImageVersion = DockerImageTag,
                 ServerPorts = new[]
@@ -45,17 +45,17 @@ namespace Triceratops.Api.Models.Servers.Terraria
                         HostPort = configuration.HostPort
                     }
                 },
-                MountVolumes = new[]
+                Volumes = new[]
                 {
-                    new ServerMount
+                    new Volume
                     {
-                        HostDirectory = "world",
-                        ContainerDirectory = "/world"
+                        Name = $"Terraria_{server.Slug}_world",
+                        ContainerMountPoint = "/world"
                     },
-                    new ServerMount
+                    new Volume
                     {
-                        HostDirectory = "tshock-plugins",
-                        ContainerDirectory = "/tshock/ServerPlugins"
+                        Name = $"Terraria_{server.Slug}_tshock_plugins",
+                        ContainerMountPoint = "/tshock/ServerPlugins"
                     }
                 }
             });

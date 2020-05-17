@@ -16,9 +16,9 @@ namespace Triceratops.Api.Models
 
         public string ImageVersion { get; set; }
 
-        public ServerPorts[] ServerPorts { get; set; }
+        public ServerPorts[] ServerPorts { get; set; } = new ServerPorts[0];
 
-        public ServerMount[] MountVolumes { get; set; }
+        public Volume[] Volumes { get; set; } = new Volume[0];
 
         public string[] Arguments { get; set; }
     }

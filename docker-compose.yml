@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.7'
 
 services:
   triceratops.api:
@@ -12,8 +12,8 @@ services:
       dockerfile: Triceratops.Api/Dockerfile
     environment:
       DB_USE_MEMORY: "true"
-    volumes:
-      - gamedata:/app/gamedata
+    networks:
+      - triceratops.network
   triceratops.dashboard:
     hostname: "triceratops.dashboard"
     image: ${DOCKER_REGISTRY-}triceratopsdashboard
@@ -23,8 +23,11 @@ services:
     build:
       context: .
       dockerfile: Triceratops.Dashboard/Dockerfile
+    networks:
+      - triceratops.network
   triceratops.mongo:
     image: "mongo"
+    container_name: Triceratops.Mongo
     hostname: "triceratops.mongo"
     ports:
       - "27017:27017"
@@ -32,7 +35,10 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
+    networks:
+      - triceratops.network
 
-volumes:
-  gamedata:
-    name: triceratops.volumes.gamedata
+networks:
+  triceratops.network:
+    name: triceratops.network
+    driver: bridge

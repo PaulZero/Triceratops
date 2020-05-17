@@ -25,6 +25,8 @@ namespace Triceratops.Api.Services.ServerService
         {
             DbService = dbService;
             DockerService = dockerService;
+
+            UpdateVolumeServerAsync().Wait();
         }
 
         public async Task<Server[]> GetServerListAsync()
@@ -37,11 +39,11 @@ namespace Triceratops.Api.Services.ServerService
            return await DbService.Servers.FindByIdAsync(guid);
         }
 
-        public async Task CreateServerAsync(Server server, List<string> commands = null)
+        public async Task CreateServerAsync(Server server)
         {
             foreach (var container in server.Containers)
             {
-                if (await DockerService.CreateContainerAsync(container, commands))
+                if (await DockerService.CreateContainerAsync(container))
                 {
                     await DbService.Containers.SaveAsync(container);
                 } 
@@ -54,27 +56,11 @@ namespace Triceratops.Api.Services.ServerService
             }
 
             await DbService.Servers.SaveAsync(server);
-        }
 
-        private async Task CleanUpFailedServer(Server server)
-        {
-            foreach (var container in server.Containers)
+            if (server.HasVolumes)
             {
-                if (!string.IsNullOrWhiteSpace(container.DockerId))
-                {
-                    await DockerService.DeleteContainerAsync(container.DockerId);
-                }
-
-                if (container.Id != default)
-                {
-                    await DbService.Containers.DeleteAsync(container);
-                }
+                // Refresh!
             }
-
-            if (server.Id != default)
-            {
-                await DbService.Servers.DeleteAsync(server);
-            }            
         }
 
         public async Task DeleteServerAsync(Server server)
@@ -88,6 +74,8 @@ namespace Triceratops.Api.Services.ServerService
             }
 
             await DbService.Servers.DeleteAsync(server);
+
+            await UpdateVolumeServerAsync();
         }
 
         public async Task RestartServerAsync(Server server)
@@ -124,6 +112,8 @@ namespace Triceratops.Api.Services.ServerService
             {
                 var wrappedServer = await MinecraftServer.CreateAsync(minecraftConfiguration, this);
 
+                await UpdateVolumeServerAsync();
+
                 return wrappedServer.ServerEntity;
             }
 
@@ -131,10 +121,33 @@ namespace Triceratops.Api.Services.ServerService
             {
                 var wrappedServer = await TerrariaServer.CreateAsync(terrariaConfiguration, this);
 
+                await UpdateVolumeServerAsync();
+
                 return wrappedServer.ServerEntity;
             }
 
             throw new Exception($"Unrecognised server configuration: {configuration.GetType().Name}");
+        }
+
+        private async Task CleanUpFailedServer(Server server)
+        {
+            foreach (var container in server.Containers)
+            {
+                if (!string.IsNullOrWhiteSpace(container.DockerId))
+                {
+                    await DockerService.DeleteContainerAsync(container.DockerId);
+                }
+
+                if (container.Id != default)
+                {
+                    await DbService.Containers.DeleteAsync(container);
+                }
+            }
+
+            if (server.Id != default)
+            {
+                await DbService.Servers.DeleteAsync(server);
+            }
         }
 
         private async Task ValidateNewServerConfiguration(AbstractServerConfiguration configuration)
@@ -150,6 +163,11 @@ namespace Triceratops.Api.Services.ServerService
             {
                 throw new Exception($"Server with name {configuration.ServerName} already exists.");
             }
+        }
+
+        private async Task UpdateVolumeServerAsync()
+        {
+            await DockerService.UpdateVolumeServerAsync(await DbService.Servers.FindAllAsync());
         }
     }
 }

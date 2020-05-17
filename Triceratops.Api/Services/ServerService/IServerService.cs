@@ -18,7 +18,7 @@ namespace Triceratops.Api.Services.ServerService
 
         Task<Server> CreateServerFromConfigurationAsync(AbstractServerConfiguration configuration);
 
-        Task CreateServerAsync(Server server, List<string> commands = null);
+        Task CreateServerAsync(Server server);
 
         Task StartServerAsync(Server server);
 

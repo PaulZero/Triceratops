@@ -13,6 +13,8 @@ namespace Triceratops.Api.Services.DbService.Mongo
 
         public IServerRepo Servers { get; }
 
+        public IVolumeRepo Volumes { get; }
+
         private readonly MongoClient mongoClient;
 
         private readonly IMongoDatabase mongoDatabase;
@@ -24,6 +26,7 @@ namespace Triceratops.Api.Services.DbService.Mongo
 
             Containers = new MongoContainerRepo(this, mongoDatabase.GetCollection<Container>("container"));
             Servers = new MongoServerRepo(this, mongoDatabase.GetCollection<Server>("server"));
+            Volumes = new MongoVolumeRepo(mongoDatabase.GetCollection<Volume>("volume"));
         }
 
         private MongoClient CreateMongoClient()

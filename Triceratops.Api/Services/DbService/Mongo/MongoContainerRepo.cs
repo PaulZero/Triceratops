@@ -8,31 +8,36 @@ namespace Triceratops.Api.Services.DbService.Mongo
 {
     public class MongoContainerRepo : IContainerRepo
     {
-        private IDbService DbService { get; }
+        private readonly IDbService _dbService;
 
-        private IMongoCollection<Container> MongoCollection { get; }
+        private readonly IMongoCollection<Container> _mongoCollection;
 
         public MongoContainerRepo(IDbService dbService, IMongoCollection<Container> mongoCollection)
         {
-            DbService = dbService;
-            MongoCollection = mongoCollection;
+            _dbService = dbService;
+            _mongoCollection = mongoCollection;
         }
 
         public async Task DeleteAsync(Container container)
         {            
-            await MongoCollection.DeleteOneAsync(CreateFindByIdFilter(container.Id));
+            await _mongoCollection.DeleteOneAsync(CreateFindByIdFilter(container.Id));
+
+            foreach (var volume in container.Volumes)
+            {
+                await _dbService.Volumes.DeleteAsync(volume);
+            }
         }
 
         public async Task<Container> FindByIdAsync(Guid id)
         {
-            var result = await MongoCollection.FindAsync(CreateFindByIdFilter(id));
+            var result = await _mongoCollection.FindAsync(CreateFindByIdFilter(id));
 
             return await result.FirstOrDefaultAsync();
         }
 
         public async Task<Container[]> FindByServerIdAsync(Guid serverId)
         {
-            var result = await MongoCollection.FindAsync(CreateFindByServerIdFilter(serverId));
+            var result = await _mongoCollection.FindAsync(CreateFindByServerIdFilter(serverId));
             var containers = await result.ToListAsync();
 
             return containers.ToArray();
@@ -40,11 +45,24 @@ namespace Triceratops.Api.Services.DbService.Mongo
 
         public async Task SaveAsync(Container container)
         {
-            await MongoCollection.ReplaceOneAsync(
+            foreach (var volume in container.Volumes)
+            {
+                if (volume.ContainerId == default)
+                {
+                    volume.ContainerId = container.Id;
+                }
+            }
+
+            await _mongoCollection.ReplaceOneAsync(
                 CreateFindByIdFilter(container.Id),
                 container,
                 new ReplaceOptions { IsUpsert = true }
             );
+
+            foreach (var volume in container.Volumes)
+            {
+                await _dbService.Volumes.SaveAsync(volume);
+            }
         }
 
         private FilterDefinition<Container> CreateFindByIdFilter(Guid id)

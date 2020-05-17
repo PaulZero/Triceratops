@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Dashboard", "Tr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Libraries", "Triceratops.Libraries\Triceratops.Libraries.csproj", "{587989EC-C910-4380-A1DA-983505C4896E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triceratops.VolumeManager", "Triceratops.VolumeManager\Triceratops.VolumeManager.csproj", "{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{587989EC-C910-4380-A1DA-983505C4896E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{587989EC-C910-4380-A1DA-983505C4896E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{587989EC-C910-4380-A1DA-983505C4896E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
