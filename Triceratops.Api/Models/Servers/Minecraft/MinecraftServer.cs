@@ -41,11 +41,19 @@ namespace Triceratops.Api.Models.Servers.Minecraft
                     {
                         ContainerPort = configuration.ContainerPort,   
                         HostPort = configuration.HostPort
+                    },
+                    new ServerPorts
+                    {
+                        ContainerPort = configuration.RconContainerPort,
+                        HostPort = configuration.RconHostPort,
                     }
                 },
                 Arguments = new[]
                 {
-                    "EULA=TRUE"
+                    "EULA=TRUE",
+                    "ENABLE_RCON=true",
+                    "RCON_PASSWORD=testing",
+                    $"RCON_PORT={configuration.RconContainerPort}",
                 }
             });
 
