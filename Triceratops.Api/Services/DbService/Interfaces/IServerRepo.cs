@@ -6,23 +6,29 @@ namespace Triceratops.Api.Services.DbService.Interfaces
 {
     public interface IServerRepo
     {
-        public Task<Server[]> FindAllAsync();
+        Task<Server[]> FindAllAsync();
 
         /// <summary>
         /// Find a server by its ID, along with the containers below it.
         /// </summary>
-        public Task<Server> FindByIdAsync(Guid id);
+        Task<Server> FindByIdAsync(Guid id);
+
+
+        /// <summary>
+        /// Find a server by its name, along with the containers below it.
+        /// </summary>
+        Task<Server> FindBySlugAsync(string slug);
 
         /// <summary>
         /// Save the specified server - This should do a deep save, and write the containers linked as well.
         /// </summary>
-        public Task SaveAsync(Server server);
+        Task SaveAsync(Server server);
 
         /// <summary>
         /// Delete the specified server - This should do a deep delete, and destroy the containers linked as well.
         /// </summary>
         /// <param name="server"></param>
         /// <returns></returns>
-        public Task DeleteAsync(Server server);
+        Task DeleteAsync(Server server);
     }
 }

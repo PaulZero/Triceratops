@@ -1,11 +1,7 @@
 ﻿using System;
-using System.IO;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Logging;
 using Triceratops.Libraries.Models.Storage;
-using Triceratops.VolumeManager.Models;
 using Triceratops.VolumeManager.Services.StorageService.Interfaces;
 
 namespace Triceratops.VolumeManager.Controllers
@@ -22,8 +18,8 @@ namespace Triceratops.VolumeManager.Controllers
             _storageService = storageService;
         }
 
-        [HttpGet("/volumes")]
-        public string[] List()
+        [HttpGet("/servers")]
+        public string[] ListServerNames()
         {
             try
             {
@@ -35,8 +31,8 @@ namespace Triceratops.VolumeManager.Controllers
             }
         }
 
-        [HttpGet("/volumes/list-entries/{server}")]
-        public ServerInstance ListVolumeEntries(string server)
+        [HttpGet("/servers/{server}")]
+        public ServerStorage GetServer(string server)
         {
             try
             {
@@ -50,7 +46,7 @@ namespace Triceratops.VolumeManager.Controllers
             }
         }
 
-        [HttpGet("/volumes/files/download")]
+        [HttpGet("/servers/files/download")]
         public IActionResult DownloadFile(string relativePath)
         {
             try
@@ -69,7 +65,7 @@ namespace Triceratops.VolumeManager.Controllers
             }
         }
 
-        [HttpGet("/volumes/zip/{server}")]
+        [HttpGet("/servers/{server}/zip")]
         public IActionResult DownloadVolume(string server)
         {
             try
@@ -82,13 +78,6 @@ namespace Triceratops.VolumeManager.Controllers
             {
                 return BadRequest(exception.Message);
             }
-        }
-
-        private string GetContentType(FileStream stream)
-        {
-            new FileExtensionContentTypeProvider().TryGetContentType(stream.Name, out string contentType);
-
-            return contentType ?? "application/octet-stream";
         }
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Triceratops.Dashboard.Models;
 using Triceratops.Dashboard.Services.ApiService.Interfaces;
+using Triceratops.Dashboard.Services.VolumeService.Interfaces;
 
 namespace Triceratops.Dashboard.Controllers
 {
@@ -17,11 +18,14 @@ namespace Triceratops.Dashboard.Controllers
     {
         private readonly IApiService _apiService;
 
+        private readonly IVolumeService _volumeService;
+
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(IApiService apiService, ILogger<HomeController> logger)
+        public HomeController(IApiService apiService, IVolumeService volumeService, ILogger<HomeController> logger)
         {
             _apiService = apiService;
+            _volumeService = volumeService;
             _logger = logger;
         }
 

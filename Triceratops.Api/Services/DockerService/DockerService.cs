@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.DockerService.Models;
+using Triceratops.Libraries.Enums;
 using Triceratops.Libraries.Models;
 
 namespace Triceratops.Api.Services.DockerService
@@ -83,7 +84,7 @@ namespace Triceratops.Api.Services.DockerService
                 using var dockerClient = CreateDockerClient();
                 var response = await dockerClient.Containers.InspectContainerAsync(container.DockerId);
 
-                return new ContainerDetails(response);
+                return new ContainerDetails(container.DockerId, response.State.Status, response.Created, GetTriceratopsContainerState(response.State));
             }
             catch (DockerContainerNotFoundException)
             {
@@ -322,6 +323,27 @@ namespace Triceratops.Api.Services.DockerService
             catch (Exception exception)
             {
                 Debug.WriteLine($"Failed to download image: {exception.Message}");
+            }
+        }
+
+        private ServerContainerState GetTriceratopsContainerState(ContainerState state)
+        {
+           switch (state.Status)
+            {
+                case "running":
+                    return ServerContainerState.Running;
+
+                case "created":
+                    return ServerContainerState.Created;
+
+                case "paused":
+                    return ServerContainerState.Paused;
+
+                case "exited":
+                    return ServerContainerState.Stopped;
+
+                default:
+                    throw new Exception($"Unknown container state: {state.Status}");
             }
         }
 

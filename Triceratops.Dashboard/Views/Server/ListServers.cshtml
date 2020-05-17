@@ -1,0 +1,18 @@
+﻿@model IEnumerable<Triceratops.Dashboard.Models.ServerViewModel>
+
+@{
+    ViewData["Title"] = "ListServers";
+}
+
+<h1>Servers</h1>
+
+@foreach (var server in Model)
+{
+    <h2>@server.Name (@server.ServerType)</h2>
+
+    var serverNameValues = new Dictionary<string, string> { ["slug"] = server.Slug };
+
+    await Html.RenderPartialAsync("_ServerStatus", server);
+
+    <div style="text-align: center;"><a asp-route="ServerDetails" asp-all-route-data="serverNameValues">View Details</a></div>
+}

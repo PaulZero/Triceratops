@@ -37,7 +37,7 @@ namespace Triceratops.VolumeManager.Services.StorageService
             return volumes.ToArray();
         }
 
-        public ServerInstance GetServerDetails(string server)
+        public ServerStorage GetServerDetails(string server)
         {
             var rootDirectory = GetRootDirectory();
             var serverDirectory = rootDirectory.GetDirectories().FirstOrDefault(d => d.Name == server);
@@ -49,7 +49,7 @@ namespace Triceratops.VolumeManager.Services.StorageService
 
             var childDirectories = serverDirectory.GetDirectories();
 
-            return new ServerInstance
+            return new ServerStorage
             { 
                 Name = server,
                 Directories = serverDirectory.GetDirectories().Select(d => CreateDirectoryTree(d)).ToArray()

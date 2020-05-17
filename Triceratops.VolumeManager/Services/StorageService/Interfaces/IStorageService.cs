@@ -8,7 +8,7 @@ namespace Triceratops.VolumeManager.Services.StorageService.Interfaces
     {
         string[] ListVolumes();
 
-        ServerInstance GetServerDetails(string server);
+        ServerStorage GetServerDetails(string server);
 
         Stream GetServerZip(string server);
 

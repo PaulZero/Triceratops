@@ -16,6 +16,8 @@ namespace Triceratops.Api.Services.ServerService
 
         Task<Server> GetServerByIdAsync(Guid guid);
 
+        Task<Server> GetServerBySlugAsync(string slug);
+
         Task<Server> CreateServerFromConfigurationAsync(AbstractServerConfiguration configuration);
 
         Task CreateServerAsync(Server server);

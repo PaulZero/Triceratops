@@ -8,8 +8,8 @@ namespace Triceratops.Dashboard.Services.VolumeService.Interfaces
 {
     public interface IVolumeService
     {
-        Task<string[]> GetVolumeNames();
+        Task<string[]> GetServerNamesAsync();
 
-        Task<ServerInstance> GetServerAsync(string serverName);
+        Task<ServerStorage> GetServerAsync(string serverName);
     }
 }

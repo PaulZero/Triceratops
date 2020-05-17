@@ -1,31 +1,28 @@
-﻿using Docker.DotNet.Models;
-using System;
+﻿using System;
+using Triceratops.Libraries.Enums;
 
 namespace Triceratops.Api.Services.DockerService.Models
 {
     public class ContainerDetails
     {
-        public bool IsRunning { get; }
+        public DateTime Created { get; }
 
-        public bool IsPaused { get; }
+        public string DockerId { get; }
 
-        public bool IsRestarting { get; }
+        public ServerContainerState State { get; }
 
         public string Status { get; }
-
-        public DateTime Created { get; }
 
         public static ContainerDetails ContainerMissing { get; } = new ContainerDetails("Container does not exist");
 
         public static ContainerDetails ErrorInspectingContainer { get; } = new ContainerDetails("Error inspecting container");
 
-        public ContainerDetails(ContainerInspectResponse containerInspectResponse)
+        public ContainerDetails(string dockerId, string status, DateTime created, ServerContainerState state)
         {
-            IsRunning = containerInspectResponse.State.Running;
-            IsPaused = containerInspectResponse.State.Paused;
-            IsRestarting = containerInspectResponse.State.Restarting;
-            Status = containerInspectResponse.State.Status;
-            Created = containerInspectResponse.Created;
+            DockerId = dockerId;
+            Status = status;
+            Created = created;
+            State = state;        
         }
 
         protected ContainerDetails(string status)

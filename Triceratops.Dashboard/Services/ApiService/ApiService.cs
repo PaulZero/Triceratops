@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,9 +13,9 @@ namespace Triceratops.Dashboard.Services.ApiService
 
         public IServerApi Servers { get; }
 
-        public ApiService()
+        public ApiService(ILoggerFactory loggerFactory)
         {
-            Servers = new ServerApi(BaseUrl);
+            Servers = new ServerApi(BaseUrl, loggerFactory.CreateLogger<IServerApi>());
         }
     }
 }

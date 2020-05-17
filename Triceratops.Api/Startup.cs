@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Triceratops.Api.Models.View.Transformers;
-using Triceratops.Api.Models.View.Transformers.Interfaces;
 using Triceratops.Api.Services.DbService;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
@@ -36,8 +34,6 @@ namespace Triceratops.Api
                 s.GetRequiredService<IDbService>(),
                 s.GetRequiredService<IDockerService>()
             ));
-
-            services.AddSingleton<IViewModelTransformer>(s => new ViewModelTransformer(s.GetRequiredService<IDockerService>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

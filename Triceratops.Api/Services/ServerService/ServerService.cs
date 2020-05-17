@@ -39,6 +39,11 @@ namespace Triceratops.Api.Services.ServerService
            return await DbService.Servers.FindByIdAsync(guid);
         }
 
+        public async Task<Server> GetServerBySlugAsync(string slug)
+        {
+            return await DbService.Servers.FindBySlugAsync(slug);
+        }
+
         public async Task CreateServerAsync(Server server)
         {
             foreach (var container in server.Containers)

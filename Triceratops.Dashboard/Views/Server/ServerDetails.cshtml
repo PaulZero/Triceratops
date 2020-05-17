@@ -1,0 +1,39 @@
+﻿@model ServerViewModel
+
+@{
+    ViewData["Title"] = "ServerDetails";
+}
+
+<h1>@Model.Name (@Model.ServerType)</h1>
+
+<h2>Status</h2>
+
+@{await Html.RenderPartialAsync("_ServerStatus", Model);}
+
+@if (Model.Volumes.Any())
+{
+    <h2>Storage</h2>
+
+    <ul>
+        @foreach (var directory in Model.Volumes)
+        {
+            <li>
+                @directory.Name
+
+                @if (directory.Files.Any())
+                {
+                    <ul>
+                        @foreach (var file in directory.Files)
+                        {
+                            <li>@file.Name</li>
+                        }
+                    </ul>
+                }
+            </li>
+        }
+    </ul>
+}
+
+<div>
+    <a asp-route="ListServers">Back to Servers</a>
+</div>

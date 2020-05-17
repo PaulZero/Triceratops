@@ -5,6 +5,7 @@
     <UserSecretsId>84dd1ed0-835d-42d7-92df-f8702890692c</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

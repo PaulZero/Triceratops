@@ -9,9 +9,9 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Dashboard", "Triceratops.Dashboard\Triceratops.Dashboard.csproj", "{8E967A9D-2E7C-471A-84EB-35EA67332B58}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Libraries", "Triceratops.Libraries\Triceratops.Libraries.csproj", "{587989EC-C910-4380-A1DA-983505C4896E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.VolumeManager", "Triceratops.VolumeManager\Triceratops.VolumeManager.csproj", "{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triceratops.VolumeManager", "Triceratops.VolumeManager\Triceratops.VolumeManager.csproj", "{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Libraries", "Triceratops.Libraries\Triceratops.Libraries.csproj", "{5414F3E5-A327-4EE8-9841-181DE5412CE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,14 +31,14 @@ Global
 		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Release|Any CPU.Build.0 = Release|Any CPU
-		{587989EC-C910-4380-A1DA-983505C4896E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{587989EC-C910-4380-A1DA-983505C4896E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{587989EC-C910-4380-A1DA-983505C4896E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{587989EC-C910-4380-A1DA-983505C4896E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5414F3E5-A327-4EE8-9841-181DE5412CE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5414F3E5-A327-4EE8-9841-181DE5412CE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5414F3E5-A327-4EE8-9841-181DE5412CE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5414F3E5-A327-4EE8-9841-181DE5412CE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

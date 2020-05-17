@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Triceratops.Api.Models.View.Transformers.Interfaces;
+using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
+using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.Api.Request;
+using Triceratops.Libraries.Models.Api.Response;
 using Triceratops.Libraries.Models.ServerConfiguration;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
 using Triceratops.Libraries.Models.ServerConfiguration.Terraria;
-using Triceratops.Libraries.Models.View;
 
 namespace Triceratops.Api.Controllers
 {
@@ -18,44 +18,57 @@ namespace Triceratops.Api.Controllers
     {
         protected IServerService Servers { get; }
 
-        protected IViewModelTransformer ViewModelTransformer { get; }
+        protected IDockerService Docker { get; }
 
-        public ServerController(IServerService serverService, IViewModelTransformer viewModelTransformer)
+        public ServerController(IServerService serverService, IDockerService dockerService)
         {
+            Docker = dockerService;
             Servers = serverService;
-            ViewModelTransformer = viewModelTransformer;
         }
 
         [HttpGet("/servers/list")]
-        public async Task<IActionResult> ListServers()
+        public async Task<ServerResponse[]> ListServers()
         {
             try
             {
                 var servers = await Servers.GetServerListAsync();
-                var viewModels = await ViewModelTransformer.WrapServersAsync(servers);
+                var responses = servers.Select(CreateResponseFromServerAsync);
 
-                return ViewModel(viewModels);
-
+                return await Task.WhenAll(responses);
             }
             catch (Exception exception)
             {
-                return Error($"Failed to fetch list of servers: {exception.Message}");
+                throw new Exception($"Failed to fetch list of servers: {exception.Message}");
             }
         }
 
-        [HttpGet("/servers/{guid}")]
-        public async Task<IActionResult> GetServer(Guid guid)
+        [HttpGet("/servers/by-guid/{guid}")]
+        public async Task<ServerResponse> GetServerByGuid(Guid guid)
         {
             try
             {
                 var server = await Servers.GetServerByIdAsync(guid);
-                var viewModel = await ViewModelTransformer.WrapServerAsync(server);
 
-                return ViewModel(viewModel);
+                return await CreateResponseFromServerAsync(server);
             }
             catch (Exception exception)
             {
-                return Error($"Failed to fetch server: {exception.Message}");
+                throw new Exception($"Failed to fetch server: {exception.Message}");
+            }
+        }
+
+        [HttpGet("/servers/by-slug/{slug}")]
+        public async Task<ServerResponse> GetServerByName(string slug)
+        {
+            try
+            {
+                var server = await Servers.GetServerBySlugAsync(slug);
+
+                return await CreateResponseFromServerAsync(server);
+            }
+            catch (Exception exception)
+            {
+                throw new Exception($"Failed to fetch server: {exception.Message}");
             }
         }
 
@@ -111,7 +124,7 @@ namespace Triceratops.Api.Controllers
         }
 
         [HttpPost("/servers/create")]
-        public async Task<IActionResult> CreateServer([FromBody]CreateServerRequest request)
+        public async Task<ServerResponse> CreateServer([FromBody]CreateServerRequest request)
         {
             try
             {
@@ -129,16 +142,15 @@ namespace Triceratops.Api.Controllers
                 if (configuration != null)
                 {
                     var server = await Servers.CreateServerFromConfigurationAsync(configuration);
-                    var viewModel = await ViewModelTransformer.WrapServerAsync(server);
 
-                    return ViewModel(viewModel);
+                    return await CreateResponseFromServerAsync(server);
                 }
 
-                return Error($"Unsupported configuration: {request.ConfigurationTypeName}");
+                throw new Exception($"Unsupported configuration: {request.ConfigurationTypeName}");
             }
             catch (Exception exception)
             {
-                return Error($"Failed to create new server: {exception.Message}");
+                throw new Exception($"Failed to create new server: {exception.Message}");
             }
         }
 
@@ -157,6 +169,20 @@ namespace Triceratops.Api.Controllers
             {
                 return Error($"Failed to delete server: {exception.Message}");
             }
+        }
+
+        private async Task<ServerResponse> CreateResponseFromServerAsync(Server server)
+        {
+            var response = new ServerResponse(server);
+
+            foreach (var container in server.Containers)
+            {
+                var details = await Docker.GetContainerStatusAsync(container);
+
+                response.Containers.Add(new ContainerResponse(container, details.State, details.Created));
+            }
+
+            return response;
         }
     }
 }
