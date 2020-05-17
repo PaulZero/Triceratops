@@ -23,16 +23,26 @@
 
                 @if (directory.Files.Any())
                 {
-                    <ul>
-                        @foreach (var file in directory.Files)
+                <ul>
+                    @foreach (var file in directory.Files)
+                    {
+                        var routeParams = new Dictionary<string, string>
                         {
-                            var routeParams = new Dictionary<string, string> {
-                                ["slug"] = Model.Slug,
-                                ["fileHash"] = HashHelper.CreateHash(file.RelativePath)
-                            };
-                            
-                            <li><a asp-route="EditServerFile" asp-all-route-data="routeParams">@file.Name</a></li>
-                        }
+                            ["slug"] = Model.Slug,
+                            ["fileHash"] = HashHelper.CreateHash(file.RelativePath)
+                        };
+
+                        <li data-toggle="tooltip" data-placement="left" title="Created: @file.Created | Modified: @file.LastUpdated">
+                            @if (FileHelper.CanEdit(file.Name))
+                            {
+                                <a asp-route="EditServerFile" asp-all-route-data="routeParams">@file.Name</a>
+                            }
+                            else
+                            {
+                                @file.Name
+                            }
+                        </li>
+                    }
                     </ul>
                 }
             </li>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.ServerService;
+using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
 
@@ -18,36 +19,17 @@ namespace Triceratops.Api.Models.Servers.Minecraft
 
         public static async Task<MinecraftServer> CreateAsync(MinecraftConfiguration configuration, IServerService serverService)
         {
-            if (!configuration.IsValid())
-            {
-                throw new Exception("Cannot create a new Minecraft server from an invalid config");
-            }
-
-            var server = new Server
-            {
-                Name = $"{configuration.ServerName.Replace(' ', '_')}"
-            };
-
-            server.SetConfiguration(configuration);
-
-            server.Containers.Add(new Container
-            {
-                Name = server.Name,
-                ImageName = DockerImageName,
-                ImageVersion = DockerImageTag,
-                ServerPorts = new[]
+            var server = serverService
+                .GetServerBuilder(configuration)
+                .CreateContainers(b =>
                 {
-                    new ServerPorts
-                    {
-                        ContainerPort = configuration.ContainerPort,   
-                        HostPort = configuration.HostPort
-                    }
-                },
-                Arguments = new[]
-                {
-                    "EULA=TRUE"
-                }
-            });
+                    b.CreateContainer(DockerImageName)
+                     .BindPorts(configuration.HostPort, configuration.ContainerPort)
+                     .BindPorts(configuration.RconHostPort, configuration.RconContainerPort)
+                     .CreateVolume("data", "/data")
+                     .WithArguments("EULA=TRUE");
+                })
+                .GetServer();
 
             await serverService.CreateServerAsync(server);
 

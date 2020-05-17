@@ -16,7 +16,7 @@ namespace Triceratops.Libraries.Models
             get => _name;
             set
             {
-                _name = ServerHelper.SanitiseServerName(value);
+                _name = value;
                 Slug = ServerHelper.CreateServerNameSlug(_name);
             }
         }

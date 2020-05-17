@@ -166,8 +166,8 @@ namespace Triceratops.Api.Services.DockerService
                     {
                         volumes.Add(new Volume
                         {
-                            Name = volume.Name,
-                            ContainerMountPoint = $"/app/volumes/{serverName}/{volume.Name}"
+                            DockerName = volume.DockerName,
+                            ContainerMountPoint = $"/app/volumes/{serverName}/{volume.DisplayName}"
                         });
                     }
                 }
@@ -178,8 +178,8 @@ namespace Triceratops.Api.Services.DockerService
                 Name = VolumeContainerName,
                 ImageName = "triceratops_volumemanager",
                 ImageVersion = "latest",
-                Volumes = volumes.ToArray(),
-                ServerPorts = new[]
+                Volumes = volumes,
+                ServerPorts = new List<ServerPorts>
                 {
                     new ServerPorts
                     {
@@ -289,7 +289,7 @@ namespace Triceratops.Api.Services.DockerService
                     {
                         return new Mount
                         {
-                            Source = v.Name,
+                            Source = v.DockerName,
                             Target = v.ContainerMountPoint,
                             Type = "volume"
                         };

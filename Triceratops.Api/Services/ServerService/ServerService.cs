@@ -29,6 +29,11 @@ namespace Triceratops.Api.Services.ServerService
             UpdateVolumeServerAsync().Wait();
         }
 
+        public ServerBuilder GetServerBuilder(AbstractServerConfiguration configuration)
+        {
+            return new ServerBuilder(configuration, new ServerValidator(DbService));
+        }
+
         public async Task<Server[]> GetServerListAsync()
         {
             return await DbService.Servers.FindAllAsync();

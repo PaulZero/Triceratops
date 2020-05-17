@@ -7,11 +7,6 @@ namespace Triceratops.Libraries.Helpers
 {
     public static class ServerHelper
     {
-        public static string SanitiseServerName(string serverName)
-        {
-            return serverName.Trim();
-        }
-
         public static string CreateServerNameSlug(string serverName)
         {
             var characters = serverName.ToLower().Where(c => char.IsLetterOrDigit(c) || c == ' ').ToArray();

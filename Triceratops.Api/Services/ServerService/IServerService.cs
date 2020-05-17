@@ -12,6 +12,8 @@ namespace Triceratops.Api.Services.ServerService
     /// </summary>
     public interface IServerService
     {
+        ServerBuilder GetServerBuilder(AbstractServerConfiguration configuration);
+
         Task<Server[]> GetServerListAsync();
 
         Task<Server> GetServerByIdAsync(Guid guid);

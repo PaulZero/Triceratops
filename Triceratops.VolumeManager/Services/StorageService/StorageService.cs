@@ -246,7 +246,9 @@ namespace Triceratops.VolumeManager.Services.StorageService
             directory.Files = directoryInfo.GetFiles().Select(f => new ServerFile
             {
                 Name = f.Name,
-                RelativePath = CreateRelativePath(f.FullName)
+                RelativePath = CreateRelativePath(f.FullName),
+                Created = f.CreationTime,
+                LastUpdated = f.LastWriteTime
             }).ToArray();
 
             return directory;
