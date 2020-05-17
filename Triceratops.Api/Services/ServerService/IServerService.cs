@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Triceratops.Api.Models;
+using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
 
 namespace Triceratops.Api.Services.ServerService

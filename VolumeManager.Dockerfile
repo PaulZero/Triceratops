@@ -7,7 +7,8 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY . "Triceratops.VolumeManager/"
+COPY "Triceratops.Libraries" "Triceratops.Libraries/"
+COPY "Triceratops.VolumeManager" "Triceratops.VolumeManager/"
 RUN dotnet restore "Triceratops.VolumeManager/Triceratops.VolumeManager.csproj"
 COPY . .
 WORKDIR "/src/Triceratops.VolumeManager"

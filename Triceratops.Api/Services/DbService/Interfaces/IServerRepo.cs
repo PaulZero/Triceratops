@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Triceratops.Api.Models;
+using Triceratops.Libraries.Models;
 
 namespace Triceratops.Api.Services.DbService.Interfaces
 {

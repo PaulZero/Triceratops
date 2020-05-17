@@ -19,5 +19,6 @@
     <None Include=".dockerignore" />
     <None Include="install.sh" />
     <None Include="uninstall.sh" />
+    <None Include="VolumeManager.Dockerfile" />
   </ItemGroup>
 </Project>

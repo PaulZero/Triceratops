@@ -5,7 +5,7 @@ using System.Linq;
 using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Models.ServerConfiguration;
 
-namespace Triceratops.Api.Models
+namespace Triceratops.Libraries.Models
 {
     public class Server
     {

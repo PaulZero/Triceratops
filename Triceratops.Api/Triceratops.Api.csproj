@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="docker build -t triceratops_volumemanager:latest $(SolutionDir)Triceratops.VolumeManager" />
+    <Exec Command="docker build -t triceratops_volumemanager:latest -f $(SolutionDir)VolumeManager.DockerFile $(SolutionDir)" />
   </Target>
 
 

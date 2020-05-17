@@ -1,5 +1,6 @@
 ﻿using System;
 using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
 
 namespace Triceratops.Api.Models.Servers

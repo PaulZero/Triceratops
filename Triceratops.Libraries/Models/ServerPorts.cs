@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Triceratops.Api.Models
+namespace Triceratops.Libraries.Models
 {
     public class ServerPorts
     {

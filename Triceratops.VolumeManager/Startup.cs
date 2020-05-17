@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Triceratops.VolumeManager.Services.StorageService;
 using Triceratops.VolumeManager.Services.StorageService.Interfaces;
 
@@ -22,7 +23,7 @@ namespace Triceratops.VolumeManager
         {
             services.AddControllers();
 
-            services.AddSingleton<IStorageService>(new StorageService());
+            services.AddSingleton<IStorageService>(s => new StorageService(s.GetRequiredService<ILoggerFactory>().CreateLogger<IStorageService>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

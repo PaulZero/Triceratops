@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.ServerService;
-using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
 
 namespace Triceratops.Api.Models.Servers.Minecraft

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.ServerService;
 using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration.Terraria;
 
 namespace Triceratops.Api.Models.Servers.Terraria

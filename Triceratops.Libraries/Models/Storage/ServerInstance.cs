@@ -1,4 +1,4 @@
-﻿namespace Triceratops.VolumeManager.Models
+﻿namespace Triceratops.Libraries.Models.Storage
 {
     public class ServerInstance
     {

@@ -5,6 +5,7 @@ using Triceratops.Api.Models.Servers;
 using Triceratops.Api.Models.View.Transformers.Interfaces;
 using Triceratops.Api.Services.DockerService;
 using Triceratops.Libraries.Helpers;
+using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.View;
 
 namespace Triceratops.Api.Models.View.Transformers

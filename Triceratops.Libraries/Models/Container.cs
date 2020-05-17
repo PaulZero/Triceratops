@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Triceratops.Api.Models
+namespace Triceratops.Libraries.Models
 {
     public class Container
     {

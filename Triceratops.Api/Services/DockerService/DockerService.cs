@@ -10,8 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Triceratops.Api.Models;
 using Triceratops.Api.Services.DockerService.Models;
+using Triceratops.Libraries.Models;
 
 namespace Triceratops.Api.Services.DockerService
 {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.View;
 
 namespace Triceratops.Api.Models.View.Transformers.Interfaces

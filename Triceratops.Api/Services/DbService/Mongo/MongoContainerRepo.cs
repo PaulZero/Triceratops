@@ -1,8 +1,8 @@
 ﻿using MongoDB.Driver;
 using System;
 using System.Threading.Tasks;
-using Triceratops.Api.Models;
 using Triceratops.Api.Services.DbService.Interfaces;
+using Triceratops.Libraries.Models;
 
 namespace Triceratops.Api.Services.DbService.Mongo
 {

@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
-using Triceratops.Api.Models;
 using Triceratops.Api.Services.DbService.Interfaces;
+using Triceratops.Libraries.Models;
 
 namespace Triceratops.Api.Services.DbService.Mongo
 {
