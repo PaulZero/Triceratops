@@ -22,7 +22,7 @@ namespace Triceratops.Api.Services.DockerService.Models
             DockerId = dockerId;
             Status = status;
             Created = created;
-            State = state;        
+            State = state;
         }
 
         protected ContainerDetails(string status)

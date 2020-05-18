@@ -74,7 +74,7 @@ namespace Triceratops.Api.Services.DbService.Mongo
                 if (container.ServerId == default)
                 {
                     container.ServerId = server.Id;
-                }                
+                }
             }
 
             await _mongoCollection.ReplaceOneAsync(

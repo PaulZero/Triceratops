@@ -4,10 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Triceratops.Dashboard.Services.ApiService;
-using Triceratops.Dashboard.Services.ApiService.Interfaces;
-using Triceratops.Dashboard.Services.VolumeService;
-using Triceratops.Dashboard.Services.VolumeService.Interfaces;
+using Triceratops.Libraries.Http.Api;
+using Triceratops.Libraries.Http.Api.Interfaces.Client;
+using Triceratops.Libraries.Http.Clients.Storage;
+using Triceratops.Libraries.Http.Storage.Interfaces.Client;
 
 namespace Triceratops.Dashboard
 {
@@ -26,8 +26,15 @@ namespace Triceratops.Dashboard
             services.AddControllersWithViews()
                 .AddRazorRuntimeCompilation();
 
-            services.AddSingleton<IApiService>(s => new ApiService(s.GetRequiredService<ILoggerFactory>()));
-            services.AddSingleton<IVolumeService>(s => new VolumeService(s.GetRequiredService<ILogger<IVolumeService>>()));
+            services.AddMvc();
+
+            services.AddRazorPages()
+                .AddRazorRuntimeCompilation();
+
+            services.AddServerSideBlazor();
+
+            services.AddSingleton<ITriceratopsApiClient>(s => new TriceratopsApiClient(s.GetRequiredService<ILoggerFactory>()));
+            services.AddSingleton<ITriceratopsStorageClient>(s => new TriceratopsStorageClient(s.GetRequiredService<ILogger<ITriceratopsStorageClient>>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,6 +56,9 @@ namespace Triceratops.Dashboard
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapRazorPages();
+                endpoints.MapBlazorHub();
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

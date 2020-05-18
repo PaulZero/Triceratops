@@ -1,31 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Triceratops.Dashboard.Models;
-using Triceratops.Dashboard.Services.ApiService.Interfaces;
-using Triceratops.Dashboard.Services.VolumeService.Interfaces;
 using Triceratops.Libraries.Helpers;
-using Triceratops.Libraries.Models.Api.Response;
+using Triceratops.Libraries.Http.Api.Interfaces.Client;
+using Triceratops.Libraries.Http.Api.ResponseModels;
+using Triceratops.Libraries.Http.Storage.Interfaces.Client;
 
 namespace Triceratops.Dashboard.Controllers
 {
     public class ServerController : Controller
     {
-        private readonly IApiService _apiService;
+        private readonly ITriceratopsApiClient _apiService;
 
         private readonly ILogger _logger;
 
-        private readonly IVolumeService _volumeService;
+        private readonly ITriceratopsStorageClient _storageClient;
 
-        public ServerController(IApiService apiService, ILogger<ServerController> logger, IVolumeService volumeService)
+        public ServerController(ITriceratopsApiClient apiService, ILogger<ServerController> logger, ITriceratopsStorageClient storageClient)
         {
             _apiService = apiService;
             _logger = logger;
-            _volumeService = volumeService;
+            _storageClient = storageClient;
         }
 
         [HttpGet("/servers", Name = "ListServers")]
@@ -53,7 +52,7 @@ namespace Triceratops.Dashboard.Controllers
             var slug = relativeFilePath.Split('/').First(s => !string.IsNullOrWhiteSpace(s));
 
             var server = await _apiService.Servers.GetServerBySlugAsync(slug);
-            using var receivedFile = await _volumeService.DownloadFileAsync(relativeFilePath);
+            using var receivedFile = await _storageClient.DownloadFileAsync(relativeFilePath);
 
             return View(new ServerFileViewModel
             {
@@ -68,16 +67,16 @@ namespace Triceratops.Dashboard.Controllers
         [HttpPost("/servers/files/save", Name = "SaveServerFile")]
         public async Task<IActionResult> SaveServerFile([FromForm]ServerFileViewModel model)
         {
-            await _volumeService.UploadFileAsync(model.RelativeFilePath, new MemoryStream(Encoding.UTF8.GetBytes(model.FileText)));
+            await _storageClient.UploadFileAsync(model.RelativeFilePath, new MemoryStream(Encoding.UTF8.GetBytes(model.FileText)));
 
             return RedirectToRoute("ServerDetails", new { slug = model.ServerSlug });
         }
 
-        private async Task<ServerViewModel> WrapServerResponseAsync(ServerResponse response, bool includeStorage = false, bool includeLogs = false)
+        private async Task<ServerViewModel> WrapServerResponseAsync(ServerDetailsResponse response, bool includeStorage = false, bool includeLogs = false)
         {
-            var storage = includeStorage ? await _volumeService.GetServerAsync(response.Slug) : null;
+            var storage = includeStorage ? await _storageClient.GetServerAsync(response.Slug) : null;
             var logs = includeLogs ? await _apiService.Servers.GetServerLogsAsync(response.Id) : null;
-            var model = new ServerViewModel(response, storage, logs);
+            var model = new ServerViewModel(response, storage?.Server, logs);
 
             return model;
         }

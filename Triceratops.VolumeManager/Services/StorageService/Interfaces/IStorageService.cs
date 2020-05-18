@@ -7,11 +7,11 @@ namespace Triceratops.VolumeManager.Services.StorageService.Interfaces
 {
     public interface IStorageService
     {
-        string[] ListVolumes();
+        string[] GetServerStorageNames();
 
-        ServerStorage GetServerDetails(string server);
+        ServerInstance GetServerDetails(string server);
 
-        Stream GetServerZip(string server);
+        Task<Stream> GetServerZipAsync(string server);
 
         bool IsFile(string relativePath);
 

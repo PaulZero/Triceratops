@@ -28,7 +28,7 @@ namespace Triceratops.VolumeManager.Services.StorageService
             }
         }
 
-        public string[] ListVolumes()
+        public string[] GetServerStorageNames()
         {
             var rootDirectory = GetRootDirectory();
             var volumeDirectories = rootDirectory.GetDirectories();
@@ -37,36 +37,42 @@ namespace Triceratops.VolumeManager.Services.StorageService
             return volumes.ToArray();
         }
 
-        public ServerStorage GetServerDetails(string server)
+        public ServerInstance GetServerDetails(string serverSlug)
         {
+            _logger.LogInformation($"Retrieving server details for slug {serverSlug}");
+
             var rootDirectory = GetRootDirectory();
-            var serverDirectory = rootDirectory.GetDirectories().FirstOrDefault(d => d.Name == server);
+            var serverDirectory = rootDirectory.GetDirectories().FirstOrDefault(d => d.Name == serverSlug);
 
             if (serverDirectory == null)
             {
+                _logger.LogInformation($"No directory exists with the path {serverDirectory}");
+
                 return null;
             }
 
             var childDirectories = serverDirectory.GetDirectories();
 
-            return new ServerStorage
-            { 
-                Name = server,
-                Directories = serverDirectory.GetDirectories().Select(d => CreateDirectoryTree(d)).ToArray()
+            _logger.LogInformation($"Retrieved {childDirectories.Length} for server");
+
+            return new ServerInstance
+            {
+                ServerSlug = serverSlug,
+                Volumes = serverDirectory.GetDirectories().Select(d => CreateDirectoryTree(d)).ToArray()
             };
         }
 
-        public Stream GetServerZip(string server)
+        public async Task<Stream> GetServerZipAsync(string serverSlug)
         {
             var rootDirectory = GetRootDirectory();
-            var serverDirectory = rootDirectory.GetDirectories().FirstOrDefault(d => d.Name == server);
+            var serverDirectory = rootDirectory.GetDirectories().FirstOrDefault(d => d.Name == serverSlug);
 
             if (serverDirectory == null)
             {
                 return null;
             }
 
-            var zipFilePath = Path.Combine(TempDirectory, $"{server}.zip");
+            var zipFilePath = Path.Combine(TempDirectory, $"{serverSlug}.zip");
 
             if (File.Exists(zipFilePath))
             {
@@ -75,12 +81,14 @@ namespace Triceratops.VolumeManager.Services.StorageService
 
             ZipFile.CreateFromDirectory(serverDirectory.FullName, zipFilePath);
 
-            var bytes = File.ReadAllBytes(zipFilePath);
-            var stream = new MemoryStream(bytes);
+            var readStream = File.OpenRead(zipFilePath);
+            var memoryStream = new MemoryStream();
+
+            await readStream.CopyToAsync(memoryStream);
 
             File.Delete(zipFilePath);
 
-            return stream;
+            return memoryStream;
         }
 
         public bool IsFile(string relativePath)

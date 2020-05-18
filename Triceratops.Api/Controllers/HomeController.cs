@@ -6,7 +6,7 @@ namespace Triceratops.Api.Controllers
     {
         public IActionResult Index()
         {
-            return Json(new { Message = "This is the API, you probably want to go to the dashboard."});
+            return Json(new { Message = "This is the API, you probably want to go to the dashboard." });
         }
     }
 }

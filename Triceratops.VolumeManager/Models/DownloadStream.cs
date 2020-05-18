@@ -16,7 +16,7 @@ namespace Triceratops.VolumeManager.Models
         {
             ContentType = GetContentType(stream);
             FileName = GetFileName(stream);
-            Stream = stream;            
+            Stream = stream;
         }
 
         private string GetFileName(FileStream stream)

@@ -1,5 +1,3 @@
-using System;
-
 namespace Triceratops.Dashboard.Models
 {
     public class ErrorViewModel

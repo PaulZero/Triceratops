@@ -1,0 +1,27 @@
+﻿@*<a class="nav-link dropdown-toggle" href="#" id="manageServersDropdown_label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Servers
+</a>
+<div class="dropdown-menu" aria-labelledby="manageServersDropdown_label">
+    @if (HasServers)
+    {
+        @foreach (var server in Servers)
+        {
+            <a class="dropdown-item" asp-route="ServerDetails" asp-route-slug="@server.Slug">
+                <img src="/icons/@(server.ServerType).ico" width="24" height="24" alt="@server.ServerType Icon" />
+                @server.Name
+            </a>
+        }
+        <div class="dropdown-divider"></div>
+    }
+    <a class="dropdown-item" asp-route="ListServers">View All</a>
+</div>
+
+@code {
+    @using Triceratops.Libraries.Models.Api.Response
+
+    [Parameter]
+    public IEnumerable<ServerResponse> Servers { get; set; }
+
+    public bool HasServers => Servers.Any();
+}*@
+

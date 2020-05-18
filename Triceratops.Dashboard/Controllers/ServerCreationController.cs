@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Triceratops.Dashboard.Services.ApiService.Interfaces;
 using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Http.Api.Interfaces.Client;
+using Triceratops.Libraries.Http.Api.RequestModels;
 using Triceratops.Libraries.Models.ServerConfiguration;
-using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
 
 namespace Triceratops.Dashboard.Controllers
 {
     public class ServerCreationController : Controller
     {
-        private readonly IApiService _apiService;
+        private readonly ITriceratopsApiClient _apiClient;
 
-        public ServerCreationController(IApiService apiService)
+        public ServerCreationController(ITriceratopsApiClient apiClient)
         {
-            _apiService = apiService;
+            _apiClient = apiClient;
         }
 
         [Route("/server/create/{serverType}", Name = "Server_Create")]
@@ -35,9 +34,9 @@ namespace Triceratops.Dashboard.Controllers
             try
             {
                 var factory = new ServerConfigurationFactory();
-                var config = factory.CreateFromDictionary(formFields);
+                var configuration = factory.CreateFromDictionary(formFields);
 
-                await _apiService.Servers.CreateServerAsync(config);
+                await _apiClient.Servers.CreateServerAsync(new CreateServerRequest(configuration));
             }
             catch (Exception exception)
             {

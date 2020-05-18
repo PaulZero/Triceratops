@@ -1,13 +1,17 @@
-﻿@using Triceratops.Libraries.Helpers
-@inject Triceratops.Dashboard.Services.ApiService.Interfaces.IApiService ApiService
+﻿@inject Triceratops.Libraries.Http.Api.Interfaces.Client.ITriceratopsApiClient ApiClient
+
+@using Triceratops.Libraries.Helpers
+
 @{
-    var servers = (await ApiService.Servers.GetServerListAsync()).OrderBy(s => s.Name);
+    var servers = (await ApiClient.Servers.GetServerListAsync()).OrderBy(s => s.Name);
+    var hasServers = servers.Any();
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="~/" />
     <title>Triceratops: @ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
@@ -20,26 +24,29 @@
             <a class="navbar-brand" asp-route="Home">Triceratops</a>
             <ul class="navbar-nav">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="layout_manageServer" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="manageServersDropdown_label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Servers
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="layout_manageServer">
-                        @foreach (var server in servers)
+                    <div class="dropdown-menu" aria-labelledby="manageServersDropdown_label">
+                        @if (hasServers)
                         {
-                            <a class="dropdown-item" asp-route="ServerDetails" asp-route-slug="@server.Slug">
-                                <img src="~/icons/@(server.ServerType).ico" width="24" height="24" alt="@server.ServerType Icon" />
-                                @server.Name
-                            </a>
+                            @foreach (var server in servers)
+                            {
+                                <a class="dropdown-item" asp-route="ServerDetails" asp-route-slug="@server.Slug">
+                                    <img src="/icons/@(server.ServerType).ico" width="24" height="24" alt="@server.ServerType Icon" />
+                                    @server.Name
+                                </a>
+                            }
+                            <div class="dropdown-divider"></div>
                         }
-                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item" asp-route="ListServers">View All</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="layout_createServer" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="createNewServerDropdown_label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Create Server
-                    </a>                        
-                    <div class="dropdown-menu" aria-labelledby="layout_createServer">
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="createNewServerDropdown_label">
                         @foreach (var serverType in ServerTypeHelper.AllowedServerTypes)
                         {
                             <a class="dropdown-item" asp-route="Server_Create" asp-route-serverType="@serverType">@serverType</a>
@@ -72,5 +79,6 @@
             $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
+    <script src="_framework/blazor.server.js"></script>
 </body>
 </html>

@@ -25,7 +25,7 @@ namespace Triceratops.Libraries.Models.ServerConfiguration
 
         [Range(1, 5)]
         public int Test { get; set; }
-        
+
         [JsonIgnore]
         public abstract ushort ContainerPort { get; }
 
@@ -61,6 +61,6 @@ namespace Triceratops.Libraries.Models.ServerConfiguration
 
             return fieldDictionary;
         }
-            
+
     }
 }

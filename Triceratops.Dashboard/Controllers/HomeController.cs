@@ -1,38 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Triceratops.Dashboard.Models;
-using Triceratops.Dashboard.Services.ApiService.Interfaces;
-using Triceratops.Dashboard.Services.VolumeService.Interfaces;
+using Triceratops.Libraries.Http.Api.Interfaces.Client;
+using Triceratops.Libraries.Http.Storage.Interfaces.Client;
 
 namespace Triceratops.Dashboard.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IApiService _apiService;
+        private readonly ITriceratopsApiClient _apiClient;
 
-        private readonly IVolumeService _volumeService;
+        private readonly ITriceratopsStorageClient _storageClient;
 
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(IApiService apiService, IVolumeService volumeService, ILogger<HomeController> logger)
+        public HomeController(ITriceratopsApiClient apiClient, ITriceratopsStorageClient storageClient, ILogger<HomeController> logger)
         {
-            _apiService = apiService;
-            _volumeService = volumeService;
+            _apiClient = apiClient;
+            _storageClient = storageClient;
             _logger = logger;
         }
 
         [HttpGet("/", Name = "Home")]
         public async Task<IActionResult> Index()
         {
-            var servers = await _apiService.Servers.GetServerListAsync();
+            var servers = await _apiClient.Servers.GetServerListAsync();
 
             return View(servers);
         }
@@ -40,7 +36,7 @@ namespace Triceratops.Dashboard.Controllers
         [HttpGet("/servers/{guid}/start", Name = "StartServer")]
         public async Task<IActionResult> StartServer(Guid guid)
         {
-            await _apiService.Servers.StartServerAsync(guid);
+            var response = await _apiClient.Servers.StartServerAsync(guid);
 
             return RedirectToAction(nameof(Index));
         }
@@ -48,7 +44,7 @@ namespace Triceratops.Dashboard.Controllers
         [HttpGet("/servers/{guid}/stop", Name = "StopServer")]
         public async Task<IActionResult> StopServer(Guid guid)
         {
-            await _apiService.Servers.StopServerAsync(guid);
+            await _apiClient.Servers.StopServerAsync(guid);
 
             return RedirectToAction(nameof(Index));
         }
@@ -56,7 +52,7 @@ namespace Triceratops.Dashboard.Controllers
         [HttpGet("/servers/{guid}/restart", Name = "RestartServer")]
         public async Task<IActionResult> RestartServer(Guid guid)
         {
-            await _apiService.Servers.RestartServerAsync(guid);
+            await _apiClient.Servers.RestartServerAsync(guid);
 
             return RedirectToAction(nameof(Index));
         }

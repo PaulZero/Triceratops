@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.DockerService.Models;
 using Triceratops.Libraries.Enums;
@@ -216,7 +215,7 @@ namespace Triceratops.Api.Services.DockerService
             using var stream = await dockerClient.Containers.GetContainerLogsAsync(containerId, new ContainerLogsParameters
             {
                 Tail = rows.ToString(),
-                ShowStdout = true                
+                ShowStdout = true
             });
             using var reader = new StreamReader(stream);
 
@@ -240,8 +239,8 @@ namespace Triceratops.Api.Services.DockerService
                 lines.Add(line);
             }
 
-            
-            
+
+
 
             //var text = await reader.ReadToEndAsync();
             //var lines = text.Split(Environment.NewLine);
@@ -344,7 +343,7 @@ namespace Triceratops.Api.Services.DockerService
                             Type = "volume"
                         };
                     }).ToList(),
-                    NetworkMode = "triceratops.network"                    
+                    NetworkMode = "triceratops.network"
                 }
             };
 
@@ -378,7 +377,7 @@ namespace Triceratops.Api.Services.DockerService
 
         private ServerContainerState GetTriceratopsContainerState(ContainerState state)
         {
-           switch (state.Status)
+            switch (state.Status)
             {
                 case "running":
                     return ServerContainerState.Running;

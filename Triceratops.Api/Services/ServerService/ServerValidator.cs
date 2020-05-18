@@ -139,7 +139,7 @@ namespace Triceratops.Api.Services.ServerService
 
         private void EnsurePortsAreAllUnique(Server server)
         {
-            var boundPorts = server.HostPorts;            
+            var boundPorts = server.HostPorts;
 
             if (boundPorts.Distinct().Count() != boundPorts.Count())
             {
@@ -176,7 +176,7 @@ namespace Triceratops.Api.Services.ServerService
             var existingContainerNames = _existingServers.SelectMany(s => s.Containers).Select(c => c.Name);
             var newContainerNames = server.Containers.Select(c => c.Name);
             var containerNamesInUse = existingContainerNames.Intersect(newContainerNames);
-            
+
             if (containerNamesInUse.Any())
             {
                 var error = containerNamesInUse.Count() == 1

@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Triceratops.Api.Models.Servers;
 using Triceratops.Api.Models.Servers.Minecraft;
 using Triceratops.Api.Models.Servers.Terraria;
-using Triceratops.Api.Models.View;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
 using Triceratops.Libraries.Models;
@@ -55,7 +53,7 @@ namespace Triceratops.Api.Services.ServerService
 
         public async Task<Server> GetServerByIdAsync(Guid serverId)
         {
-           return await DbService.Servers.FindByIdAsync(serverId);
+            return await DbService.Servers.FindByIdAsync(serverId);
         }
 
         public async Task<Server> GetServerBySlugAsync(string slug)
@@ -70,7 +68,7 @@ namespace Triceratops.Api.Services.ServerService
                 if (await DockerService.CreateContainerAsync(container))
                 {
                     await DbService.Containers.SaveAsync(container);
-                } 
+                }
                 else
                 {
                     await CleanUpFailedServer(server);
@@ -182,7 +180,7 @@ namespace Triceratops.Api.Services.ServerService
             {
                 throw new Exception($"Server with port {configuration.HostPort} already exists.");
             }
-            
+
             if (existingServers.Any(s => s.Name == configuration.ServerName))
             {
                 throw new Exception($"Server with name {configuration.ServerName} already exists.");

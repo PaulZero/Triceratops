@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Models.Storage;
 
@@ -71,7 +70,7 @@ namespace Triceratops.Dashboard.Views
                     else
                     {
                         htmlBuilder.AppendHtml($"<div class=\"text-muted\"><i class=\"far fa-file\"></i> {file.Name}</div>");
-                    }                    
+                    }
                 }
             }
 

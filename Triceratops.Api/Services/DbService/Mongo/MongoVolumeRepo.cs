@@ -1,9 +1,6 @@
 ﻿using MongoDB.Driver;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Triceratops.Api.Services.DbService.Events;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Libraries.Models;
 

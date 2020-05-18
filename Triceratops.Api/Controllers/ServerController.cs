@@ -1,22 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
+using Triceratops.Libraries.Http.Api.Interfaces.Server;
+using Triceratops.Libraries.Http.Api.RequestModels;
+using Triceratops.Libraries.Http.Api.ResponseModels;
 using Triceratops.Libraries.Models;
-using Triceratops.Libraries.Models.Api.Request;
-using Triceratops.Libraries.Models.Api.Response;
 using Triceratops.Libraries.Models.ServerConfiguration;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
 using Triceratops.Libraries.Models.ServerConfiguration.Terraria;
-using static Triceratops.Libraries.Models.Api.Response.ServerLogResponse;
+using static Triceratops.Libraries.Http.Api.ResponseModels.ServerLogResponse;
 
 namespace Triceratops.Api.Controllers
 {
-    public class ServerController : AbstractApiController
+    public class ServerController : AbstractApiController, ITriceratopsServerApi
     {
         protected IServerService Servers { get; }
 
@@ -29,7 +29,7 @@ namespace Triceratops.Api.Controllers
         }
 
         [HttpGet("/servers/list")]
-        public async Task<ServerResponse[]> ListServers()
+        public async Task<ServerDetailsResponse[]> GetServerListAsync()
         {
             try
             {
@@ -45,7 +45,7 @@ namespace Triceratops.Api.Controllers
         }
 
         [HttpGet("/servers/{serverId}/logs/{rows?}")]
-        public async Task<ServerLogResponse> GetServerLogsByGuid(Guid serverId, uint? rows)
+        public async Task<ServerLogResponse> GetServerLogsAsync(Guid serverId, uint? rows)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace Triceratops.Api.Controllers
         }
 
         [HttpGet("/servers/by-guid/{serverId}")]
-        public async Task<ServerResponse> GetServerByGuid(Guid serverId)
+        public async Task<ServerDetailsResponse> GetServerByIdAsync(Guid serverId)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace Triceratops.Api.Controllers
         }
 
         [HttpGet("/servers/by-slug/{slug}")]
-        public async Task<ServerResponse> GetServerByName(string slug)
+        public async Task<ServerDetailsResponse> GetServerBySlugAsync(string slug)
         {
             try
             {
@@ -104,7 +104,7 @@ namespace Triceratops.Api.Controllers
         }
 
         [HttpPost("/servers/{serverId}/start")]
-        public async Task<IActionResult> StartServer(Guid serverId)
+        public async Task<ServerOperationResponse> StartServerAsync(Guid serverId)
         {
             try
             {
@@ -112,16 +112,23 @@ namespace Triceratops.Api.Controllers
 
                 await Servers.StartServerAsync(server);
 
-                return Success("Server started successfully");
+                return new ServerOperationResponse
+                {
+                    Success = true
+                };
             }
             catch (Exception exception)
             {
-                return Error($"Failed to start server: {exception.Message}");
+                return new ServerOperationResponse
+                {
+                    Success = false,
+                    Message = exception.Message
+                };
             }
         }
 
         [HttpPost("/servers/{serverId}/stop")]
-        public async Task<IActionResult> StopServer(Guid serverId)
+        public async Task<ServerOperationResponse> StopServerAsync(Guid serverId)
         {
             try
             {
@@ -129,16 +136,23 @@ namespace Triceratops.Api.Controllers
 
                 await Servers.StopServerAsync(server);
 
-                return Success("Server stopped successfully");
+                return new ServerOperationResponse
+                {
+                    Success = true
+                };
             }
             catch (Exception exception)
             {
-                return Error($"Failed to stop server: {exception.Message}");
+                return new ServerOperationResponse
+                {
+                    Success = false,
+                    Message = exception.Message
+                };
             }
         }
 
         [HttpPost("/servers/{serverId}/restart")]
-        public async Task<IActionResult> RestartServer(Guid serverId)
+        public async Task<ServerOperationResponse> RestartServerAsync(Guid serverId)
         {
             try
             {
@@ -146,16 +160,23 @@ namespace Triceratops.Api.Controllers
 
                 await Servers.RestartServerAsync(server);
 
-                return Success("Server restarted successfully");
+                return new ServerOperationResponse
+                {
+                    Success = true
+                };
             }
             catch (Exception exception)
             {
-                return Error($"Failed to restart server: {exception.Message}");
+                return new ServerOperationResponse
+                {
+                    Success = false,
+                    Message = exception.Message
+                };
             }
         }
 
         [HttpPost("/servers/{serverId}/delete")]
-        public async Task<IActionResult> DeleteServer(Guid serverId)
+        public async Task<ServerOperationResponse> DeleteServerAsync(Guid serverId)
         {
             try
             {
@@ -163,16 +184,23 @@ namespace Triceratops.Api.Controllers
 
                 await Servers.DeleteServerAsync(server);
 
-                return Success("Server deleted successfully");
+                return new ServerOperationResponse
+                {
+                    Success = true
+                };
             }
             catch (Exception exception)
             {
-                return Error($"Failed to delete server: {exception.Message}");
+                return new ServerOperationResponse
+                {
+                    Success = false,
+                    Message = exception.Message
+                };
             }
         }
 
         [HttpPost("/servers/create")]
-        public async Task<ServerResponse> CreateServer([FromBody]CreateServerRequest request)
+        public async Task<ServerDetailsResponse> CreateServerAsync([FromBody]CreateServerRequest request)
         {
             try
             {
@@ -180,7 +208,7 @@ namespace Triceratops.Api.Controllers
 
                 if (request.ConfigurationType == typeof(MinecraftConfiguration))
                 {
-                    configuration = JsonConvert.DeserializeObject<MinecraftConfiguration>(request.JsonConfiguration);                    
+                    configuration = JsonConvert.DeserializeObject<MinecraftConfiguration>(request.JsonConfiguration);
                 }
                 else if (request.ConfigurationType == typeof(TerrariaConfiguration))
                 {
@@ -202,9 +230,9 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        private async Task<ServerResponse> CreateResponseFromServerAsync(Server server)
+        private async Task<ServerDetailsResponse> CreateResponseFromServerAsync(Server server)
         {
-            var response = new ServerResponse(server);
+            var response = new ServerDetailsResponse(server);
 
             foreach (var container in server.Containers)
             {

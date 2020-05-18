@@ -1,7 +1,4 @@
-﻿using Triceratops.Libraries.Http;
-using Triceratops.Libraries.Models.Api.Response;
-
-namespace Triceratops.Dashboard.Models
+﻿namespace Triceratops.Dashboard.Models
 {
     public class ServerFileViewModel
     {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Triceratops.Api.Models.ActionFilters;
 using Triceratops.Api.Services.DbService;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
@@ -22,9 +23,12 @@ namespace Triceratops.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews(o =>
+            {
+                o.Filters.Add(new TimedRequestAttribute());
+            });
 
-            services.AddSingleton<IDockerService>(s => new DockerService());            
+            services.AddSingleton<IDockerService>(s => new DockerService());
 
             services.AddSingleton(s => DbServiceFactory.CreateFromEnvironmentVariables(s.GetRequiredService<IConfiguration>()));
             services.AddSingleton(s => s.GetRequiredService<IDbService>().Servers);
@@ -47,14 +51,14 @@ namespace Triceratops.Api
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

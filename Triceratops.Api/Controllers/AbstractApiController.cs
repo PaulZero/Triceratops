@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Triceratops.Libraries.Models.Api.Response;
+using Triceratops.Libraries.Http.Api.ResponseModels;
 
 namespace Triceratops.Api.Controllers
 {
@@ -11,14 +11,14 @@ namespace Triceratops.Api.Controllers
             return Json(new ApiModelResponse<T>(viewModel));
         }
 
-        protected IActionResult Success(string message)
+        protected ApiResponse Success(string message)
         {
-            return Json(new ApiResponse(true, message));
+            return new ApiResponse(true, message);
         }
 
-        protected IActionResult Error(string error)
+        protected ApiResponse Error(string error)
         {
-            return Json(new ApiResponse(false, error));
+            return new ApiResponse(false, error);
         }
     }
 }

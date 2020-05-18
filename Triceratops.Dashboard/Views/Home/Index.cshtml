@@ -1,10 +1,10 @@
 ﻿@using Triceratops.Libraries.Helpers
-@inject Triceratops.Dashboard.Services.ApiService.Interfaces.IApiService ApiService
+@inject Triceratops.Libraries.Http.Api.Interfaces.Client.ITriceratopsApiClient ApiClient
 
 @{
     ViewData["Title"] = "Home";
 
-    var servers = await ApiService.Servers.GetServerListAsync();
+    var servers = await ApiClient.Servers.GetServerListAsync();
     var uniqueGameServers = servers.Select(s => s.ServerType).Distinct().Count();
 }
 

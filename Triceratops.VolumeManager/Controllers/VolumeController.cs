@@ -1,14 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using Triceratops.Libraries.Helpers;
-using Triceratops.Libraries.Models.Storage;
+using Triceratops.Libraries.Http.Storage.Interfaces.Server;
+using Triceratops.Libraries.Http.Storage.ResponseModels;
 using Triceratops.VolumeManager.Services.StorageService.Interfaces;
 
 namespace Triceratops.VolumeManager.Controllers
 {
-    public class VolumeController : Controller
+    public class VolumeController : Controller, ITriceratopsStorageServer
     {
         private readonly ILogger _logger;
 
@@ -21,41 +22,39 @@ namespace Triceratops.VolumeManager.Controllers
         }
 
         [HttpGet("/servers")]
-        public string[] ListServerNames()
+        public Task<ServerStorageNamesResponse> GetServerNamesAsync()
         {
             try
             {
-                return _storageService.ListVolumes();
+                var serverNames = _storageService.GetServerStorageNames();
+
+                return Task.FromResult(new ServerStorageNamesResponse
+                {
+                    ServerNames = serverNames
+                });
             }
             catch
             {
-                return new string[0];
+                return Task.FromResult(ServerStorageNamesResponse.Empty);
             }
         }
 
-        [HttpGet("/servers/{server}")]
-        public ServerStorage GetServer(string server)
+        [HttpGet("/servers/{serverSlug}")]
+        public Task<ServerStorageResponse> GetServerAsync(string serverSlug)
         {
-            try
+            return Task.FromResult(new ServerStorageResponse
             {
-                return _storageService.GetServerDetails(server);
-            }
-            catch
-            {
-                Response.StatusCode = 404;
-
-                return null;
-            }
+                Server = _storageService.GetServerDetails(serverSlug)
+            });
         }
 
         [HttpGet("/servers/files/download/{fileHash}")]
-        public async Task<IActionResult> DownloadFile(string fileHash)
+        public async Task<IActionResult> DownloadFileAsync(string fileHash)
         {
             var relativePath = HashHelper.CreateString(fileHash);
 
             try
             {
-                
                 var stream = await _storageService.ReadFileAsync(relativePath);
 
                 _logger.LogInformation($"Retrieved {stream.Stream.Length} byte download stream for {stream.FileName} ({stream.ContentType})");
@@ -71,8 +70,8 @@ namespace Triceratops.VolumeManager.Controllers
         }
 
         [HttpPost("/servers/files/upload/{fileHash}")]
-        
-        public async Task<IActionResult> UploadFile(string fileHash)
+
+        public async Task<bool> UploadFileAsync(string fileHash)
         {
             if (Request.ContentLength == 0)
             {
@@ -81,22 +80,17 @@ namespace Triceratops.VolumeManager.Controllers
 
             var relativePath = HashHelper.CreateString(fileHash);
 
-            if (await _storageService.WriteFileAsync(relativePath, Request.Body))
-            {
-                return Ok();
-            }
-
-            return BadRequest();
+            return await _storageService.WriteFileAsync(relativePath, Request.Body);
         }
 
         [HttpGet("/servers/{server}/zip")]
-        public IActionResult DownloadVolume(string server)
+        public async Task<IActionResult> DownloadServerZip(string serverSlug)
         {
             try
             {
-                var stream = _storageService.GetServerZip(server);
+                var stream = await _storageService.GetServerZipAsync(serverSlug);
 
-                return File(stream, "application/zip", $"{server}.zip");
+                return File(stream, "application/zip", $"{serverSlug}.zip");
             }
             catch (Exception exception)
             {

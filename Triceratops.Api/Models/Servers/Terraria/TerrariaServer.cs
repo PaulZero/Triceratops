@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Triceratops.Api.Services.ServerService;
 using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration.Terraria;
