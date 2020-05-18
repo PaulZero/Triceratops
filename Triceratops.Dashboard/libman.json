@@ -1,16 +1,5 @@
 {
   "version": "1.0",
   "defaultProvider": "cdnjs",
-  "libraries": [
-    {
-      "provider": "jsdelivr",
-      "library": "codemirror@5.53.2",
-      "destination": "wwwroot/lib/codemirror/"
-    },
-    {
-      "provider": "jsdelivr",
-      "library": "bootstrap@4.3.1",
-      "destination": "wwwroot/lib/bootstrap/"
-    }
-  ]
+  "libraries": []
 }

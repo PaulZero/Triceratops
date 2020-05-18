@@ -18,6 +18,10 @@
     <ProjectReference Include="..\Triceratops.Libraries\Triceratops.Libraries.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\" />
+  </ItemGroup>
+
 
 
 </Project>
