@@ -30,7 +30,7 @@ namespace Triceratops.Dashboard.Controllers
         [HttpGet("/servers", Name = "ListServers")]
         public async Task<IActionResult> ListServers()
         {
-            var servers = await _apiService.Servers.GetServerListAsync();
+            var servers = await _apiService.GetServerListAsync();
             var models = servers.Select(s => WrapServerResponseAsync(s));
 
             return View(await Task.WhenAll(models));
@@ -39,7 +39,7 @@ namespace Triceratops.Dashboard.Controllers
         [HttpGet("/servers/{slug}", Name = "ServerDetails")]
         public async Task<IActionResult> ServerDetails(string slug)
         {
-            var server = await _apiService.Servers.GetServerBySlugAsync(slug);
+            var server = await _apiService.GetServerBySlugAsync(slug);
             var model = await WrapServerResponseAsync(server, true, true);
 
             return View(model);
@@ -51,7 +51,7 @@ namespace Triceratops.Dashboard.Controllers
             var relativeFilePath = HashHelper.CreateString(fileHash);
             var slug = relativeFilePath.Split('/').First(s => !string.IsNullOrWhiteSpace(s));
 
-            var server = await _apiService.Servers.GetServerBySlugAsync(slug);
+            var server = await _apiService.GetServerBySlugAsync(slug);
             using var receivedFile = await _storageClient.DownloadFileAsync(relativeFilePath);
 
             return View(new ServerFileViewModel
@@ -75,7 +75,7 @@ namespace Triceratops.Dashboard.Controllers
         private async Task<ServerViewModel> WrapServerResponseAsync(ServerDetailsResponse response, bool includeStorage = false, bool includeLogs = false)
         {
             var storage = includeStorage ? await _storageClient.GetServerAsync(response.Slug) : null;
-            var logs = includeLogs ? await _apiService.Servers.GetServerLogsAsync(response.Id) : null;
+            var logs = includeLogs ? await _apiService.GetServerLogsAsync(response.Id) : null;
             var model = new ServerViewModel(response, storage?.Server, logs);
 
             return model;

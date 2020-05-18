@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Core;
@@ -10,20 +9,21 @@ namespace Triceratops.Libraries.Http.Clients.Storage
 {
     public class TriceratopsStorageClient : AbstractHttpClient, ITriceratopsStorageClient
     {
-        public TriceratopsStorageClient(ILogger logger) : base(Triceratops.VolumeManagerUrl, logger)
+        public TriceratopsStorageClient(IPlatformHttpClient httpClient) : base(httpClient)
         {
+            Client.SetBaseUrl(TriceratopsConstants.InternalVolumeManagerUrl);
         }
 
         public Task<FileDownloadResponse> DownloadFileAsync(string relativeFilePath)
-            => DownloadAsync($"/servers/files/download/{HashHelper.CreateHash(relativeFilePath)}");
+            => Client.DownloadAsync($"/servers/files/download/{HashHelper.CreateHash(relativeFilePath)}");
 
         public Task UploadFileAsync(string relativeFilePath, Stream stream)
-            => UploadAsync($"/servers/files/upload/{HashHelper.CreateHash(relativeFilePath)}", stream);
+            => Client.UploadAsync($"/servers/files/upload/{HashHelper.CreateHash(relativeFilePath)}", stream);
 
         public Task<ServerStorageResponse> GetServerAsync(string serverName)
-            => GetAsync<ServerStorageResponse>($"/servers/{serverName}");
+            => Client.GetAsync<ServerStorageResponse>($"/servers/{serverName}");
 
         public Task<ServerStorageNamesResponse> GetServerNamesAsync()
-            => GetAsync<ServerStorageNamesResponse>("/servers");
+            => Client.GetAsync<ServerStorageNamesResponse>("/servers");
     }
 }

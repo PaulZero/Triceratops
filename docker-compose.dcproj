@@ -5,8 +5,10 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>4e6fbd55-044a-413a-bc70-7fd83ad9de36</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
-    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
     <DockerServiceName>triceratops.dashboard</DockerServiceName>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DockerServiceUrl>http://localhost:8080</DockerServiceUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">
@@ -17,7 +19,9 @@
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
+    <None Include="Blazor.Dockerfile" />
     <None Include="install.sh" />
+    <None Include="blazor.nginx.conf" />
     <None Include="uninstall.sh" />
     <None Include="VolumeManager.Dockerfile" />
   </ItemGroup>

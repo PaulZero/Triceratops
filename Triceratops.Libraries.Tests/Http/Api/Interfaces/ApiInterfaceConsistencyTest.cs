@@ -12,7 +12,7 @@ namespace Triceratops.Libraries.Tests.Http.Api.Interfaces
         public void EnsureClientAndServerInterfacesContainMatchingMethods()
         {
             var serverMethods = typeof(ITriceratopsServerApi).GetMethods();
-            var clientMethods = typeof(ITriceratopsServersApiClient).GetMethods();
+            var clientMethods = typeof(ITriceratopsApiClient).GetMethods();
 
             var serverMethodNames = serverMethods.Select(m => m.Name).ToArray();
             var clientMethodNames = clientMethods.Select(m => m.Name).ToArray();

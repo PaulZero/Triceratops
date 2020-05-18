@@ -4,9 +4,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Triceratops.Libraries;
 using Triceratops.Libraries.Http.Api;
 using Triceratops.Libraries.Http.Api.Interfaces.Client;
 using Triceratops.Libraries.Http.Clients.Storage;
+using Triceratops.Libraries.Http.Core;
 using Triceratops.Libraries.Http.Storage.Interfaces.Client;
 
 namespace Triceratops.Dashboard
@@ -33,8 +35,10 @@ namespace Triceratops.Dashboard
 
             services.AddServerSideBlazor();
 
-            services.AddSingleton<ITriceratopsApiClient>(s => new TriceratopsApiClient(s.GetRequiredService<ILoggerFactory>()));
-            services.AddSingleton<ITriceratopsStorageClient>(s => new TriceratopsStorageClient(s.GetRequiredService<ILogger<ITriceratopsStorageClient>>()));
+            services.AddSingleton<ITriceratopsApiClient>(s => 
+                new TriceratopsApiClient(new CoreHttpClient(s.GetRequiredService<ILogger<ITriceratopsApiClient>>())));
+            services.AddSingleton<ITriceratopsStorageClient>(s =>
+                new TriceratopsStorageClient(new CoreHttpClient(s.GetRequiredService<ILogger<ITriceratopsStorageClient>>())));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

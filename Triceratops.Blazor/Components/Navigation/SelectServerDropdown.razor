@@ -1,27 +1,48 @@
-﻿@*<a class="nav-link dropdown-toggle" href="#" id="manageServersDropdown_label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Servers
-</a>
-<div class="dropdown-menu" aria-labelledby="manageServersDropdown_label">
-    @if (HasServers)
-    {
-        @foreach (var server in Servers)
+﻿<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="manageServersDropdown_label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Servers
+    </a>
+    <div class="dropdown-menu" aria-labelledby="manageServersDropdown_label">
+        @if (HasServers)
         {
-            <a class="dropdown-item" asp-route="ServerDetails" asp-route-slug="@server.Slug">
-                <img src="/icons/@(server.ServerType).ico" width="24" height="24" alt="@server.ServerType Icon" />
-                @server.Name
-            </a>
+            @foreach (var server in Servers)
+            {
+                <a href="#">
+                    <img src="/icons/REPLACE_ME.ico" width="24" height="24" alt="@server.ServerType Icon" />
+                    @server.Name
+                </a>
+            }
+            <div class="dropdown-divider"></div>
         }
-        <div class="dropdown-divider"></div>
-    }
-    <a class="dropdown-item" asp-route="ListServers">View All</a>
-</div>
+        <a class="dropdown-item" asp-route="ListServers">View All</a>
+    </div>
+</li>
+
+@inject Triceratops.Libraries.Http.Api.Interfaces.Client.ITriceratopsApiClient ApiClient
+
+@using Triceratops.Libraries.Http.Api.ResponseModels
 
 @code {
-    @using Triceratops.Libraries.Models.Api.Response
+    protected IEnumerable<ServerDetailsResponse> Servers { get; set; }
 
-    [Parameter]
-    public IEnumerable<ServerResponse> Servers { get; set; }
+    protected bool HasServers => Servers?.Any() ?? false;
 
-    public bool HasServers => Servers.Any();
-}*@
+    protected override async Task OnParametersSetAsync()
+    {
+
+        Servers = await LoadServers();
+    }
+
+    protected async Task<IEnumerable<ServerDetailsResponse>> LoadServers()
+    {
+        Console.WriteLine("Retrieving servers");
+
+        if (ApiClient == null)
+        {
+            Console.WriteLine("There is no ApiClient!!!");
+        }
+
+        return await ApiClient.GetServerListAsync();
+    }
+}
 
