@@ -16,7 +16,9 @@ namespace Triceratops.Api.Services.ServerService
 
         Task<Server[]> GetServerListAsync();
 
-        Task<Server> GetServerByIdAsync(Guid guid);
+        Task<Dictionary<Guid, string[]>> GetServerLogsAsync(Guid serverId, uint rows);
+
+        Task<Server> GetServerByIdAsync(Guid serverId);
 
         Task<Server> GetServerBySlugAsync(string slug);
 

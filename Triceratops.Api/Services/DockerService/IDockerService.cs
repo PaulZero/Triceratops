@@ -22,5 +22,7 @@ namespace Triceratops.Api.Services.DockerService
         Task DeleteContainerAsync(string containerId, bool force = false);
 
         Task UpdateVolumeServerAsync(Server[] servers);
+
+        Task<string[]> GetContainerLogAsync(string containerId, uint rows = 300);
     }
 }

@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using Triceratops.Libraries.Helpers
+@inject Triceratops.Dashboard.Services.ApiService.Interfaces.IApiService ApiService
+@{
+    var servers = (await ApiService.Servers.GetServerListAsync()).OrderBy(s => s.Name);
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -6,38 +11,55 @@
     <title>Triceratops: @ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
-    @RenderSection("Styles", false);
+    <script src="https://kit.fontawesome.com/e4dcca8f36.js" crossorigin="anonymous"></script>
+    @RenderSection("Styles", false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-route="Home">Triceratops</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-route="Home">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-route="ListServers">Servers</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+        <nav class="navbar navbar-dark navbar-expand-sm bg-dark">
+            <a class="navbar-brand" asp-route="Home">Triceratops</a>
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="layout_manageServer" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Servers
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="layout_manageServer">
+                        @foreach (var server in servers)
+                        {
+                            <a class="dropdown-item" asp-route="ServerDetails" asp-route-slug="@server.Slug">
+                                <img src="~/icons/@(server.ServerType).ico" width="24" height="24" alt="@server.ServerType Icon" />
+                                @server.Name
+                            </a>
+                        }
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-route="ListServers">View All</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="layout_createServer" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Create Server
+                    </a>                        
+                    <div class="dropdown-menu" aria-labelledby="layout_createServer">
+                        @foreach (var serverType in ServerTypeHelper.AllowedServerTypes)
+                        {
+                            <a class="dropdown-item" asp-route="Server_Create" asp-route-serverType="@serverType">@serverType</a>
+                        }
+                    </div>
+                </li>
+            </ul>
         </nav>
     </header>
-    <div class="container">
+
+    @RenderSection("PageNav", false)
+
+    <div class="container-fluid">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
+        <div class="container-fluid">
             &copy; 2020 - Triceratops.Dashboard - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
@@ -45,5 +67,10 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
 </body>
 </html>

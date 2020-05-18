@@ -1,55 +1,105 @@
-﻿@using Triceratops.Libraries.Helpers;
+﻿@using Triceratops.Libraries.Helpers
+@using Triceratops.Dashboard.Views
 @model ServerViewModel
 
 @{
     ViewData["Title"] = "ServerDetails";
 }
 
-<h1>@Model.Name (@Model.ServerType)</h1>
-
-<h2>Status</h2>
-
-@{await Html.RenderPartialAsync("_ServerStatus", Model);}
-
-@if (Model.Volumes.Any())
-{
-    <h2>Storage</h2>
-
-    <ul>
-        @foreach (var directory in Model.Volumes)
-        {
-            <li>
-                @directory.Name
-
-                @if (directory.Files.Any())
-                {
-                <ul>
-                    @foreach (var file in directory.Files)
-                    {
-                        var routeParams = new Dictionary<string, string>
-                        {
-                            ["slug"] = Model.Slug,
-                            ["fileHash"] = HashHelper.CreateHash(file.RelativePath)
-                        };
-
-                        <li data-toggle="tooltip" data-placement="left" title="Created: @file.Created | Modified: @file.LastUpdated">
-                            @if (FileHelper.CanEdit(file.Name))
-                            {
-                                <a asp-route="EditServerFile" asp-all-route-data="routeParams">@file.Name</a>
-                            }
-                            else
-                            {
-                                @file.Name
-                            }
-                        </li>
-                    }
-                    </ul>
-                }
+@section PageNav {
+    <div class="navbar navbar-dark navbar-expand-sm bg-secondary border-bottom border-dark">
+        <div class="navbar-brand">
+            <span class="badge badge-pill badge-light"><img src="~/icons/@(Model.ServerType).ico" width="24" height="24" alt="@Model.ServerType Icon" /></span>
+            @Model.Name
+        </div>
+        <ul class="nav navbar-nav text-danger" id="serverDetails_tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="manage-tab" data-toggle="tab" href="#manage" role="tab" aria-controls="manage" aria-selected="true">Manage</a>
             </li>
-        }
-    </ul>
+            <li class="nav-item">
+                <a class="nav-link" id="files-tab" data-toggle="tab" href="#files" role="tab" aria-controls="files" aria-selected="false">Files</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="logs-tab" data-toggle="tab" href="#logs" role="tab" aria-controls="logs" aria-selected="false">Logs</a>
+            </li>
+        </ul>
+    </div>
 }
 
-<div>
-    <a asp-route="ListServers">Back to Servers</a>
+<div class="tab-content p-1" id="myTabContent">
+    <div class="tab-pane fade show active" id="manage" role="tabpanel" aria-labelledby="manage-tab">
+        <h2 class="h4">Manage Server</h2>
+
+        @{await Html.RenderPartialAsync("_ServerStatus", Model);}
+    </div>
+
+    <div class="tab-pane fade p-1" id="files" role="tabpanel" aria-labelledby="files-tab">  
+        <h2 class="h4 border-">Server Files</h2>
+        @if (Model.Volumes.Any())
+        {
+            @foreach (var directory in Model.Volumes)
+            {
+                @Html.CreateDirectoryTree(directory, true)
+            }
+        }
+        else
+        {
+            <p class="text-muted">There are no storage volumes defined for this server.</p>
+        }
+    </div>
+
+    <div class="tab-pane fade" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+        @if (Model.HasLogs)
+        {
+            <h2>Server Logs</h2>
+
+            @for (var logIndex = 0; logIndex < Model.Logs.ContainerLogItems.Length; logIndex++)
+            {
+                var containerLog = Model.Logs.ContainerLogItems[logIndex];
+
+                <textarea id="log_@logIndex">
+                    @{ var lastIndex = containerLog.LogRows.Length - 1; }
+                    @for (var rowIndex = 0; rowIndex < containerLog.LogRows.Length; rowIndex++)
+                    {
+                        var row = containerLog.LogRows[rowIndex];
+@row 
+                        @if (rowIndex < lastIndex) {
+                            @Environment.NewLine
+                        }
+                    }
+                </textarea>
+            }
+        }
+        else
+        {
+            <p>There are no logs available for this server.</p>
+        }
+    </div>
 </div>
+
+@section Scripts {
+    <script src="~/lib/codemirror/lib/codemirror.js"></script>
+
+    <script>
+        @if (Model.HasLogs)
+        {
+            @for (var logIndex = 0; logIndex < Model.Logs.ContainerLogItems.Length; logIndex++)
+            {
+                <text>
+                    var textarea_@logIndex = document.getElementById('log_@logIndex');
+
+                    var editor_@logIndex = CodeMirror.fromTextArea(textarea_@logIndex, {
+                        lineNumbers: true,
+                        readOnly: true,
+                        theme: 'darcula'
+                    });
+                </text>
+            }
+        }
+    </script>
+}
+
+@section Styles {
+    <link href="~/lib/codemirror/lib/codemirror.css" type="text/css" rel="stylesheet" />
+    <link href="~/lib/codemirror/theme/darcula.css" type="text/css" rel="stylesheet" />
+}

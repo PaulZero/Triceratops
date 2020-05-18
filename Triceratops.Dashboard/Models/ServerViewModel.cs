@@ -26,16 +26,21 @@ namespace Triceratops.Dashboard.Models
         public ServerDirectory[] Volumes => _storage?.Directories 
             ?? throw new Exception($"Storage is not set - Check {nameof(ServerViewModel)}.{nameof(HasStorageDetails)} before accessing.");
 
+        public bool HasLogs => Logs?.ContainerLogItems?.Any() ?? false;
+
+        public ServerLogResponse Logs { get; }
+
         public bool HasStorageDetails => _storage != null;
 
         private readonly ServerResponse _server;
 
         private readonly ServerStorage _storage;
 
-        public ServerViewModel(ServerResponse server, ServerStorage storage = null)
+        public ServerViewModel(ServerResponse server, ServerStorage storage = null, ServerLogResponse logs = null)
         {
             _server = server;
             _storage = storage;
+            Logs = logs;
         }
     }
 }

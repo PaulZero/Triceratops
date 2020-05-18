@@ -39,9 +39,23 @@ namespace Triceratops.Api.Services.ServerService
             return await DbService.Servers.FindAllAsync();
         }
 
-        public async Task<Server> GetServerByIdAsync(Guid guid)
+        public async Task<Dictionary<Guid, string[]>> GetServerLogsAsync(Guid serverId, uint rows)
         {
-           return await DbService.Servers.FindByIdAsync(guid);
+            var containers = await DbService.Containers.FindByServerIdAsync(serverId);
+
+            var groupedLogs = await Task.WhenAll(containers.Select(async c =>
+            {
+                var logs = await DockerService.GetContainerLogAsync(c.DockerId, rows);
+
+                return (c.Id, logs);
+            }));
+
+            return groupedLogs.ToDictionary(g => g.Id, g => g.logs);
+        }
+
+        public async Task<Server> GetServerByIdAsync(Guid serverId)
+        {
+           return await DbService.Servers.FindByIdAsync(serverId);
         }
 
         public async Task<Server> GetServerBySlugAsync(string slug)

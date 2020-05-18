@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.DockerService;
@@ -11,6 +12,7 @@ using Triceratops.Libraries.Models.Api.Response;
 using Triceratops.Libraries.Models.ServerConfiguration;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
 using Triceratops.Libraries.Models.ServerConfiguration.Terraria;
+using static Triceratops.Libraries.Models.Api.Response.ServerLogResponse;
 
 namespace Triceratops.Api.Controllers
 {
@@ -42,12 +44,41 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [HttpGet("/servers/by-guid/{guid}")]
-        public async Task<ServerResponse> GetServerByGuid(Guid guid)
+        [HttpGet("/servers/{serverId}/logs/{rows?}")]
+        public async Task<ServerLogResponse> GetServerLogsByGuid(Guid serverId, uint? rows)
         {
             try
             {
-                var server = await Servers.GetServerByIdAsync(guid);
+                var server = await Servers.GetServerByIdAsync(serverId);
+                var logDictionary = await Servers.GetServerLogsAsync(serverId, rows ?? 300);
+
+                return new ServerLogResponse
+                {
+                    ServerId = server.Id,
+                    ServerName = server.Name,
+                    ContainerLogItems = server.Containers.Select(c =>
+                    {
+                        return new ContainerLogItem
+                        {
+                            ContainerId = c.Id,
+                            ContainerName = c.Name,
+                            LogRows = logDictionary[c.Id]
+                        };
+                    }).ToArray()
+                };
+            }
+            catch (Exception exception)
+            {
+                throw new Exception($"Failed to fetch server logs: {exception.Message}");
+            }
+        }
+
+        [HttpGet("/servers/by-guid/{serverId}")]
+        public async Task<ServerResponse> GetServerByGuid(Guid serverId)
+        {
+            try
+            {
+                var server = await Servers.GetServerByIdAsync(serverId);
 
                 return await CreateResponseFromServerAsync(server);
             }
@@ -72,12 +103,12 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [HttpPost("/servers/{guid}/start")]
-        public async Task<IActionResult> StartServer(Guid guid)
+        [HttpPost("/servers/{serverId}/start")]
+        public async Task<IActionResult> StartServer(Guid serverId)
         {
             try
             {
-                var server = await Servers.GetServerByIdAsync(guid);
+                var server = await Servers.GetServerByIdAsync(serverId);
 
                 await Servers.StartServerAsync(server);
 
@@ -89,12 +120,12 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [HttpPost("/servers/{guid}/stop")]
-        public async Task<IActionResult> StopServer(Guid guid)
+        [HttpPost("/servers/{serverId}/stop")]
+        public async Task<IActionResult> StopServer(Guid serverId)
         {
             try
             {
-                var server = await Servers.GetServerByIdAsync(guid);
+                var server = await Servers.GetServerByIdAsync(serverId);
 
                 await Servers.StopServerAsync(server);
 
@@ -106,12 +137,12 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [HttpPost("/servers/{guid}/restart")]
-        public async Task<IActionResult> RestartServer(Guid guid)
+        [HttpPost("/servers/{serverId}/restart")]
+        public async Task<IActionResult> RestartServer(Guid serverId)
         {
             try
             {
-                var server = await Servers.GetServerByIdAsync(guid);
+                var server = await Servers.GetServerByIdAsync(serverId);
 
                 await Servers.RestartServerAsync(server);
 
@@ -120,6 +151,23 @@ namespace Triceratops.Api.Controllers
             catch (Exception exception)
             {
                 return Error($"Failed to restart server: {exception.Message}");
+            }
+        }
+
+        [HttpPost("/servers/{serverId}/delete")]
+        public async Task<IActionResult> DeleteServer(Guid serverId)
+        {
+            try
+            {
+                var server = await Servers.GetServerByIdAsync(serverId);
+
+                await Servers.DeleteServerAsync(server);
+
+                return Success("Server deleted successfully");
+            }
+            catch (Exception exception)
+            {
+                return Error($"Failed to delete server: {exception.Message}");
             }
         }
 
@@ -151,23 +199,6 @@ namespace Triceratops.Api.Controllers
             catch (Exception exception)
             {
                 throw new Exception($"Failed to create new server: {exception.Message}");
-            }
-        }
-
-        [HttpPost("/servers/{guid}/delete")]
-        public async Task<IActionResult> DeleteServer(Guid guid)
-        {
-            try
-            {
-                var server = await Servers.GetServerByIdAsync(guid);
-
-                await Servers.DeleteServerAsync(server);
-
-                return Success("Server deleted successfully");
-            }
-            catch (Exception exception)
-            {
-                return Error($"Failed to delete server: {exception.Message}");
             }
         }
 

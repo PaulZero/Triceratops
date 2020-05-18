@@ -10,16 +10,18 @@ namespace Triceratops.Dashboard.Services.ApiService.Interfaces
     {
         Task<ServerResponse[]> GetServerListAsync();
 
-        Task<ServerResponse> GetServerByIdAsync(Guid guid);
+        Task<ServerResponse> GetServerByIdAsync(Guid serverId);
+
+        Task<ServerLogResponse> GetServerLogsAsync(Guid serverId);
 
         Task<ServerResponse> GetServerBySlugAsync(string slug);
 
         Task<ServerResponse> CreateServerAsync(AbstractServerConfiguration configuration);
 
-        Task<bool> StartServerAsync(Guid guid);
+        Task<bool> StartServerAsync(Guid serverId);
 
-        Task<bool> StopServerAsync(Guid guid);
+        Task<bool> StopServerAsync(Guid serverId);
 
-        Task<bool> RestartServerAsync(Guid guid);
+        Task<bool> RestartServerAsync(Guid serverId);
     }
 }

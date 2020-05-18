@@ -1,16 +1,27 @@
 ﻿@using Triceratops.Libraries.Helpers
+@inject Triceratops.Dashboard.Services.ApiService.Interfaces.IApiService ApiService
 
 @{
-    ViewData["Title"] = "Servers";
+    ViewData["Title"] = "Home";
+
+    var servers = await ApiService.Servers.GetServerListAsync();
+    var uniqueGameServers = servers.Select(s => s.ServerType).Distinct().Count();
 }
 
-<div class="text-center">
-    <h1>Triceratops</h1>
+<h1 class="h3">Home</h1>
 
-    <h2>Create New Server</h2>
+@if (!servers.Any())
+{
+    <p>
+        Welcome to Triceratops, why don&#39;t you have any servers yet? Click <strong>Create Server</strong> up at the top to get started!
+    </p>
+}
+else
+{
+    <p>
+        Welcome to Triceratops, you currently have @servers.Length <a asp-route="ListServers">server@(servers.Length != 1 ? "s" : "")</a> set up
+        using @uniqueGameServers game@(uniqueGameServers != 1 ? "s" : "").
+    </p>
 
-    @foreach (var serverType in ServerTypeHelper.AllowedServerTypes)
-    {
-        <p>@Html.RouteLink(serverType.ToString(), "Server_Create", new { serverType })</p>
-    }
-</div>
+}
+

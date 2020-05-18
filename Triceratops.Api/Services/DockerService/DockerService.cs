@@ -200,6 +200,56 @@ namespace Triceratops.Api.Services.DockerService
             await dockerClient.Containers.StartContainerAsync(response.ID, new ContainerStartParameters());
         }
 
+        public async Task<string[]> GetContainerLogAsync(string containerId, uint rows = 300)
+        {
+            if (rows > 300)
+            {
+                rows = 300;
+            }
+
+            if (rows < 10)
+            {
+                rows = 10;
+            }
+
+            using var dockerClient = CreateDockerClient();
+            using var stream = await dockerClient.Containers.GetContainerLogsAsync(containerId, new ContainerLogsParameters
+            {
+                Tail = rows.ToString(),
+                ShowStdout = true                
+            });
+            using var reader = new StreamReader(stream);
+
+            var lines = new List<string>();
+
+            while (!reader.EndOfStream)
+            {
+                var line = await reader.ReadLineAsync();
+
+                var lineBytes = Encoding.ASCII.GetBytes(line);
+
+                if (lineBytes.Length <= 8)
+                {
+                    lines.Add("");
+
+                    continue;
+                }
+
+                line = Encoding.ASCII.GetString(lineBytes.Skip(8).ToArray());
+
+                lines.Add(line);
+            }
+
+            
+            
+
+            //var text = await reader.ReadToEndAsync();
+            //var lines = text.Split(Environment.NewLine);
+            //lines = lines.Select(l => new string(l.Where(c => !char.IsControl(c)).ToArray())).ToArray();
+
+            return lines.ToArray();
+        }
+
         private async Task DeleteVolumeServer(DockerClient dockerClient)
         {
             // TODO: Don't just search the entire bloody list...

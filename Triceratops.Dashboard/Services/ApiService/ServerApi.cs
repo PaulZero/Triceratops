@@ -15,8 +15,8 @@ namespace Triceratops.Dashboard.Services.ApiService
         {
         }
 
-        public Task<ServerResponse> GetServerByIdAsync(Guid guid)
-            => GetAsync<ServerResponse>($"/servers/by-guid/{guid}");
+        public Task<ServerResponse> GetServerByIdAsync(Guid serverId)
+            => GetAsync<ServerResponse>($"/servers/by-guid/{serverId}");
 
         public Task<ServerResponse> GetServerBySlugAsync(string slug)
             => GetAsync<ServerResponse>($"/servers/by-slug/{slug}");
@@ -24,23 +24,26 @@ namespace Triceratops.Dashboard.Services.ApiService
         public Task<ServerResponse[]> GetServerListAsync()
             => GetAsync<ServerResponse[]>("/servers/list");
 
-        public async Task<bool> StartServerAsync(Guid guid)
+        public Task<ServerLogResponse> GetServerLogsAsync(Guid serverId)
+            => GetAsync<ServerLogResponse>($"/servers/{serverId}/logs");
+
+        public async Task<bool> StartServerAsync(Guid serverId)
         {
-            var response = await PostApiAsync($"/servers/{guid}/start");
+            var response = await PostApiAsync($"/servers/{serverId}/start");
 
             return response.Success;
         }
 
-        public async Task<bool> StopServerAsync(Guid guid)
+        public async Task<bool> StopServerAsync(Guid serverId)
         {
-            var response = await PostApiAsync($"/servers/{guid}/stop");
+            var response = await PostApiAsync($"/servers/{serverId}/stop");
 
             return response.Success;
         }
 
-        public async Task<bool> RestartServerAsync(Guid guid)
+        public async Task<bool> RestartServerAsync(Guid serverId)
         {
-            var response = await PostApiAsync($"/servers/{guid}/restart");
+            var response = await PostApiAsync($"/servers/{serverId}/restart");
 
             return response.Success;
         }

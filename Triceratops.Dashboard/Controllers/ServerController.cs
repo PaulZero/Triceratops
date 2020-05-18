@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -40,15 +41,16 @@ namespace Triceratops.Dashboard.Controllers
         public async Task<IActionResult> ServerDetails(string slug)
         {
             var server = await _apiService.Servers.GetServerBySlugAsync(slug);
-            var model = await WrapServerResponseAsync(server, true);
+            var model = await WrapServerResponseAsync(server, true, true);
 
             return View(model);
         }
 
-        [HttpGet("/servers/{slug}/files/edit/{fileHash}", Name = "EditServerFile")]
-        public async Task<IActionResult> EditServerFile(string slug, string fileHash)
+        [HttpGet("/servers/files/edit/{fileHash}", Name = "EditServerFile")]
+        public async Task<IActionResult> EditServerFile(string fileHash)
         {
             var relativeFilePath = HashHelper.CreateString(fileHash);
+            var slug = relativeFilePath.Split('/').First(s => !string.IsNullOrWhiteSpace(s));
 
             var server = await _apiService.Servers.GetServerBySlugAsync(slug);
             using var receivedFile = await _volumeService.DownloadFileAsync(relativeFilePath);
@@ -71,10 +73,11 @@ namespace Triceratops.Dashboard.Controllers
             return RedirectToRoute("ServerDetails", new { slug = model.ServerSlug });
         }
 
-        private async Task<ServerViewModel> WrapServerResponseAsync(ServerResponse response, bool includeStorage = false)
+        private async Task<ServerViewModel> WrapServerResponseAsync(ServerResponse response, bool includeStorage = false, bool includeLogs = false)
         {
             var storage = includeStorage ? await _volumeService.GetServerAsync(response.Slug) : null;
-            var model = new ServerViewModel(response, storage);
+            var logs = includeLogs ? await _apiService.Servers.GetServerLogsAsync(response.Id) : null;
+            var model = new ServerViewModel(response, storage, logs);
 
             return model;
         }
