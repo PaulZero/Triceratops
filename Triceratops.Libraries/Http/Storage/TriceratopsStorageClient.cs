@@ -4,26 +4,27 @@ using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Core;
 using Triceratops.Libraries.Http.Storage.Interfaces.Client;
 using Triceratops.Libraries.Http.Storage.ResponseModels;
+using Triceratops.Libraries.RouteMapping.Enums;
 
 namespace Triceratops.Libraries.Http.Clients.Storage
 {
-    public class TriceratopsStorageClient : AbstractHttpClient, ITriceratopsStorageClient
+    public class TriceratopsStorageClient : AbstractHttpClient<VolumeManagerRoutes>, ITriceratopsStorageClient
     {
         public TriceratopsStorageClient(IPlatformHttpClient httpClient) : base(httpClient)
         {
-            Client.SetBaseUrl(TriceratopsConstants.InternalVolumeManagerUrl);
+            Client.SetBaseUrl(Constants.InternalVolumeManagerUrl);
         }
 
         public Task<FileDownloadResponse> DownloadFileAsync(string relativeFilePath)
-            => Client.DownloadAsync($"/servers/files/download/{HashHelper.CreateHash(relativeFilePath)}");
+            => Client.DownloadAsync(GetRelativeUrl(VolumeManagerRoutes.DownloadFile, new { fileHash = HashHelper.CreateHash(relativeFilePath) }));
 
         public Task UploadFileAsync(string relativeFilePath, Stream stream)
-            => Client.UploadAsync($"/servers/files/upload/{HashHelper.CreateHash(relativeFilePath)}", stream);
+            => Client.UploadAsync(GetRelativeUrl(VolumeManagerRoutes.UploadFile, new { fileHash = HashHelper.CreateHash(relativeFilePath) }), stream);
 
         public Task<ServerStorageResponse> GetServerAsync(string serverName)
-            => Client.GetAsync<ServerStorageResponse>($"/servers/{serverName}");
+            => Client.GetAsync<ServerStorageResponse>(GetRelativeUrl(VolumeManagerRoutes.GetServer, new { serverName }));
 
         public Task<ServerStorageNamesResponse> GetServerNamesAsync()
-            => Client.GetAsync<ServerStorageNamesResponse>("/servers");
+            => Client.GetAsync<ServerStorageNamesResponse>(GetRelativeUrl(VolumeManagerRoutes.GetServerNames));
     }
 }

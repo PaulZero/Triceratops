@@ -9,7 +9,7 @@ namespace Triceratops.Api.Models.Servers.Terraria
     {
         protected const string DockerImageName = "triceratops_terraria";
 
-        protected const string DockerImageTag = "1.0";
+        protected const string DockerImageTag = "1.3.5.3";
 
         public TerrariaServer(Server serverEntity) : base(serverEntity)
         {

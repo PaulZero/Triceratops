@@ -11,11 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Dashboard", "Tr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.VolumeManager", "Triceratops.VolumeManager\Triceratops.VolumeManager.csproj", "{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Blazor", "Triceratops.Blazor\Triceratops.Blazor.csproj", "{68376244-6439-4A83-9289-AC9062ED9F61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Libraries", "Triceratops.Libraries\Triceratops.Libraries.csproj", "{4E928460-EFEF-4083-AB83-249CD47390DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triceratops.Libraries", "Triceratops.Libraries\Triceratops.Libraries.csproj", "{4E928460-EFEF-4083-AB83-249CD47390DE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triceratops.Libraries.Tests", "Triceratops.Libraries.Tests\Triceratops.Libraries.Tests.csproj", "{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Libraries.Tests", "Triceratops.Libraries.Tests\Triceratops.Libraries.Tests.csproj", "{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,10 +37,6 @@ Global
 		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{68376244-6439-4A83-9289-AC9062ED9F61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{68376244-6439-4A83-9289-AC9062ED9F61}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{68376244-6439-4A83-9289-AC9062ED9F61}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{68376244-6439-4A83-9289-AC9062ED9F61}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4E928460-EFEF-4083-AB83-249CD47390DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E928460-EFEF-4083-AB83-249CD47390DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E928460-EFEF-4083-AB83-249CD47390DE}.Release|Any CPU.ActiveCfg = Release|Any CPU

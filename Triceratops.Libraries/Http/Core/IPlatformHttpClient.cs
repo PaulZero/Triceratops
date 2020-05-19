@@ -13,7 +13,7 @@ namespace Triceratops.Libraries.Http.Core
 
         Task<T> GetAsync<T>(string relativeUrl);
 
-        Task<T> PostAsync<T>(string relativeUrl, object requestBody);
+        Task<T> PostAsync<T>(string relativeUrl, object requestBody = null);
 
         Task UploadAsync(string relativeUrl, Stream stream);
 

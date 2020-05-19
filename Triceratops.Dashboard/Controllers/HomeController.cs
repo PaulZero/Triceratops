@@ -10,10 +10,12 @@ using Triceratops.Dashboard.Services.NotificationService;
 using Triceratops.Libraries.Http.Api.Interfaces.Client;
 using Triceratops.Libraries.Http.Api.ResponseModels;
 using Triceratops.Libraries.Http.Storage.Interfaces.Client;
+using Triceratops.Libraries.RouteMapping.Attributes;
+using Triceratops.Libraries.RouteMapping.Enums;
 
 namespace Triceratops.Dashboard.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : AbstractDashboardController
     {
         private readonly ITriceratopsApiClient _apiClient;
 
@@ -32,7 +34,7 @@ namespace Triceratops.Dashboard.Controllers
             _notificationService = notificationService;
         }
 
-        [HttpGet("/", Name = "Home")]
+        [DashboardRoute(DashboardRoutes.Home)]
         public async Task<IActionResult> Index()
         {
             var servers = await _apiClient.GetServerListAsync();
@@ -40,7 +42,7 @@ namespace Triceratops.Dashboard.Controllers
             return View(servers);
         }
 
-        [HttpGet("/servers/{slug}/start", Name = "StartServer")]
+        [DashboardRoute(DashboardRoutes.StartServer)]
         public async Task<IActionResult> StartServer(string slug)
         {
             try
@@ -64,7 +66,7 @@ namespace Triceratops.Dashboard.Controllers
             return ReturnToServerDetails(slug);
         }
 
-        [HttpGet("/servers/{slug}/stop", Name = "StopServer")]
+        [DashboardRoute(DashboardRoutes.StopServer)]
         public async Task<IActionResult> StopServer(string slug)
         {
             try
@@ -87,7 +89,7 @@ namespace Triceratops.Dashboard.Controllers
             return ReturnToServerDetails(slug);
         }
 
-        [HttpGet("/servers/{slug}/restart", Name = "RestartServer")]
+        [DashboardRoute(DashboardRoutes.RestartServer)]
         public async Task<IActionResult> RestartServer(string slug)
         {
             try
@@ -111,7 +113,7 @@ namespace Triceratops.Dashboard.Controllers
             return ReturnToServerDetails(slug);
         }
 
-        [HttpGet("/servers/{slug}/delete", Name = "DeleteServer")]
+        [DashboardRoute(DashboardRoutes.DeleteServer)]
         public async Task<IActionResult> DeleteServer(string slug)
         {
             try
@@ -144,14 +146,14 @@ namespace Triceratops.Dashboard.Controllers
         private IActionResult ReturnToServerDetails(string slug)
         {
             
-            return RedirectToRoute("ServerDetails", new { slug });
+            return RedirectToRoute(DashboardRoutes.ViewServerDetails, new { slug });
         }
 
         private async Task<Guid> GetGuidFromServerSlug(string slug)
         {
             var server = await _apiClient.GetServerBySlugAsync(slug);
 
-            return server.Id;
+            return server.ServerId;
         }
 
         private void PushErrorMessage(string errorMessage)

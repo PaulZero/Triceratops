@@ -9,10 +9,12 @@ using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Api.Interfaces.Client;
 using Triceratops.Libraries.Http.Api.ResponseModels;
 using Triceratops.Libraries.Http.Storage.Interfaces.Client;
+using Triceratops.Libraries.RouteMapping.Attributes;
+using Triceratops.Libraries.RouteMapping.Enums;
 
 namespace Triceratops.Dashboard.Controllers
 {
-    public class ServerController : Controller
+    public class ServerController : AbstractDashboardController
     {
         private readonly ITriceratopsApiClient _apiService;
 
@@ -27,16 +29,16 @@ namespace Triceratops.Dashboard.Controllers
             _storageClient = storageClient;
         }
 
-        [HttpGet("/servers", Name = "ListServers")]
+        [DashboardRoute(DashboardRoutes.ListServers)]
         public async Task<IActionResult> ListServers()
         {
-            var servers = await _apiService.GetServerListAsync();
-            var models = servers.Select(s => WrapServerResponseAsync(s));
+            var response = await _apiService.GetServerListAsync();
+            var models = response.Servers.Select(s => WrapServerResponseAsync(s));
 
             return View(await Task.WhenAll(models));
         }
 
-        [HttpGet("/servers/{slug}", Name = "ServerDetails")]
+        [DashboardRoute(DashboardRoutes.ViewServerDetails)]
         public async Task<IActionResult> ServerDetails(string slug)
         {
             try
@@ -48,12 +50,12 @@ namespace Triceratops.Dashboard.Controllers
             }
             catch
             {
-                return RedirectToRoute("ListServers");
+                return RedirectToRoute(DashboardRoutes.ListServers);
             }
             
         }
 
-        [HttpGet("/servers/files/edit/{fileHash}", Name = "EditServerFile")]
+        [DashboardRoute(DashboardRoutes.EditServerFile)]
         public async Task<IActionResult> EditServerFile(string fileHash)
         {
             var relativeFilePath = HashHelper.CreateString(fileHash);
@@ -72,18 +74,18 @@ namespace Triceratops.Dashboard.Controllers
             });
         }
 
-        [HttpPost("/servers/files/save", Name = "SaveServerFile")]
+        [DashboardRoute(DashboardRoutes.SaveServerFile)]
         public async Task<IActionResult> SaveServerFile([FromForm]ServerFileViewModel model)
         {
             await _storageClient.UploadFileAsync(model.RelativeFilePath, new MemoryStream(Encoding.UTF8.GetBytes(model.FileText)));
 
-            return RedirectToRoute("ServerDetails", new { slug = model.ServerSlug });
+            return RedirectToRoute(DashboardRoutes.ViewServerDetails, new { slug = model.ServerSlug });
         }
 
         private async Task<ServerViewModel> WrapServerResponseAsync(ServerDetailsResponse response, bool includeStorage = false, bool includeLogs = false)
         {
             var storage = includeStorage ? await _storageClient.GetServerAsync(response.Slug) : null;
-            var logs = includeLogs ? await _apiService.GetServerLogsAsync(response.Id) : null;
+            var logs = includeLogs ? await _apiService.GetServerLogsAsync(response.ServerId) : null;
             var model = new ServerViewModel(response, storage?.Server, logs);
 
             return model;

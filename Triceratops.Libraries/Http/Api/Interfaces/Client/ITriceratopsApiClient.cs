@@ -7,7 +7,7 @@ namespace Triceratops.Libraries.Http.Api.Interfaces.Client
 {
     public interface ITriceratopsApiClient
     {
-        Task<ServerDetailsResponse[]> GetServerListAsync();
+        Task<ServerListResponse> GetServerListAsync();
 
         Task<ServerDetailsResponse> GetServerByIdAsync(Guid serverId);
 

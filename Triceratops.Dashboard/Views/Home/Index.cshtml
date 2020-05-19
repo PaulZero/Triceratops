@@ -1,10 +1,10 @@
-﻿@using Triceratops.Libraries.Helpers
-@inject Triceratops.Libraries.Http.Api.Interfaces.Client.ITriceratopsApiClient ApiClient
+﻿@inject Triceratops.Libraries.Http.Api.Interfaces.Client.ITriceratopsApiClient ApiClient
 
 @{
     ViewData["Title"] = "Home";
 
-    var servers = await ApiClient.GetServerListAsync();
+    var response = await ApiClient.GetServerListAsync();
+    var servers = response.Servers.ToArray();
     var uniqueGameServers = servers.Select(s => s.ServerType).Distinct().Count();
 }
 
@@ -18,10 +18,10 @@
 }
 else
 {
-    <p>
-        Welcome to Triceratops, you currently have @servers.Length <a asp-route="ListServers">server@(servers.Length != 1 ? "s" : "")</a> set up
-        using @uniqueGameServers game@(uniqueGameServers != 1 ? "s" : "").
-    </p>
-
+<p>
+        <dashboard-link route="@DashboardRoutes.ListServers">TESTKEK</dashboard-link>
+        Welcome to Triceratops, you currently have <dashboard-link route="@DashboardRoutes.ListServers"><pluralise name="server" values="@servers" /></dashboard-link>
+        set up using <pluralise name="game" count="@uniqueGameServers" />
+</p>
 }
 

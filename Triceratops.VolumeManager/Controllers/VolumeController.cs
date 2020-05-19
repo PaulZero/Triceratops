@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Storage.Interfaces.Server;
 using Triceratops.Libraries.Http.Storage.ResponseModels;
+using Triceratops.Libraries.RouteMapping.Attributes;
+using Triceratops.Libraries.RouteMapping.Enums;
 using Triceratops.VolumeManager.Services.StorageService.Interfaces;
 
 namespace Triceratops.VolumeManager.Controllers
@@ -21,7 +23,7 @@ namespace Triceratops.VolumeManager.Controllers
             _storageService = storageService;
         }
 
-        [HttpGet("/servers")]
+        [VolumeManagerRoute(VolumeManagerRoutes.GetServerNames)]
         public Task<ServerStorageNamesResponse> GetServerNamesAsync()
         {
             try
@@ -39,7 +41,7 @@ namespace Triceratops.VolumeManager.Controllers
             }
         }
 
-        [HttpGet("/servers/{serverSlug}")]
+        [VolumeManagerRoute(VolumeManagerRoutes.GetServer)]
         public Task<ServerStorageResponse> GetServerAsync(string serverSlug)
         {
             return Task.FromResult(new ServerStorageResponse
@@ -48,7 +50,7 @@ namespace Triceratops.VolumeManager.Controllers
             });
         }
 
-        [HttpGet("/servers/files/download/{fileHash}")]
+        [VolumeManagerRoute(VolumeManagerRoutes.DownloadFile)]
         public async Task<IActionResult> DownloadFileAsync(string fileHash)
         {
             var relativePath = HashHelper.CreateString(fileHash);
@@ -69,8 +71,7 @@ namespace Triceratops.VolumeManager.Controllers
             }
         }
 
-        [HttpPost("/servers/files/upload/{fileHash}")]
-
+        [VolumeManagerRoute(VolumeManagerRoutes.UploadFile)]
         public async Task<bool> UploadFileAsync(string fileHash)
         {
             if (Request.ContentLength == 0)
@@ -83,7 +84,7 @@ namespace Triceratops.VolumeManager.Controllers
             return await _storageService.WriteFileAsync(relativePath, Request.Body);
         }
 
-        [HttpGet("/servers/{server}/zip")]
+        [VolumeManagerRoute(VolumeManagerRoutes.DownloadServerZip)]
         public async Task<IActionResult> DownloadServerZip(string serverSlug)
         {
             try

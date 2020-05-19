@@ -56,7 +56,7 @@ namespace Triceratops.Libraries.Http.Core
         public Task<T> GetAsync<T>(string relativeUrl)
             => SendRequestAsync<T>(relativeUrl, AllowedHttpMethod.Get);
 
-        public Task<T> PostAsync<T>(string relativeUrl, object requestBody)
+        public Task<T> PostAsync<T>(string relativeUrl, object requestBody = null)
             => SendRequestAsync<T>(relativeUrl, AllowedHttpMethod.Post, requestBody);
 
         public async Task UploadAsync(string relativeUrl, Stream stream)

@@ -1,6 +1,7 @@
 using Docker.DotNet;
 using Docker.DotNet.Models;
 using ICSharpCode.SharpZipLib.Tar;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.DockerService.Models;
 using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Models;
 
 namespace Triceratops.Api.Services.DockerService
@@ -21,30 +24,11 @@ namespace Triceratops.Api.Services.DockerService
 
         private const string VolumeContainerName = "Triceratops.VolumeManager";
 
-        public DockerService()
+        private readonly ILogger _logger;
+
+        public DockerService(ILogger logger)
         {
-            Task.WaitAll(Prepare());
-        }
-
-        public async Task Prepare()
-        {
-            var dockerDirectories = Directory.GetDirectories("Dockerfiles");
-
-            foreach (var directory in dockerDirectories)
-            {
-                var files = Directory.GetFiles(directory).Select(f => new FileInfo(f));
-                var imageConfigFile = files.FirstOrDefault(f => f.Name == "ImageConfig.json");
-                var dockerFile = files.FirstOrDefault(f => f.Name == "Dockerfile");
-
-                if (imageConfigFile == null || dockerFile == null)
-                {
-                    continue;
-                }
-
-                var imageConfig = JsonConvert.DeserializeObject<ImageConfig>(File.ReadAllText(imageConfigFile.FullName));
-
-                await BuildDockerImage(dockerFile, imageConfig);
-            }
+            _logger = logger;
         }
 
         public async Task<bool> CreateContainerAsync(Container container)
@@ -53,7 +37,14 @@ namespace Triceratops.Api.Services.DockerService
             {
                 using var dockerClient = CreateDockerClient();
 
-                await DownloadImageAsync(container.ImageName, container.ImageVersion, dockerClient);
+                if (container.ImageName.StartsWith("triceratops"))
+                {
+                    await BuildImageAsync(container.ImageName, container.ImageVersion, dockerClient);
+                }
+                else
+                {
+                    await DownloadImageAsync(container.ImageName, container.ImageVersion, dockerClient);
+                }
 
                 var createParameters = CreateContainerParameters(container);
 
@@ -70,8 +61,10 @@ namespace Triceratops.Api.Services.DockerService
 
                 return true;
             }
-            catch
+            catch (Exception exception)
             {
+                _logger.LogError($"Unable to create new container: {exception.Message}");
+                
                 return false;
             }
         }
@@ -239,13 +232,6 @@ namespace Triceratops.Api.Services.DockerService
                 lines.Add(line);
             }
 
-
-
-
-            //var text = await reader.ReadToEndAsync();
-            //var lines = text.Split(Environment.NewLine);
-            //lines = lines.Select(l => new string(l.Where(c => !char.IsControl(c)).ToArray())).ToArray();
-
             return lines.ToArray();
         }
 
@@ -273,7 +259,7 @@ namespace Triceratops.Api.Services.DockerService
             await dockerClient.Volumes.PruneAsync();
         }
 
-        private async Task BuildDockerImage(FileInfo dockerFile, ImageConfig imageConfig)
+        private async Task BuildDockerImage(FileInfo dockerFile, ImageConfig imageConfig, ImageVersion imageVersion, DockerClient dockerClient)
         {
             using var tarball = new MemoryStream();
             using var archive = new TarOutputStream(tarball)
@@ -293,15 +279,70 @@ namespace Triceratops.Api.Services.DockerService
 
             tarball.Position = 0;
 
-            using var dockerClient = CreateDockerClient();
-
             await dockerClient.Images.BuildImageFromDockerfileAsync(tarball, new ImageBuildParameters
             {
                 Tags = new List<string>
                 {
-                    imageConfig.Tag
-                }
+                    $"{imageConfig.Name}:{imageVersion.Tag}"
+                },
+                BuildArgs = imageVersion.EnvironmentVariables
             });
+        } 
+
+        private async Task BuildImageAsync(string imageName, string imageTag, DockerClient dockerClient)
+        {
+            if (await IsImageRealAsync($"{imageName}:{imageTag}", dockerClient))
+            {
+                return;
+            }
+
+            var dockerDirectories = Directory.GetDirectories("Dockerfiles");
+            var imageIdentifier = $"{imageName}:{imageTag}";
+
+            foreach (var directory in dockerDirectories)
+            {
+                var files = Directory.GetFiles(directory).Select(f => new FileInfo(f));
+                var imageConfigFile = files.FirstOrDefault(f => f.Name == "ImageConfig.json");
+                var dockerFile = files.FirstOrDefault(f => f.Name == "Dockerfile");
+
+                if (imageConfigFile == null || dockerFile == null)
+                {
+                    continue;
+                }
+
+                var imageConfig = JsonConvert.DeserializeObject<ImageConfig>(File.ReadAllText(imageConfigFile.FullName));
+
+                if (imageConfig.Name == imageName)
+                {
+                    var version = imageConfig.Versions.FirstOrDefault(v => v.Tag == imageTag)
+                        ?? throw new Exception($"The tag {imageTag} was not found for image {imageName}.");
+
+                    await BuildDockerImage(dockerFile, imageConfig, version, dockerClient);
+
+                    await WaitForDockerImageBuildAsync($"{imageConfig.Name}:{version.Tag}", dockerClient);
+
+                    return;
+                }
+            }
+
+            throw new Exception("No image could be found for the requested server.");
+        }
+
+        private Task WaitForDockerImageBuildAsync(string imageIdentifier, DockerClient dockerClient)
+            => RetryHelper.RetryTask(() => IsImageRealAsync(imageIdentifier, dockerClient));            
+
+        private async Task<bool> IsImageRealAsync(string imageIdentifier, DockerClient dockerClient)
+        {
+            try
+            {
+                var response = await dockerClient.Images.InspectImageAsync(imageIdentifier);
+
+                return true;
+            }
+            catch (Exception exception)
+            {
+                return false;
+            }
         }
 
         private CreateContainerParameters CreateContainerParameters(Container container, bool prefixContainer = true)

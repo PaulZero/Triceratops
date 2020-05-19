@@ -8,11 +8,11 @@ namespace Triceratops.Libraries.Http.Api.Interfaces.Server
 {
     public interface ITriceratopsServerApi
     {
-        Task<ServerDetailsResponse[]> GetServerListAsync();
+        Task<ServerListResponse> GetServerListAsync();
 
         Task<ServerDetailsResponse> GetServerByIdAsync(Guid serverId);
 
-        Task<ServerLogResponse> GetServerLogsAsync(Guid serverId, uint? rows);
+        Task<ServerLogResponse> GetServerLogsAsync(Guid serverId);
 
         Task<ServerDetailsResponse> GetServerBySlugAsync(string slug);
 

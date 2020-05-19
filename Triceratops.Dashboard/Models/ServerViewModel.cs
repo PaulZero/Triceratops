@@ -8,7 +8,7 @@ namespace Triceratops.Dashboard.Models
 {
     public class ServerViewModel
     {
-        public Guid Id => _server.Id;
+        public Guid Id => _server.ServerId;
 
         public string Name => _server.Name;
 

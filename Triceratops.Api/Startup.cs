@@ -13,6 +13,8 @@ using Triceratops.Api.Services.ServerService;
 using Triceratops.Libraries.Http.Clients.Storage;
 using Triceratops.Libraries.Http.Core;
 using Triceratops.Libraries.Http.Storage.Interfaces.Client;
+using Triceratops.Libraries.RouteMapping;
+using Triceratops.Libraries.RouteMapping.Interfaces;
 
 namespace Triceratops.Api
 {
@@ -33,7 +35,7 @@ namespace Triceratops.Api
                 o.Filters.Add(new TimedRequestAttribute());
             });
 
-            services.AddSingleton<IDockerService>(s => new DockerService());
+            services.AddSingleton<IDockerService>(s => new DockerService(s.GetRequiredService<ILogger<IDockerService>>()));
 
             services.AddSingleton(s => DbServiceFactory.CreateFromEnvironmentVariables(s.GetRequiredService<IConfiguration>()));
             services.AddSingleton(s => s.GetRequiredService<IDbService>().Servers);

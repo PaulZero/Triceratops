@@ -12,6 +12,7 @@ services:
       dockerfile: Triceratops.Api/Dockerfile
     networks:
       - triceratops.network
+
   triceratops.dashboard:
     hostname: "triceratops.dashboard"
     image: ${DOCKER_REGISTRY-}triceratopsdashboard
@@ -23,18 +24,7 @@ services:
       dockerfile: Triceratops.Dashboard/Dockerfile
     networks:
       - triceratops.network
-  #triceratops.blazor:
-  #  hostname: "triceratops.blazor"
-  #  image: ${DOCKER_REGISTRY-}triceratopsblazor
-  #  ports:
-  #    - "6060:80"
-  #    - "6161:6161"
-  #  restart: always
-  #  build:
-  #    context: .
-  #    dockerfile: Blazor.Dockerfile
-  #  networks:
-  #    - triceratops.network
+
   triceratops.mongo:
     image: "mongo"
     container_name: Triceratops.Mongo

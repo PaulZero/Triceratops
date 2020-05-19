@@ -6,6 +6,7 @@ using Triceratops.Api.Models.Servers.Minecraft;
 using Triceratops.Api.Models.Servers.Terraria;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
+using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Storage.Interfaces.Client;
 using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
@@ -195,30 +196,21 @@ namespace Triceratops.Api.Services.ServerService
         {
             await _dockerService.UpdateVolumeServerAsync(await _dbService.Servers.FindAllAsync());
 
-            await WaitForVolumeServerAsync(10);
+            await RetryHelper.RetryTask(() => CheckVolumeServerExistsAsync());
         }
 
-        private async Task WaitForVolumeServerAsync(int maxRetries)
+        private async Task<bool> CheckVolumeServerExistsAsync()
         {
-            var retries = 0;
-
-            do
+            try
             {
-                try
-                {
-                    await _storageClient.GetServerNamesAsync();
-                }
-                catch
-                {
-                    await Task.Delay(TimeSpan.FromMilliseconds(500));
-                }
-                finally
-                {
-                    retries++;
-                }
-            }
-            while (retries < maxRetries);
+                await _storageClient.GetServerNamesAsync();
 
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Http.Api.Interfaces;
 using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
 
 namespace Triceratops.Libraries.Http.Api.ResponseModels
 {
-    public class ServerDetailsResponse
+    public class ServerDetailsResponse : IServerApiResponse
     {
-        public Guid Id { get; set; }
+        public Guid ServerId { get; set; }
+
+        public bool Success { get; set; } = true;
+
+        public string Error { get; set; }
 
         public string Name { get; set; }
 
@@ -26,7 +31,7 @@ namespace Triceratops.Libraries.Http.Api.ResponseModels
         {
             var configuration = server.DeserialiseConfiguration() as AbstractServerConfiguration;
 
-            Id = server.Id;
+            ServerId = server.Id;
             Name = server.Name;
             Slug = server.Slug;
             ServerType = configuration.ServerType;

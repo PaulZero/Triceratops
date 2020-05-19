@@ -8,5 +8,7 @@
 
 @foreach (var server in Model)
 {
-    <div style="text-align: center;"><a asp-route="ServerDetails" asp-route-slug="@server.Slug">@server.Name (@server.ServerType)</a></div>
+    <div style="text-align: center;"><dashboard-link route="DashboardRoutes.ViewServerDetails" param-slug="@server.Slug">@server.Name (@server.ServerType)</dashboard-link></div>
 }
+
+<dashboard-link route="@DashboardRoutes.ListServers">Back to Servers</dashboard-link>
