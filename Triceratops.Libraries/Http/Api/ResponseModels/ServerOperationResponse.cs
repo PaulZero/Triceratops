@@ -7,7 +7,11 @@ namespace Triceratops.Libraries.Http.Api.ResponseModels
 {
     public class ServerOperationResponse : ITimedResponse
     {
+        public Guid ServerId { get; set; }
+
         public bool Success { get; set; }
+
+        public bool IsRunning { get; set; }
 
         [JsonIgnore]
         public TimeSpan Duration

@@ -2,9 +2,11 @@
 using Newtonsoft.Json;
 using System;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
+using Triceratops.Libraries.Enums;
 using Triceratops.Libraries.Http.Api.Interfaces.Server;
 using Triceratops.Libraries.Http.Api.RequestModels;
 using Triceratops.Libraries.Http.Api.ResponseModels;
@@ -114,6 +116,8 @@ namespace Triceratops.Api.Controllers
 
                 return new ServerOperationResponse
                 {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(server),
                     Success = true
                 };
             }
@@ -121,6 +125,8 @@ namespace Triceratops.Api.Controllers
             {
                 return new ServerOperationResponse
                 {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(serverId),
                     Success = false,
                     Message = exception.Message
                 };
@@ -138,6 +144,8 @@ namespace Triceratops.Api.Controllers
 
                 return new ServerOperationResponse
                 {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(server),
                     Success = true
                 };
             }
@@ -145,6 +153,8 @@ namespace Triceratops.Api.Controllers
             {
                 return new ServerOperationResponse
                 {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(serverId),
                     Success = false,
                     Message = exception.Message
                 };
@@ -162,6 +172,8 @@ namespace Triceratops.Api.Controllers
 
                 return new ServerOperationResponse
                 {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(server),
                     Success = true
                 };
             }
@@ -169,6 +181,8 @@ namespace Triceratops.Api.Controllers
             {
                 return new ServerOperationResponse
                 {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(serverId),
                     Success = false,
                     Message = exception.Message
                 };
@@ -186,6 +200,8 @@ namespace Triceratops.Api.Controllers
 
                 return new ServerOperationResponse
                 {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(server),
                     Success = true
                 };
             }
@@ -193,6 +209,8 @@ namespace Triceratops.Api.Controllers
             {
                 return new ServerOperationResponse
                 {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(serverId),
                     Success = false,
                     Message = exception.Message
                 };
@@ -242,6 +260,23 @@ namespace Triceratops.Api.Controllers
             }
 
             return response;
+        }
+
+        private async Task<bool> IsServerRunningAsync(Guid serverId)
+            => await IsServerRunningAsync(await Servers.GetServerByIdAsync(serverId));
+
+        private async Task<bool> IsServerRunningAsync(Server server)
+        {
+            try
+            {
+                var containerStatus = await Task.WhenAll(server.Containers.Select(c => Docker.GetContainerStatusAsync(c)));
+
+                return containerStatus.All(s => s.State == ServerContainerState.Running);
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

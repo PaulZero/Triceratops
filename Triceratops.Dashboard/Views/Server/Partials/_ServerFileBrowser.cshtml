@@ -1,0 +1,13 @@
+﻿@model ServerViewModel
+
+@if (Model.Volumes.Any())
+{
+    @foreach (var directory in Model.Volumes)
+    {
+        @Html.CreateDirectoryTree(directory, true)
+    }
+}
+else
+{
+    <p class="text-muted">There are no storage volumes defined for this server.</p>
+}

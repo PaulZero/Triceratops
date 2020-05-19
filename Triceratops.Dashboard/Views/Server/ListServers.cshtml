@@ -8,11 +8,5 @@
 
 @foreach (var server in Model)
 {
-    <h2>@server.Name (@server.ServerType)</h2>
-
-    var serverSlugValues = new Dictionary<string, string> { ["slug"] = server.Slug };
-
-    await Html.RenderPartialAsync("_ServerStatus", server);
-
-    <div style="text-align: center;"><a asp-route="ServerDetails" asp-all-route-data="serverSlugValues">View Details</a></div>
+    <div style="text-align: center;"><a asp-route="ServerDetails" asp-route-slug="@server.Slug">@server.Name (@server.ServerType)</a></div>
 }
