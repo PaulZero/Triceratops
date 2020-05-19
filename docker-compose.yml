@@ -25,18 +25,6 @@ services:
     networks:
       - triceratops.network
 
-  triceratops.blazordashboard:
-    hostname: triceratops.blazordashboard
-    image: ${DOCKER_REGISTRY-}triceratopsblazordashboard
-    ports:
-      - "6060:80"
-    restart: always
-    build:
-      context: .
-      dockerfile: Triceratops.BlazorDashboard/Dockerfile
-    networks:
-      - triceratops.network
-
   triceratops.mongo:
     image: "mongo"
     container_name: Triceratops.Mongo
