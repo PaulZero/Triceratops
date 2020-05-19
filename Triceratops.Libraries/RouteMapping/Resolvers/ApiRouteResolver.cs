@@ -14,8 +14,8 @@ namespace Triceratops.Libraries.RouteMapping.Resolvers
             return new Dictionary<ApiRoutes, IRouteDefinition>()
             {
                 [ApiRoutes.GetServerList] = RouteDefinition.CreateGet("GetServerList", "/servers/list"),
-                [ApiRoutes.GetServerById] = RouteDefinition.CreateGet("GetServerById", "/servers/{serverId}"),
-                [ApiRoutes.GetServerBySlug] = RouteDefinition.CreateGet("GetServerBySlug", "/servers/{slug}"),
+                [ApiRoutes.GetServerById] = RouteDefinition.CreateGet("GetServerById", "/servers/by-id/{serverId}"),
+                [ApiRoutes.GetServerBySlug] = RouteDefinition.CreateGet("GetServerBySlug", "/servers/by-slug/{slug}"),
                 [ApiRoutes.GetServerLogs] = RouteDefinition.CreateGet("GetServerLogs", "/servers/{serverId}/logs"),
 
                 [ApiRoutes.CreateServer] = RouteDefinition.CreatePost("CreateServer", "/servers/create"),

@@ -21,8 +21,8 @@ namespace Triceratops.Libraries.Http.Clients.Storage
         public Task UploadFileAsync(string relativeFilePath, Stream stream)
             => Client.UploadAsync(GetRelativeUrl(VolumeManagerRoutes.UploadFile, new { fileHash = HashHelper.CreateHash(relativeFilePath) }), stream);
 
-        public Task<ServerStorageResponse> GetServerAsync(string serverName)
-            => Client.GetAsync<ServerStorageResponse>(GetRelativeUrl(VolumeManagerRoutes.GetServer, new { serverName }));
+        public Task<ServerStorageResponse> GetServerAsync(string serverSlug)
+            => Client.GetAsync<ServerStorageResponse>(GetRelativeUrl(VolumeManagerRoutes.GetServer, new { serverSlug }));
 
         public Task<ServerStorageNamesResponse> GetServerNamesAsync()
             => Client.GetAsync<ServerStorageNamesResponse>(GetRelativeUrl(VolumeManagerRoutes.GetServerNames));

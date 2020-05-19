@@ -7,6 +7,3 @@ services:
   triceratops.dashboard:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-  triceratops.blazordashboard:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development

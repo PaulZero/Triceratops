@@ -12,6 +12,7 @@ namespace Triceratops.Dashboard.WebSockets
     public class ApiHub : Hub
     {
         public const string OperationCompleteMethod = "OperationComplete";
+        public const string ServerDetailsReceivedMethod = "ServerDetailsReceived";
 
         private ITriceratopsApiClient _apiClient;
 
@@ -73,6 +74,24 @@ namespace Triceratops.Dashboard.WebSockets
             catch (Exception exception)
             {
                 await Clients.Caller.SendAsync(OperationCompleteMethod, CreateErrorResponse($"Unable to delete server: {exception.Message}"));
+            }
+        }
+
+        public async Task GetServerDetailsAsync(Guid serverId)
+        {
+            try
+            {
+                var response = await _apiClient.GetServerByIdAsync(serverId);
+
+                await Clients.Caller.SendAsync(ServerDetailsReceivedMethod, SerialiseResponse(response));
+            }
+            catch (Exception exception)
+            {
+                await Clients.Caller.SendAsync(ServerDetailsReceivedMethod, SerialiseResponse(new ServerDetailsResponse
+                {
+                    Success = false,
+                    Error = $"Unable to get server details: {exception.Message}"
+                }));
             }
         }
 

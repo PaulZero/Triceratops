@@ -6,16 +6,16 @@
     </span>
     <ul class="nav navbar-nav server-controls-@Model.Id">
         <li class="nav-item show-when-running" style="display: none;">
-            <a onclick="restartServer('@Model.Id')" role="button" class="nav-link">Restart</a>
+            <a role="button" class="nav-link restart-server-control">Restart</a>
         </li>
         <li class="nav-item show-when-running" style="display: none;">
-            <a onclick="stopServer('@Model.Id')" role="button" class="nav-link">Stop</a>
+            <a role="button" class="nav-link stop-server-control">Stop</a>
         </li>
         <li class="nav-item show-when-stopped" style="display: none;">
-            <a onclick="startServer('@Model.Id')" role="button" class="nav-link">Start</a>
+            <a role="button" class="nav-link start-server-control">Start</a>
         </li>
         <li class="nav-item">
-            <a onclick="deleteServer('@Model.Id')" role="button" class="nav-link">Delete</a>
+            <a role="button" class="nav-link delete-server-control">Delete</a>
         </li>
     </ul>
 </div>

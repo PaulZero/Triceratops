@@ -1,94 +1,155 @@
 ﻿"use strict";
 
-var connection = new signalR.HubConnectionBuilder().withUrl("/ws-api").build();
-var redirectAfterCompletion = false;
-
-connection.on("OperationComplete", function (json) {    
-    var obj = JSON.parse(json);
-
-    if (obj.Success && redirectAfterCompletion) {
-        window.location.href = window.location.origin;
+var ApiEvents = {
+    OperationStarted: "server.operation.started",
+    OperationFailed: "server.operation.failed",
+    OperationSucceeded: "server.operation.succeeded",
+    ServerDetailsRefreshed: "server.details.refreshed",
+    OperationTypes: {
+        ServerStart: "server.start",
+        ServerRestart: "server.restart",
+        ServerStop: "server.stop",
+        ServerDelete: "server.delete",
+        ServerDetailsRefresh: "server.details.refresh"
+    },
+    EmitStartedEvent: function (serverId, operationType) {
+        this.Emit(this.OperationStarted, this.CreateEventData(serverId, operationType));
+    },
+    EmitFailedEvent: function (serverId, operationType, error) {
+        console.log(error);
+        this.Emit(this.OperationFailed, {serverId: serverId, operation: operationType, error: error });
+    },
+    EmitSucceededEvent: function (serverId, operationType) {
+        this.Emit(this.OperationSucceeded, this.CreateEventData(serverId, operationType));
+    },
+    EmitServerDetailsReceivedEvent: function (serverDetails) {
+        this.Emit(this.ServerDetailsRefreshed, { server: serverDetails });
+    },
+    Emit: function (eventName, data) {
+        window.dispatchEvent(new CustomEvent(eventName, { detail: data }));
+    },
+    CreateEventData: function (serverId, operationType) {
+        return {
+            serverId: serverId,
+            operation: operationType
+        };
     }
+};
 
-    hideLoadingMessage(obj.ServerId);
-    updateServerButtons(obj.ServerId, obj.IsRunning);
-    updateServerNavBar(obj.IsRunning);
-    enableButtonsForServer(obj.ServerId);
-});
+//window.addEventListener(ApiEvents.OperationStarted, function (e) {    
+//    console.log("Server operation started: " + e.detail.operation + " for server " + e.detail.serverId);
+//});
 
-connection.start()
-.catch(function (err) {
-    return console.error(err.toString());
-});
+//window.addEventListener(ApiEvents.OperationFailed, function (e) {
+//    console.log("Server operation failed: " + e.detail.operation + " for server " + e.detail.serverId);
+//});
 
-function startServer(guid) {
-    displayLoadingMessage(guid, 'Starting server');
-    disableButtonsForServer(guid);
+//window.addEventListener(ApiEvents.OperationSucceeded, function (e) {
+//    console.log("Server operation succeeded: " + e.detail.operation + " for server " + e.detail.serverId);
+//});
 
-    connection.invoke("StartServerAsync", guid)
-        .catch(function (error) {
-            return console.error(error.toString());
+var ApiClient = {
+    connection: null,
+    init: function () {
+        if (this.connection == null) {
+            this.connection = new signalR.HubConnectionBuilder().withUrl("/ws-api").build();
+
+            this.registerListeners();
+            this.openConnection();
+        }
+    },
+    registerListeners: function () {
+        this.connection.on("OperationComplete", function (json) {
+            var obj = JSON.parse(json);
+
+            console.log('Data received from server', obj);
         });
-}
 
-function stopServer(guid) {
-    displayLoadingMessage(guid, 'Stopping server');
-    disableButtonsForServer(guid);
+        this.connection.on("ServerDetailsReceived", function (json) {
+            var serverDetails = JSON.parse(json);
 
-    connection.invoke("StopServerAsync", guid)
-        .catch(function (error) {
-            return console.error(error.toString());
+            if (serverDetails.Success) {
+                ApiEvents.EmitServerDetailsReceivedEvent(serverDetails);
+            }
         });
-}
+    },
+    openConnection: function () {
+        this.connection.start()
+            .then(function () {
+                if (currentServerId != undefined) {
+                    ApiClient.refreshServerStatus(currentServerId);
+                }
+            })
+            .catch(function (err) {
+                return console.error(err.toString());
+            });
+    },
+    startServer: function (serverId) {
+        var operationType = ApiEvents.OperationTypes.ServerStart;
 
-function restartServer(guid) {
-    displayLoadingMessage(guid, 'Restarting server');
-    disableButtonsForServer(guid);
+        ApiEvents.EmitStartedEvent(serverId, operationType);
 
-    connection.invoke("RestartServerAsync", guid)
-        .catch(function (error) {
-            return console.error(error.toString());
-        });
-}
+        this.connection.invoke("StartServerAsync", serverId)
+            .then(function () {
+                ApiEvents.EmitSucceededEvent(serverId, operationType);
+            })
+            .catch(function (error) {
+                ApiEvents.EmitFailedEvent(serverId, operationType);
+            });
+    },
+    restartServer: function (serverId) {
+        var operationType = ApiEvents.OperationTypes.ServerRestart;
 
-function deleteServer(guid) {
-    redirectAfterCompletion = true;
-    displayLoadingMessage(guid, 'Deleting server');
-    disableButtonsForServer(guid);
+        ApiEvents.EmitStartedEvent(serverId, operationType);
 
-    connection.invoke("DeleteServerAsync", guid)
-        .catch(function (error) {
-            return console.error(error.toString());
-        });
-}
+        this.connection.invoke("RestartServerAsync", serverId)
+            .then(function () {
+                ApiEvents.EmitSucceededEvent(serverId, operationType);
+            })
+            .catch(function (error) {
+                ApiEvents.EmitFailedEvent(serverId, operationType, error);
+            });
+    },
+    stopServer: function (serverId) {
+        var operationType = ApiEvents.OperationTypes.ServerStop;
 
-function displayLoadingMessage(guid, message) {    
-    $('.server-update-status-' + guid + ' .update-status-text').text(message);
-    $('.server-controls-' + guid).hide();
-    $('.server-update-status-' + guid).show();
-}
+        ApiEvents.EmitStartedEvent(serverId, operationType);
 
-function hideLoadingMessage(guid) {
-    $('.server-update-status-' + guid).hide();
-    $('.server-controls-' + guid).show();
-}
+        this.connection.invoke("StopServerAsync", serverId)
+            .then(function () {
+                ApiEvents.EmitSucceededEvent(serverId, operationType);
+            })
+            .catch(function (error) {
+                ApiEvents.EmitFailedEvent(serverId, operationType);
+            });
+    },
+    deleteServer: function (serverId) {
+        var operationType = ApiEvents.OperationTypes.ServerDelete;
 
-function disableButtonsForServer(guid) {
-    $('.server-controls-' + guid).addClass('disabled');
-}
+        ApiEvents.EmitStartedEvent(serverId, operationType);
 
-function enableButtonsForServer(guid) {
-    $('.server-controls-' + guid).removeClass('disabled');
-}
+        this.connection.invoke("DeleteServerAsync", serverId)
+            .then(function () {
+                ApiEvents.EmitSucceededEvent(serverId, operationType);
 
-function updateServerButtons(guid, isRunning) {
-    $('.server-controls-' + guid + ' .show-when-running').toggle(isRunning)
-    $('.server-controls-' + guid + ' .show-when-stopped').toggle(!isRunning);
-}
+                window.location.href = window.location.origin;
+            })
+            .catch(function (error) {
+                ApiEvents.EmitFailedEvent(serverId, operationType);
+            });
+    },
+    refreshServerStatus: function (serverId) {
+        console.log(serverId);
 
-function updateServerNavBar(isRunning) {    
-    var $navbarElement = $('.server-details-navbar');
+        var operationType = ApiEvents.OperationTypes.ServerDetailsRequested;
 
-    $navbarElement.toggleClass('serverNavBar_Running', isRunning);
-    $navbarElement.toggleClass('serverNavBar_Stopped', !isRunning);
-}
+        ApiEvents.EmitStartedEvent(serverId, operationType);
+
+        this.connection.invoke("GetServerDetailsAsync", serverId)
+            .catch(function (error) {
+                ApiEvents.EmitFailedEvent(serverId, operationType, error);
+            });
+    }
+};
+
+ApiClient.init();

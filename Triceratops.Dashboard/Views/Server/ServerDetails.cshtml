@@ -38,8 +38,77 @@
 @section Scripts
 {
     <script>
-        $(function() {
-            updateServerButtons('@Model.Id', @(Model.AllRunning ? "true" : "false"));
+        var currentServerId = '@Model.Id';
+
+        $(function () {
+            var $serverControls = $('.server-controls-@Model.Id');
+            var $serverStatusTextWrapper = $('.server-update-status-@Model.Id');
+            var $serverStatusText = $('.update-status-text', $serverStatusTextWrapper);
+            var $startServerControl = $('.start-server-control', $serverControls);
+            var $stopServerControl = $('.stop-server-control', $serverControls);
+            var $restartServerControl = $('.restart-server-control', $serverControls);
+            var $deleteServerControl = $('.delete-server-control', $serverControls);
+            var $showWhenStopped = $('.show-when-stopped', $serverControls);
+            var $showWhenRunning = $('.show-when-running', $serverControls);
+            var $serverDetailsNav = $('.server-details-navbar');
+
+            $startServerControl.click(function () { ApiClient.startServer('@Model.Id') });
+            $restartServerControl.click(function () { ApiClient.restartServer('@Model.Id') });
+            $stopServerControl.click(function () { ApiClient.stopServer('@Model.Id') });
+            $deleteServerControl.click(function () { ApiClient.deleteServer('@Model.Id') });
+
+            function showUpdatingMessage(message) {
+                console.log(message);
+
+                $serverStatusText.text(message);
+                $serverControls.hide();
+                $serverStatusTextWrapper.show();
+            }
+
+            function hideUpdatingMessage() {
+                $serverStatusTextWrapper.hide();
+            }
+
+            window.addEventListener(ApiEvents.OperationStarted, function (event) {
+                if (event.detail.operation == ApiEvents.OperationTypes.ServerStart) {
+                    showUpdatingMessage('Server starting');
+                }
+                else if (event.detail.operation == ApiEvents.OperationTypes.ServerStop) {
+                    showUpdatingMessage('Server stopping');
+                }
+                else if (event.detail.operation == ApiEvents.OperationTypes.ServerRestart) {
+                    showUpdatingMessage('Server restarting');
+                }
+                else if (event.detail.operation == ApiEvents.OperationTypes.ServerDelete) {
+                    showUpdatingMessage('Server deleting');
+                }
+            });
+
+            window.addEventListener(ApiEvents.OperationSucceeded, function (event) {
+                ApiClient.refreshServerStatus('@Model.Id');
+            });
+
+            window.addEventListener(ApiEvents.OperationFailed, function (event) {
+                hideUpdatingMessage();
+                console.log("It failed... lol", event);
+            });
+
+            window.addEventListener(ApiEvents.ServerDetailsRefreshed, function (event) {
+                var hasNonRunningContainer = false;
+
+                $(event.detail.server.Containers).each(function () {
+                    if (this.State != 1) { // TODO: Please use TypeScript, interfaces are so much better. :'(
+                        hasNonRunningContainer = true;
+                    }
+                });
+
+                $showWhenRunning.toggle(!hasNonRunningContainer);
+                $showWhenStopped.toggle(hasNonRunningContainer);
+                $serverDetailsNav.toggleClass('serverNavBar_Running', !hasNonRunningContainer);
+                $serverDetailsNav.toggleClass('serverNavBar_Stopped', hasNonRunningContainer);
+                hideUpdatingMessage();
+                $serverControls.show();
+            });
         });
     </script>
     @if (Model.HasLogs)

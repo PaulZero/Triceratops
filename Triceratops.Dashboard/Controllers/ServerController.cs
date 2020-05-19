@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -48,7 +49,7 @@ namespace Triceratops.Dashboard.Controllers
 
                 return View(model);
             }
-            catch
+            catch (Exception exception)
             {
                 return RedirectToRoute(DashboardRoutes.ListServers);
             }

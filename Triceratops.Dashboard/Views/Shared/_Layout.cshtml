@@ -49,7 +49,7 @@
                     <div class="dropdown-menu" aria-labelledby="createNewServerDropdown_label">
                         @foreach (var serverType in ServerTypeHelper.AllowedServerTypes)
                         {
-                            <a class="dropdown-item" asp-route="Server_Create" asp-route-serverType="@serverType">@serverType</a>
+                            <dashboard-link route="DashboardRoutes.CreateServer" param-serverType="@serverType" class="dropdown-item">@serverType</dashboard-link>
                         }
                     </div>
                 </li>

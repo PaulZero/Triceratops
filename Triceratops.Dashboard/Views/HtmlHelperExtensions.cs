@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Models.Storage;
+using Triceratops.Libraries.RouteMapping;
+using Triceratops.Libraries.RouteMapping.Enums;
 
 namespace Triceratops.Dashboard.Views
 {
@@ -60,7 +62,7 @@ namespace Triceratops.Dashboard.Views
                 foreach (var file in directory.Files)
                 {
                     if (FileHelper.CanEdit(file.Name))
-                    {
+                    {                        
                         htmlBuilder
                             .AppendHtml("<div>")
                             .AppendHtml("<i class=\"far fa-file\"></i> ")
