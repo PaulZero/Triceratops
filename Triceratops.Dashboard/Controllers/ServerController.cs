@@ -39,10 +39,18 @@ namespace Triceratops.Dashboard.Controllers
         [HttpGet("/servers/{slug}", Name = "ServerDetails")]
         public async Task<IActionResult> ServerDetails(string slug)
         {
-            var server = await _apiService.GetServerBySlugAsync(slug);
-            var model = await WrapServerResponseAsync(server, true, true);
+            try
+            {
+                var server = await _apiService.GetServerBySlugAsync(slug);
+                var model = await WrapServerResponseAsync(server, true, true);
 
-            return View(model);
+                return View(model);
+            }
+            catch
+            {
+                return RedirectToRoute("ListServers");
+            }
+            
         }
 
         [HttpGet("/servers/files/edit/{fileHash}", Name = "EditServerFile")]

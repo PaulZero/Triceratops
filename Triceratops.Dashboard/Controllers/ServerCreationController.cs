@@ -36,7 +36,12 @@ namespace Triceratops.Dashboard.Controllers
                 var factory = new ServerConfigurationFactory();
                 var configuration = factory.CreateFromDictionary(formFields);
 
-                await _apiClient.CreateServerAsync(new CreateServerRequest(configuration));
+                var server = await _apiClient.CreateServerAsync(new CreateServerRequest(configuration));
+
+                if (server != null)
+                {
+                    return RedirectToRoute("ServerDetails", new { slug = server.Slug });
+                }
             }
             catch (Exception exception)
             {

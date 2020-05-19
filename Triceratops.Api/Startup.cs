@@ -1,13 +1,18 @@
+using DnsClient.Internal;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Triceratops.Api.Models.ActionFilters;
 using Triceratops.Api.Services.DbService;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
+using Triceratops.Libraries.Http.Clients.Storage;
+using Triceratops.Libraries.Http.Core;
+using Triceratops.Libraries.Http.Storage.Interfaces.Client;
 
 namespace Triceratops.Api
 {
@@ -34,9 +39,12 @@ namespace Triceratops.Api
             services.AddSingleton(s => s.GetRequiredService<IDbService>().Servers);
             services.AddSingleton(s => s.GetRequiredService<IDbService>().Containers);
 
+            services.AddSingleton<ITriceratopsStorageClient>(s => new TriceratopsStorageClient(new CoreHttpClient(s.GetRequiredService<ILogger<ITriceratopsStorageClient>>())));
+
             services.AddSingleton<IServerService>(s => new ServerService(
                 s.GetRequiredService<IDbService>(),
-                s.GetRequiredService<IDockerService>()
+                s.GetRequiredService<IDockerService>(),
+                s.GetRequiredService<ITriceratopsStorageClient>()
             ));
         }
 
