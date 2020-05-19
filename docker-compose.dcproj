@@ -5,10 +5,10 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>4e6fbd55-044a-413a-bc70-7fd83ad9de36</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
-    <DockerServiceName>triceratops.dashboard</DockerServiceName>
+    <DockerServiceName>triceratops.blazordashboard</DockerServiceName>
   </PropertyGroup>
   <PropertyGroup>
-    <DockerServiceUrl>http://localhost:8080</DockerServiceUrl>
+    <DockerServiceUrl>http://localhost:6060</DockerServiceUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

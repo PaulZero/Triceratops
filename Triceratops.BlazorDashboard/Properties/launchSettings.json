@@ -3,7 +3,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:50626",
+      "applicationUrl": "http://localhost:64350",
       "sslPort": 0
     }
   },
@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Triceratops.Api": {
+    "Triceratops.BlazorDashboard": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

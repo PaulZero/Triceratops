@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Libraries", "Tr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Libraries.Tests", "Triceratops.Libraries.Tests\Triceratops.Libraries.Tests.csproj", "{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triceratops.BlazorDashboard", "Triceratops.BlazorDashboard\Triceratops.BlazorDashboard.csproj", "{810240A0-F867-4083-A2FD-6C2CD8301358}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{810240A0-F867-4083-A2FD-6C2CD8301358}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{810240A0-F867-4083-A2FD-6C2CD8301358}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{810240A0-F867-4083-A2FD-6C2CD8301358}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{810240A0-F867-4083-A2FD-6C2CD8301358}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
