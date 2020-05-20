@@ -171,6 +171,7 @@ namespace Triceratops.Api.Services.DockerService
                 ImageName = "triceratops_volumemanager",
                 ImageVersion = "latest",
                 Volumes = volumes,
+                HostName = "triceratops.volumemanager",
                 ServerPorts = new List<ServerPorts>
                 {
                     new ServerPorts
@@ -382,9 +383,9 @@ namespace Triceratops.Api.Services.DockerService
                 Image = $"{container.ImageName}:{container.ImageVersion}",
                 Name = prefixContainer ? $"{ContainerNamePrefix}{container.Name}" : container.Name,
                 Env = container.Arguments?.ToList(),
-                ExposedPorts = exposedPorts,
+                ExposedPorts = exposedPorts,                
                 HostConfig = new HostConfig
-                {
+                {                    
                     PortBindings = portBindings,
                     Mounts = container.Volumes.Select(v =>
                     {
@@ -398,6 +399,11 @@ namespace Triceratops.Api.Services.DockerService
                     NetworkMode = "triceratops.network"
                 }
             };
+
+            if (!string.IsNullOrWhiteSpace(container.HostName))
+            {
+                parameters.Hostname = container.HostName;
+            }
 
             return parameters;
         }

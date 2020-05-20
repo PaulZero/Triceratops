@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace Triceratops.Libraries.Models
@@ -16,6 +17,13 @@ namespace Triceratops.Libraries.Models
         public string ImageName { get; set; }
 
         public string ImageVersion { get; set; }
+
+        /// <summary>
+        /// This is a short term fix for a bug on Linux where the API can't find the volume
+        /// server by the auto generated hostname (which works on Windows).
+        /// </summary>
+        [JsonIgnore]
+        public string HostName { get; set; }
 
         public List<ServerPorts> ServerPorts { get; set; } = new List<ServerPorts>();
 
