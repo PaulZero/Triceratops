@@ -4,6 +4,8 @@ services:
   triceratops.api:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
   triceratops.dashboard:
     ports:
       - "${DASHBOARD_PORT}:80"

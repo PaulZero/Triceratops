@@ -263,40 +263,40 @@ namespace Triceratops.Api.Services.DockerService
         {
             try
             {
-            using var tarball = new MemoryStream();
-            using var archive = new TarOutputStream(tarball)
-            {
-                IsStreamOwner = false
-            };
+                using var tarball = new MemoryStream();
+                using var archive = new TarOutputStream(tarball)
+                {
+                    IsStreamOwner = false
+                };
 
-            var entry = TarEntry.CreateTarEntry(dockerFile.Name);
-            var fileStream = File.OpenRead(dockerFile.FullName);
-            entry.Size = fileStream.Length;
-            archive.PutNextEntry(entry);
+                var entry = TarEntry.CreateTarEntry(dockerFile.Name);
+                var fileStream = File.OpenRead(dockerFile.FullName);
+                entry.Size = fileStream.Length;
+                archive.PutNextEntry(entry);
 
-            await fileStream.CopyToAsync(archive);
+                await fileStream.CopyToAsync(archive);
 
-            archive.CloseEntry();
-            archive.Close();
+                archive.CloseEntry();
+                archive.Close();
 
-            tarball.Position = 0;
+                tarball.Position = 0;
 
-            await dockerClient.Images.BuildImageFromDockerfileAsync(tarball, new ImageBuildParameters
-            {
-                Tags = new List<string>
+                await dockerClient.Images.BuildImageFromDockerfileAsync(tarball, new ImageBuildParameters
+                {
+                    Tags = new List<string>
                 {
                     $"{imageConfig.Name}:{imageVersion.Tag}"
                 },
-                BuildArgs = imageVersion.EnvironmentVariables
-            });
-	    }
-	    catch (Exception exception)
+                    BuildArgs = imageVersion.EnvironmentVariables
+                });
+            }
+            catch (Exception exception)
             {
                 _logger.LogError($"Unable to build image: {exception.Message}");
 
-		throw;
+                throw;
             }
-        } 
+        }
 
         private async Task BuildImageAsync(string imageName, string imageTag, DockerClient dockerClient)
         {
@@ -350,6 +350,8 @@ namespace Triceratops.Api.Services.DockerService
             }
             catch (Exception exception)
             {
+                _logger.LogError($"Failed retry check for image {imageIdentifier}: {exception.Message}");
+
                 return false;
             }
         }

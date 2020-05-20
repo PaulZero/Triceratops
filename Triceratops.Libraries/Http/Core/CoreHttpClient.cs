@@ -112,7 +112,7 @@ namespace Triceratops.Libraries.Http.Core
             }
             catch (Exception exception)
             {
-                var stringBuilder = new StringBuilder($"Failed to send {method} to {relativeUrl}: ");
+                var stringBuilder = new StringBuilder($"Failed to send {method} to {BaseUrl}{relativeUrl}: ");
 
                 if (exception is WebException webException && webException?.Response is HttpWebResponse response)
                 {

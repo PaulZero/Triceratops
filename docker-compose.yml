@@ -2,7 +2,8 @@ version: '3.7'
 
 services:
   triceratops.api:
-    hostname: "triceratops.api"
+    hostname: triceratops.api
+    container_name: Triceratops.Api
     image: ${DOCKER_REGISTRY-}triceratopsapi    
     restart: always
     build:
@@ -12,7 +13,8 @@ services:
       - triceratops.network
 
   triceratops.dashboard:
-    hostname: "triceratops.dashboard"
+    hostname: triceratops.dashboard
+    container_name: Triceratops.Dashboard
     image: ${DOCKER_REGISTRY-}triceratopsdashboard    
     restart: always
     build:
@@ -22,9 +24,9 @@ services:
       - triceratops.network
 
   triceratops.mongo:
-    image: "mongo"
+    image: mongo
     container_name: Triceratops.Mongo
-    hostname: "triceratops.mongo"
+    hostname: triceratops.mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
