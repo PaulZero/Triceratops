@@ -261,6 +261,8 @@ namespace Triceratops.Api.Services.DockerService
 
         private async Task BuildDockerImage(FileInfo dockerFile, ImageConfig imageConfig, ImageVersion imageVersion, DockerClient dockerClient)
         {
+            try
+            {
             using var tarball = new MemoryStream();
             using var archive = new TarOutputStream(tarball)
             {
@@ -287,6 +289,13 @@ namespace Triceratops.Api.Services.DockerService
                 },
                 BuildArgs = imageVersion.EnvironmentVariables
             });
+	    }
+	    catch (Exception exception)
+            {
+                _logger.LogError($"Unable to build image: {exception.Message}");
+
+		throw;
+            }
         } 
 
         private async Task BuildImageAsync(string imageName, string imageTag, DockerClient dockerClient)

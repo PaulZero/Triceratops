@@ -2,15 +2,8 @@ version: '3.7'
 
 services:
   triceratops.api:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "9090:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   triceratops.dashboard:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "8080:80"
-  triceratops.mongo:
-    ports:
-      - "27017:27017"
+      - "${DASHBOARD_PORT}:80"
