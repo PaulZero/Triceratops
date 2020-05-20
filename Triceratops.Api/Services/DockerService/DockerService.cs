@@ -385,7 +385,8 @@ namespace Triceratops.Api.Services.DockerService
                 Env = container.Arguments?.ToList(),
                 ExposedPorts = exposedPorts,                
                 HostConfig = new HostConfig
-                {                    
+                {
+                    
                     PortBindings = portBindings,
                     Mounts = container.Volumes.Select(v =>
                     {
@@ -396,13 +397,19 @@ namespace Triceratops.Api.Services.DockerService
                             Type = "volume"
                         };
                     }).ToList(),
-                    NetworkMode = "triceratops.network"
+                    NetworkMode = "triceratops.network",
                 }
             };
 
             if (!string.IsNullOrWhiteSpace(container.HostName))
             {
+                _logger.LogInformation("Pissing about with host names for container.");
+
                 parameters.Hostname = container.HostName;
+                parameters.HostConfig.ExtraHosts = new List<string>
+                {
+                    "garbage.pile"
+                };
             }
 
             return parameters;
