@@ -171,15 +171,6 @@ namespace Triceratops.Api.Services.DockerService
                 ImageName = "triceratops_volumemanager",
                 ImageVersion = "latest",
                 Volumes = volumes,
-                HostName = "triceratops.volumemanager",
-                ServerPorts = new List<ServerPorts>
-                {
-                    new ServerPorts
-                    {
-                        HostPort = 7070,
-                        ContainerPort = 80
-                    }
-                }
             };
 
             var creationParameters = CreateContainerParameters(volumeContainer, false);
@@ -400,17 +391,6 @@ namespace Triceratops.Api.Services.DockerService
                     NetworkMode = "triceratops.network",
                 }
             };
-
-            if (!string.IsNullOrWhiteSpace(container.HostName))
-            {
-                _logger.LogInformation("Pissing about with host names for container.");
-
-                parameters.Hostname = container.HostName;
-                parameters.HostConfig.ExtraHosts = new List<string>
-                {
-                    "garbage.pile"
-                };
-            }
 
             return parameters;
         }

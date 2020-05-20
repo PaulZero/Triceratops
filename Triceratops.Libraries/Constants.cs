@@ -4,8 +4,8 @@ namespace Triceratops.Libraries
 {
     public static class Constants
     {
-        public const string InternalApiUrl = "http://triceratops.api";
+        public const string InternalApiUrl = "http://Triceratops.Api";
 
-        public const string InternalVolumeManagerUrl = "http://triceratops.volumemanager";
+        public const string InternalVolumeManagerUrl = "http://Triceratops.VolumeManager";
     }
 }

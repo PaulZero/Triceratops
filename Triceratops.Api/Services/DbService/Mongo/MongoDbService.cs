@@ -46,7 +46,7 @@ namespace Triceratops.Api.Services.DbService.Mongo
                 s.MapIdField(s => s.Id);
             });
 
-            return new MongoClient(new MongoUrl("mongodb://root:password@triceratops.mongo"));
+            return new MongoClient(new MongoUrl("mongodb://root:password@Triceratops.Mongo"));
         }
     }
 }
