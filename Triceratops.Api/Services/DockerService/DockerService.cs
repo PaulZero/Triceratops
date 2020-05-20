@@ -439,13 +439,15 @@ namespace Triceratops.Api.Services.DockerService
 
         private static DockerClient CreateDockerClient()
         {
-            
+            if (File.Exists("/var/run/docker.sock"))
+            {
+                // Congrats, you're on Linux, lucky you.
+                return new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock"))
+                    .CreateClient();
+            }            
 
-            var apiUri = Environment.GetEnvironmentVariable("DOCKER_API_URI") ?? "tcp://host.docker.internal:2375";
-
-            
-
-            return new DockerClientConfiguration(new Uri(apiUri))
+            // Well done you need to make your Docker install insecure, idiot.
+            return new DockerClientConfiguration(new Uri("tcp://host.docker.internal:2375"))
                 .CreateClient();
         }
     }
