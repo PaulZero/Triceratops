@@ -3,9 +3,7 @@ version: '3.7'
 services:
   triceratops.api:
     hostname: "triceratops.api"
-    image: ${DOCKER_REGISTRY-}triceratopsapi
-    ports:
-      - "9090:80"
+    image: ${DOCKER_REGISTRY-}triceratopsapi    
     restart: always
     build:
       context: .
@@ -15,9 +13,7 @@ services:
 
   triceratops.dashboard:
     hostname: "triceratops.dashboard"
-    image: ${DOCKER_REGISTRY-}triceratopsdashboard
-    ports:
-      - "8080:80"
+    image: ${DOCKER_REGISTRY-}triceratopsdashboard    
     restart: always
     build:
       context: .
@@ -29,8 +25,6 @@ services:
     image: "mongo"
     container_name: Triceratops.Mongo
     hostname: "triceratops.mongo"
-    ports:
-      - "27017:27017"
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
