@@ -5,7 +5,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - "DOCKER_DAEMON_URL=unix:///var/run/docker.sock"
+      DOCKER_DAEMON_URL: unix:///var/run/docker.sock
   triceratops.dashboard:
     ports:
       - "9000:80"

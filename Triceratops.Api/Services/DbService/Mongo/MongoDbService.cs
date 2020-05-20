@@ -15,18 +15,25 @@ namespace Triceratops.Api.Services.DbService.Mongo
 
         public IVolumeRepo Volumes { get; }
 
-        private readonly MongoClient mongoClient;
+        private readonly MongoClient _mongoClient;
 
-        private readonly IMongoDatabase mongoDatabase;
+        private readonly IMongoDatabase _mongoDatabase;
 
-        public MongoDbService()
+        private readonly string _mongoUsername;
+
+        private readonly string _mongoPassword;
+
+        public MongoDbService(string mongoUsername, string mongoPassword)
         {
-            mongoClient = CreateMongoClient();
-            mongoDatabase = mongoClient.GetDatabase(DatabaseName);
+            _mongoUsername = mongoUsername;
+            _mongoPassword = mongoPassword;
 
-            Containers = new MongoContainerRepo(this, mongoDatabase.GetCollection<Container>("container"));
-            Servers = new MongoServerRepo(this, mongoDatabase.GetCollection<Server>("server"));
-            Volumes = new MongoVolumeRepo(mongoDatabase.GetCollection<Volume>("volume"));
+            _mongoClient = CreateMongoClient();
+            _mongoDatabase = _mongoClient.GetDatabase(DatabaseName);
+
+            Containers = new MongoContainerRepo(this, _mongoDatabase.GetCollection<Container>("container"));
+            Servers = new MongoServerRepo(this, _mongoDatabase.GetCollection<Server>("server"));
+            Volumes = new MongoVolumeRepo(_mongoDatabase.GetCollection<Volume>("volume"));
         }
 
         private MongoClient CreateMongoClient()
@@ -46,7 +53,7 @@ namespace Triceratops.Api.Services.DbService.Mongo
                 s.MapIdField(s => s.Id);
             });
 
-            return new MongoClient(new MongoUrl("mongodb://root:password@Triceratops.Mongo"));
+            return new MongoClient(new MongoUrl($"mongodb://{_mongoUsername}:{_mongoPassword}@Triceratops.Mongo"));
         }
     }
 }

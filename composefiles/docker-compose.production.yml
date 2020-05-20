@@ -3,6 +3,7 @@ version: '3.7'
 services:
   triceratops.api:
     container_name: Triceratops.Api
+    hostname: Triceratops.Api
     image: ${DOCKER_REGISTRY-}triceratopsapi    
     restart: always
     build:
@@ -11,10 +12,12 @@ services:
     networks:
       - triceratops.network
     environment:
-      - "tcp://host.docker.internal:2375"
+      MONGO_USERNAME: root
+      MONGO_PASSWORD: fkQ2Y5xAt5Jwv5jj8hSK5puJMP7YkpJs
 
   triceratops.dashboard:
     container_name: Triceratops.Dashboard
+    hostname: Triceratops.Dashboard
     image: ${DOCKER_REGISTRY-}triceratopsdashboard    
     restart: always
     build:
@@ -26,10 +29,11 @@ services:
   triceratops.mongo:
     image: mongo
     container_name: Triceratops.Mongo
+    hostname: Triceratops.Mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_ROOT_PASSWORD: fkQ2Y5xAt5Jwv5jj8hSK5puJMP7YkpJs
     networks:
       - triceratops.network
 

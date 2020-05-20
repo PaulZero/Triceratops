@@ -38,7 +38,7 @@ namespace Triceratops.Api
 
             ConfigureDocker(services);
 
-            services.AddSingleton(s => DbServiceFactory.CreateFromEnvironmentVariables(s.GetRequiredService<IConfiguration>()));
+            services.AddSingleton(s => DbServiceFactory.CreateFromEnvironmentVariables());
             services.AddSingleton(s => s.GetRequiredService<IDbService>().Servers);
             services.AddSingleton(s => s.GetRequiredService<IDbService>().Containers);
 
