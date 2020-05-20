@@ -6,17 +6,19 @@ services:
     image: ${DOCKER_REGISTRY-}triceratopsapi    
     restart: always
     build:
-      context: .
+      context: ..
       dockerfile: Triceratops.Api/Dockerfile
     networks:
       - triceratops.network
+    environment:
+      - "tcp://host.docker.internal:2375"
 
   triceratops.dashboard:
     container_name: Triceratops.Dashboard
     image: ${DOCKER_REGISTRY-}triceratopsdashboard    
     restart: always
     build:
-      context: .
+      context: ..
       dockerfile: Triceratops.Dashboard/Dockerfile
     networks:
       - triceratops.network

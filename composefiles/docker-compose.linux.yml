@@ -5,7 +5,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - "DOCKER_DAEMON_URL=unix:///var/run/docker.sock"
   triceratops.dashboard:
     ports:
-      - "${DASHBOARD_PORT}:80"
+      - "9000:80"

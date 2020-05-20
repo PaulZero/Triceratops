@@ -24,11 +24,14 @@ namespace Triceratops.Api.Services.DockerService
 
         private const string VolumeContainerName = "Triceratops.VolumeManager";
 
+        private readonly string _dockerDaemonUrl;
+
         private readonly ILogger _logger;
 
-        public DockerService(ILogger logger)
+        public DockerService(string dockerDaemonUrl, ILogger logger)
         {
-            _logger = logger;
+            _dockerDaemonUrl = dockerDaemonUrl;
+            _logger = logger;            
         }
 
         public async Task<bool> CreateContainerAsync(Container container)
@@ -441,17 +444,9 @@ namespace Triceratops.Api.Services.DockerService
             }
         }
 
-        private static DockerClient CreateDockerClient()
+        private DockerClient CreateDockerClient()
         {
-            if (File.Exists("/var/run/docker.sock"))
-            {
-                // Congrats, you're on Linux, lucky you.
-                return new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock"))
-                    .CreateClient();
-            }            
-
-            // Well done you need to make your Docker install insecure, idiot.
-            return new DockerClientConfiguration(new Uri("tcp://host.docker.internal:2375"))
+            return new DockerClientConfiguration(new Uri(_dockerDaemonUrl))
                 .CreateClient();
         }
     }

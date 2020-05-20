@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
 using Triceratops.Api.Models.ActionFilters;
 using Triceratops.Api.Services.DbService;
 using Triceratops.Api.Services.DbService.Interfaces;
@@ -35,7 +36,7 @@ namespace Triceratops.Api
                 o.Filters.Add(new TimedRequestAttribute());
             });
 
-            services.AddSingleton<IDockerService>(s => new DockerService(s.GetRequiredService<ILogger<IDockerService>>()));
+            ConfigureDocker(services);
 
             services.AddSingleton(s => DbServiceFactory.CreateFromEnvironmentVariables(s.GetRequiredService<IConfiguration>()));
             services.AddSingleton(s => s.GetRequiredService<IDbService>().Servers);
@@ -73,6 +74,18 @@ namespace Triceratops.Api
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private void ConfigureDocker(IServiceCollection services)
+        {
+            var dockerDaemonUrl = Environment.GetEnvironmentVariable("DOCKER_DAEMON_URL");
+
+            if (string.IsNullOrWhiteSpace(dockerDaemonUrl))
+            {
+                throw new Exception($"The environment variable DOCKER_DAEMON_URL must be set for Triceratops to run!");
+            }
+
+            services.AddSingleton<IDockerService>(s => new DockerService(dockerDaemonUrl, s.GetRequiredService<ILogger<IDockerService>>()));
         }
     }
 }

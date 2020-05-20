@@ -6,6 +6,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
     <LangVersion>8.0</LangVersion>
+    <Configurations>Debug;Release;DockerDesktopDebug;DockerToolboxDebug</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
