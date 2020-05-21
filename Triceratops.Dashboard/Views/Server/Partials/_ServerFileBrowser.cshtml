@@ -4,7 +4,7 @@
 {
     @foreach (var directory in Model.Volumes)
     {
-        @Html.CreateDirectoryTree(directory, true)
+        @Html.CreateDirectoryTree(Model.Slug, directory, true)
     }
 }
 else

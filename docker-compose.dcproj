@@ -27,6 +27,10 @@
     <DockerServiceUrl>{Scheme}://{ServiceIPAddress}{ServicePort}</DockerServiceUrl>
     <DockerComposeBaseFilePath>composefiles/docker-compose.production</DockerComposeBaseFilePath>
   </PropertyGroup>
+  <PropertyGroup Label="Custom">
+    <DockerDevelopmentMode Condition="'$(Configuration)'=='DockerDesktopDebug'">Fast</DockerDevelopmentMode>
+    <DockerDevelopmentMode Condition="'$(Configuration)'=='DockerToolboxDebug'">Fast</DockerDevelopmentMode>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='DockerDesktopDebug'">
     <AdditionalComposeFilePaths>composefiles/docker-compose.debug.yml;composefiles/docker-compose.docker-desktop.yml</AdditionalComposeFilePaths>
   </PropertyGroup>
@@ -40,6 +44,27 @@
     <None Include="composefiles/docker-compose.docker-toolbox.yml" />
     <None Include="composefiles/docker-compose.linux.yml" />
     <None Include=".dockerignore" />
+    <None Include="dockersources\Terraria\Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="dockersources\Terraria\ImageConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+    <None Include="dockersources\VolumeInspector\appsettings.json" />
+    <None Include="dockersources\VolumeInspector\Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="dockersources\VolumeInspector\ImageConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+    <None Include="dockersources\VolumeInspector\Program.cs" />
+    <None Include="dockersources\VolumeInspector\Properties\launchSettings.json" />
+    <None Include="dockersources\VolumeInspector\Startup.cs" />
+    <None Include="dockersources\VolumeInspector\Triceratops.VolumeInspector.csproj" />
     <None Include="install.sh" />
     <None Include="uninstall.sh" />
     <None Include="VolumeManager.Dockerfile" />

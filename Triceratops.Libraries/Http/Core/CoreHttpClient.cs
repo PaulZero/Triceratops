@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Core.Enums;
-using Triceratops.Libraries.Http.Storage.ResponseModels;
+using Triceratops.Libraries.Models.Storage;
 
 namespace Triceratops.Libraries.Http.Core
 {
@@ -27,7 +27,7 @@ namespace Triceratops.Libraries.Http.Core
             BaseUrl = baseUrl;
         }
 
-        public async Task<FileDownloadResponse> DownloadAsync(string relativeUrl)
+        public async Task<DownloadStream> DownloadAsync(string relativeUrl)
         {
             var request = CreateRequest(relativeUrl, AllowedHttpMethod.Get);
             var response = await request.GetResponseAsync();
@@ -50,16 +50,54 @@ namespace Triceratops.Libraries.Http.Core
 
             memoryStream.Position = 0;
 
-            return new FileDownloadResponse(fileName, memoryStream);
+            return new DownloadStream(memoryStream, fileName);
         }
+
+        public async Task<bool> CheckUrlReturnsOkAsync(string relativeUrl)
+        {
+            try
+            {
+                var request = CreateRequest(relativeUrl, AllowedHttpMethod.Get);
+                var response = await request.GetResponseAsync() as HttpWebResponse;
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch
+            {
+                Logger.LogInformation($"{BaseUrl}{relativeUrl} did not return an OK status code.");
+
+                return false;
+            }
+        }
+
+        public Task GetAsync(string relativeUrl)
+            => SendRequestAsync(relativeUrl, AllowedHttpMethod.Get);
 
         public Task<T> GetAsync<T>(string relativeUrl)
             => SendRequestAsync<T>(relativeUrl, AllowedHttpMethod.Get);
 
+        public Task PostAsync(string relativeUrl)
+            => SendRequestAsync(relativeUrl, AllowedHttpMethod.Post);
+
         public Task<T> PostAsync<T>(string relativeUrl, object requestBody = null)
             => SendRequestAsync<T>(relativeUrl, AllowedHttpMethod.Post, requestBody);
 
-        public async Task UploadAsync(string relativeUrl, Stream stream)
+        public Task UploadAsync(string relativeUrl, Stream stream)
+            => SendUploadRequestAsync(relativeUrl, stream);
+
+        public async Task<T> UploadAsync<T>(string relativeUrl, Stream stream)
+        {
+            var response = await SendUploadRequestAsync(relativeUrl, stream);
+
+            return JsonHelper.Deserialise<T>(response);
+        }
+
+        private async Task<string> SendUploadRequestAsync(string relativeUrl, Stream stream)
         {
             try
             {
@@ -70,10 +108,16 @@ namespace Triceratops.Libraries.Http.Core
                 await stream.CopyToAsync(requestStream);
 
                 using var response = await request.GetResponseAsync();
+                using var responseStream = response.GetResponseStream();
+                using var reader = new StreamReader(responseStream);
+
+                return reader.ReadToEnd();
             }
             catch (Exception exception)
             {
                 Logger.LogError($"Failed to upload file to {relativeUrl}: {exception.Message}");
+
+                throw;
             }
         }
 
@@ -83,9 +127,9 @@ namespace Triceratops.Libraries.Http.Core
             {
                 var responseString = await SendRequestAsync(relativeUrl, method, requestBody);
 
-                return JsonConvert.DeserializeObject<T>(responseString);
+                return JsonHelper.Deserialise<T>(responseString);
             }
-            catch (JsonException exception)
+            catch (System.Text.Json.JsonException exception)
             {
                 Logger.LogError($"Failed to deserialise response from {relativeUrl} to instance of {typeof(T).Name}: {exception.Message}");
 
@@ -170,7 +214,7 @@ namespace Triceratops.Libraries.Http.Core
         {
             try
             {
-                return JsonConvert.SerializeObject(requestBody);
+                return JsonHelper.Serialise(requestBody);
             }
             catch (Exception exception)
             {
@@ -193,6 +237,15 @@ namespace Triceratops.Libraries.Http.Core
                 default:
                     throw new Exception($"HTTP client does not support method {method}");
             }
+        }
+
+        public static IPlatformHttpClient Create(ILogger logger, string baseUrl)
+        {
+            var client = new CoreHttpClient(logger);
+
+            client.SetBaseUrl(baseUrl);
+
+            return client;
         }
     }
 }

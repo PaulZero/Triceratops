@@ -23,8 +23,8 @@ namespace Triceratops.Libraries.RouteMapping.Resolvers
 
                 [DashboardRoutes.ListServers] = RouteDefinition.CreateGet("ListServers", "/servers"),
                 [DashboardRoutes.ViewServerDetails] = RouteDefinition.CreateGet("ViewServer", "/servers/{slug}"),
-                [DashboardRoutes.ViewServerFile] = RouteDefinition.CreateGet("ViewServerFile", "/servers/files/view/{fileHash}"),
-                [DashboardRoutes.EditServerFile] = RouteDefinition.CreateGet("EditServerFile", "/servers/files/edit/{fileHash}"),
+                [DashboardRoutes.ViewServerFile] = RouteDefinition.CreateGet("ViewServerFile", "/servers/{slug}/files/view/{fileHash}"),
+                [DashboardRoutes.EditServerFile] = RouteDefinition.CreateGet("EditServerFile", "/servers/{slug}/files/edit/{fileHash}"),
                 [DashboardRoutes.SaveServerFile] = RouteDefinition.CreatePost("SaveServerFile", "/servers/files/save"),
 
                 [DashboardRoutes.SignalRHub] = RouteDefinition.CreateMixed("SignalRHub", "/websocket/api", HttpMethod.Get, HttpMethod.Post)

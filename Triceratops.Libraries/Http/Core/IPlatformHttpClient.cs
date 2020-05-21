@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using System.Threading.Tasks;
-using Triceratops.Libraries.Http.Storage.ResponseModels;
+using Triceratops.Libraries.Models.Storage;
 
 namespace Triceratops.Libraries.Http.Core
 {
@@ -11,12 +8,20 @@ namespace Triceratops.Libraries.Http.Core
     {
         void SetBaseUrl(string baseUrl);
 
+        Task<bool> CheckUrlReturnsOkAsync(string relativeUrl);
+
+        Task GetAsync(string relativeUrl);
+
         Task<T> GetAsync<T>(string relativeUrl);
+
+        Task PostAsync(string relativeUrl);
 
         Task<T> PostAsync<T>(string relativeUrl, object requestBody = null);
 
         Task UploadAsync(string relativeUrl, Stream stream);
 
-        Task<FileDownloadResponse> DownloadAsync(string relativeUrl);
+        Task<T> UploadAsync<T>(string relativeUrl, Stream stream);
+
+        Task<DownloadStream> DownloadAsync(string relativeUrl);
     }
 }

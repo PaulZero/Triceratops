@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
 using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Api.Interfaces;
 using Triceratops.Libraries.Http.Api.Interfaces.Server;
 using Triceratops.Libraries.Http.Api.RequestModels;
@@ -22,7 +22,7 @@ using static Triceratops.Libraries.Http.Api.ResponseModels.ServerLogResponse;
 
 namespace Triceratops.Api.Controllers
 {
-    public class ServerController : AbstractApiController, ITriceratopsServerApi
+    public class ServerController : AbstractApiController, ITriceratopsServerEndpoints
     {
         private readonly IServerService _servers;
 
@@ -37,7 +37,7 @@ namespace Triceratops.Api.Controllers
             _logger = logger;
         }
 
-        [ApiRoute(ApiRoutes.GetServerList)]
+        [ServerApiRoute(ServerApiRoutes.GetServerList)]
         public async Task<ServerListResponse> GetServerListAsync()
         {
             try
@@ -59,7 +59,7 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [ApiRoute(ApiRoutes.GetServerLogs)]
+        [ServerApiRoute(ServerApiRoutes.GetServerLogs)]
         public async Task<ServerLogResponse> GetServerLogsAsync(Guid serverId)
         {
             try
@@ -90,7 +90,7 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [ApiRoute(ApiRoutes.GetServerById)]
+        [ServerApiRoute(ServerApiRoutes.GetServerById)]
         public async Task<ServerDetailsResponse> GetServerByIdAsync(Guid serverId)
         {
             try
@@ -107,7 +107,7 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [ApiRoute(ApiRoutes.GetServerBySlug)]
+        [ServerApiRoute(ServerApiRoutes.GetServerBySlug)]
         public async Task<ServerDetailsResponse> GetServerBySlugAsync(string slug)
         {
             try
@@ -124,7 +124,7 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [ApiRoute(ApiRoutes.StartServer)]
+        [ServerApiRoute(ServerApiRoutes.StartServer)]
         public async Task<ServerOperationResponse> StartServerAsync(Guid serverId)
         {
             try
@@ -152,7 +152,7 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [ApiRoute(ApiRoutes.StopServer)]
+        [ServerApiRoute(ServerApiRoutes.StopServer)]
         public async Task<ServerOperationResponse> StopServerAsync(Guid serverId)
         {
             try
@@ -180,7 +180,7 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [ApiRoute(ApiRoutes.RestartServer)]
+        [ServerApiRoute(ServerApiRoutes.RestartServer)]
         public async Task<ServerOperationResponse> RestartServerAsync(Guid serverId)
         {
             try
@@ -202,7 +202,7 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [ApiRoute(ApiRoutes.DeleteServer)]
+        [ServerApiRoute(ServerApiRoutes.DeleteServer)]
         public async Task<ServerOperationResponse> DeleteServerAsync(Guid serverId)
         {
             try
@@ -224,7 +224,7 @@ namespace Triceratops.Api.Controllers
             }
         }
 
-        [ApiRoute(ApiRoutes.CreateServer)]
+        [ServerApiRoute(ServerApiRoutes.CreateServer)]
         public async Task<ServerDetailsResponse> CreateServerAsync([FromBody]CreateServerRequest request)
         {
             try
@@ -233,11 +233,11 @@ namespace Triceratops.Api.Controllers
 
                 if (request.ConfigurationType == typeof(MinecraftConfiguration))
                 {
-                    configuration = JsonConvert.DeserializeObject<MinecraftConfiguration>(request.JsonConfiguration);
+                    configuration = JsonHelper.Deserialise<MinecraftConfiguration>(request.JsonConfiguration);
                 }
                 else if (request.ConfigurationType == typeof(TerrariaConfiguration))
                 {
-                    configuration = JsonConvert.DeserializeObject<TerrariaConfiguration>(request.JsonConfiguration);
+                    configuration = JsonHelper.Deserialise<TerrariaConfiguration>(request.JsonConfiguration);
                 }
 
                 if (configuration != null)

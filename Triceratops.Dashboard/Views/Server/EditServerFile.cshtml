@@ -21,7 +21,7 @@
 <div>
     @{ var serverSlugValues = new Dictionary<string, string> { ["slug"] = Model.ServerSlug }; }
 
-    <div style="text-align: center;"><a asp-route="ServerDetails" asp-all-route-data="serverSlugValues">Back to @Model.ServerName</a></div>
+    <div style="text-align: center;"><dashboard-link route="DashboardRoutes.ViewServerDetails" param-slug="@Model.ServerSlug">Back to @Model.ServerName</dashboard-link></div>
 </div>
 
 @section Scripts {

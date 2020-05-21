@@ -3,7 +3,7 @@
 @using Triceratops.Libraries.Helpers
 
 @{
-    var response = await ApiClient.GetServerListAsync();
+    var response = await ApiClient.Servers.GetServerListAsync();
     var sortedServers = response.Servers.OrderBy(s => s.Name);
     var hasServers = response.Servers.Any();
 }

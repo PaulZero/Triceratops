@@ -2,36 +2,138 @@ using Docker.DotNet;
 using Docker.DotNet.Models;
 using ICSharpCode.SharpZipLib.Tar;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.DockerService.Models;
 using Triceratops.Libraries.Enums;
 using Triceratops.Libraries.Helpers;
+using Triceratops.Libraries.Http.Core;
 using Triceratops.Libraries.Models;
+using Triceratops.Libraries.Models.Storage;
+using Triceratops.VolumeInspector;
 
 namespace Triceratops.Api.Services.DockerService
 {
-    public class DockerService : IDockerService
+    public class DockerService : IDockerService, IDisposable
     {
         private const string ContainerNamePrefix = "TRICERATOPS_";
-
-        private const string VolumeContainerName = "Triceratops.VolumeManager";
 
         private readonly string _dockerDaemonUrl;
 
         private readonly ILogger _logger;
 
+        private readonly TemporaryContainerManager _temporaryContainers;
+
         public DockerService(string dockerDaemonUrl, ILogger logger)
         {
             _dockerDaemonUrl = dockerDaemonUrl;
-            _logger = logger;            
+            _logger = logger;
+            _temporaryContainers = new TemporaryContainerManager(CreateDockerClient, TimeSpan.FromMinutes(1), _logger);
+        }
+
+        public async Task PrepareAsync()
+        {
+            using var dockerClient = CreateDockerClient();
+
+#if (DEBUG)
+            // Uncomment if you make changes to the volume inspector and need it to rebuild on start
+
+            //try
+            //{
+            //    await dockerClient.Images.DeleteImageAsync("triceratops_volumeinspector:1.0", new ImageDeleteParameters
+            //    {
+            //        Force = true,
+            //        PruneChildren = true
+            //    });
+            //}
+            //catch
+            //{
+            //    // Lalalalalala...
+            //}
+#endif
+            var existingStorageContainers = await dockerClient.Containers.ListContainersAsync(new ContainersListParameters
+            {
+                Filters = new Dictionary<string, IDictionary<string, bool>>
+                {
+                    ["label"] = new Dictionary<string, bool>
+                    {
+                        ["com.paulzero.triceratops.volumeinspector"] = true
+                    }
+                }
+            });
+
+            foreach (var container in existingStorageContainers)
+            {
+                await dockerClient.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters
+                {
+                    Force = true,
+                    RemoveVolumes = false
+                });
+            }
+
+            await FindAndBuildDockerImageAsync("triceratops_volumeinspector", "1.0", dockerClient);
+        }
+
+        public async Task<TemporaryStorageContainer> GetStorageContainerAsync(Server server)
+        {
+            var existingContainer = _temporaryContainers.GetContainer(server.Id, true);
+
+            if (existingContainer != null)
+            {
+                return existingContainer as TemporaryStorageContainer;
+            }
+
+            var dockerClient = CreateDockerClient();
+            var serverVolumes = ServerVolumeIdentifier.CreateForServer(server);
+            var mounts = serverVolumes.Select(v =>
+            {
+                return new Mount
+                {
+                    Source = v.VolumeName,
+                    Target = v.CreateMountDestination(VolumeInspectorConstants.VolumesPath),
+                    Type = "volume"
+                };
+            });
+
+            var containerName = NameHelper.SanitiseHostname($"Triceratops.StorageServer.{server.Name}");
+
+            var parameters = new CreateContainerParameters
+            {
+                Name = containerName,
+                Image = "triceratops_volumeinspector:1.0",
+                Labels = new Dictionary<string, string>
+                {
+                    ["com.paulzero.triceratops.volumeinspector"] = "yes"
+                },
+                HostConfig = new HostConfig
+                {
+                    Mounts = mounts.ToList(),
+                    NetworkMode = "triceratops.network",
+                }
+            };
+
+            var response = await dockerClient.Containers.CreateContainerAsync(parameters);
+            var containerId = response.ID;
+
+            await dockerClient.Containers.StartContainerAsync(containerId, new ContainerStartParameters());
+
+            var httpClient = CoreHttpClient.Create(_logger, $"http://{containerName}");
+
+            await RetryHelper.RetryTask(retries => httpClient.CheckUrlReturnsOkAsync("/verify"));
+
+            var container = new TemporaryStorageContainer(httpClient, server.Id, containerId);
+
+            _temporaryContainers.AddContainer(container);
+
+            return container;
         }
 
         public async Task<bool> CreateContainerAsync(Container container)
@@ -42,7 +144,7 @@ namespace Triceratops.Api.Services.DockerService
 
                 if (container.ImageName.StartsWith("triceratops"))
                 {
-                    await BuildImageAsync(container.ImageName, container.ImageVersion, dockerClient);
+                    await FindAndBuildDockerImageAsync(container.ImageName, container.ImageVersion, dockerClient);
                 }
                 else
                 {
@@ -138,55 +240,6 @@ namespace Triceratops.Api.Services.DockerService
             }
         }
 
-        public async Task UpdateVolumeServerAsync(Server[] servers)
-        {
-            using var dockerClient = CreateDockerClient();
-
-            await DeleteVolumeServer(dockerClient);
-
-            var volumes = new List<Volume>();
-
-            foreach (var server in servers)
-            {
-                if (!server.HasVolumes)
-                {
-                    continue;
-                }
-
-                var serverName = server.Slug;
-
-                foreach (var container in server.Containers)
-                {
-                    foreach (var volume in container.Volumes)
-                    {
-                        volumes.Add(new Volume
-                        {
-                            DockerName = volume.DockerName,
-                            ContainerMountPoint = $"/app/volumes/{serverName}/{volume.DisplayName}"
-                        });
-                    }
-                }
-            }
-
-            var volumeContainer = new Container
-            {
-                Name = VolumeContainerName,
-                ImageName = "triceratops_volumemanager",
-                ImageVersion = "latest",
-                Volumes = volumes,
-            };
-
-            var creationParameters = CreateContainerParameters(volumeContainer, false);
-
-            creationParameters.Hostname = VolumeContainerName.ToLower();
-
-            await DownloadImageAsync(volumeContainer.ImageName, volumeContainer.ImageVersion, dockerClient);
-
-            var response = await dockerClient.Containers.CreateContainerAsync(creationParameters);
-
-            await dockerClient.Containers.StartContainerAsync(response.ID, new ContainerStartParameters());
-        }
-
         public async Task<string[]> GetContainerLogAsync(string containerId, uint rows = 300)
         {
             if (rows > 300)
@@ -230,60 +283,36 @@ namespace Triceratops.Api.Services.DockerService
             return lines.ToArray();
         }
 
-        private async Task DeleteVolumeServer(DockerClient dockerClient)
-        {
-            // TODO: Don't just search the entire bloody list...
-
-            var allContainers = await dockerClient.Containers.ListContainersAsync(new ContainersListParameters
-            {
-                All = true
-            });
-
-            foreach (var container in allContainers)
-            {
-                if (container.Names.Contains($"/{VolumeContainerName}"))
-                {
-                    await dockerClient.Containers.RemoveContainerAsync(container.ID, new ContainerRemoveParameters
-                    {
-                        Force = true,
-                        RemoveVolumes = false
-                    });
-                }
-            }
-
-            await dockerClient.Volumes.PruneAsync();
-        }
-
-        private async Task BuildDockerImage(FileInfo dockerFile, ImageConfig imageConfig, ImageVersion imageVersion, DockerClient dockerClient)
+        private async Task BuildDockerImageAsync(DirectoryInfo directory, ImageConfig imageConfig, ImageVersion imageVersion, DockerClient dockerClient)
         {
             try
             {
-                using var tarball = new MemoryStream();
-                using var archive = new TarOutputStream(tarball)
-                {
-                    IsStreamOwner = false
-                };
+                var tarBuilder = new TarBuilder();
+                using var tarball = await tarBuilder.BuildFromDirectory(directory);
 
-                var entry = TarEntry.CreateTarEntry(dockerFile.Name);
-                var fileStream = File.OpenRead(dockerFile.FullName);
-                entry.Size = fileStream.Length;
-                archive.PutNextEntry(entry);
+                using var writeStream = File.OpenWrite("/app/testcrap/taaaaaar.tar");
 
-                await fileStream.CopyToAsync(archive);
-
-                archive.CloseEntry();
-                archive.Close();
+                await tarball.CopyToAsync(writeStream);
 
                 tarball.Position = 0;
 
-                await dockerClient.Images.BuildImageFromDockerfileAsync(tarball, new ImageBuildParameters
+                var parameters = new ImageBuildParameters
                 {
                     Tags = new List<string>
+                    {
+                        $"{imageConfig.Name}:{imageVersion.Tag}"
+                    }
+                };
+
+                if (imageVersion.HasEnvironmentVariables)
                 {
-                    $"{imageConfig.Name}:{imageVersion.Tag}"
-                },
-                    BuildArgs = imageVersion.EnvironmentVariables
-                });
+                    parameters.BuildArgs = imageVersion.EnvironmentVariables;
+                }
+
+                using var stream = await dockerClient.Images.BuildImageFromDockerfileAsync(tarball, parameters);
+                using var reader = new StreamReader(stream);
+
+                var content = reader.ReadToEnd();
             }
             catch (Exception exception)
             {
@@ -293,19 +322,20 @@ namespace Triceratops.Api.Services.DockerService
             }
         }
 
-        private async Task BuildImageAsync(string imageName, string imageTag, DockerClient dockerClient)
+        private async Task FindAndBuildDockerImageAsync(string imageName, string imageTag, DockerClient dockerClient)
         {
             if (await IsImageRealAsync($"{imageName}:{imageTag}", dockerClient))
             {
                 return;
             }
 
-            var dockerDirectories = Directory.GetDirectories("Dockerfiles");
+            var dockerDirectories = Directory.GetDirectories("/app/dockersources/");
             var imageIdentifier = $"{imageName}:{imageTag}";
 
             foreach (var directory in dockerDirectories)
             {
-                var files = Directory.GetFiles(directory).Select(f => new FileInfo(f));
+                var directoryInfo = new DirectoryInfo(directory);
+                var files = directoryInfo.GetFiles();
                 var imageConfigFile = files.FirstOrDefault(f => f.Name == "ImageConfig.json");
                 var dockerFile = files.FirstOrDefault(f => f.Name == "Dockerfile");
 
@@ -314,14 +344,14 @@ namespace Triceratops.Api.Services.DockerService
                     continue;
                 }
 
-                var imageConfig = JsonConvert.DeserializeObject<ImageConfig>(File.ReadAllText(imageConfigFile.FullName));
+                var imageConfig = JsonHelper.Deserialise<ImageConfig>(File.ReadAllText(imageConfigFile.FullName));
 
                 if (imageConfig.Name == imageName)
                 {
                     var version = imageConfig.Versions.FirstOrDefault(v => v.Tag == imageTag)
                         ?? throw new Exception($"The tag {imageTag} was not found for image {imageName}.");
 
-                    await BuildDockerImage(dockerFile, imageConfig, version, dockerClient);
+                    await BuildDockerImageAsync(directoryInfo, imageConfig, version, dockerClient);
 
                     await WaitForDockerImageBuildAsync($"{imageConfig.Name}:{version.Tag}", dockerClient);
 
@@ -332,8 +362,20 @@ namespace Triceratops.Api.Services.DockerService
             throw new Exception("No image could be found for the requested server.");
         }
 
-        private Task WaitForDockerImageBuildAsync(string imageIdentifier, DockerClient dockerClient)
-            => RetryHelper.RetryTask(() => IsImageRealAsync(imageIdentifier, dockerClient));            
+        private async Task WaitForDockerImageBuildAsync(string imageIdentifier, DockerClient dockerClient)
+        {
+            await RetryHelper.RetryTask(async retry =>
+            {
+                if (await IsImageRealAsync(imageIdentifier, dockerClient))
+                {
+                    _logger.LogWarning($"Failed checking to see if {imageIdentifier} exists (retries: {retry}).");
+
+                    return false;
+                }
+
+                return true;
+            }, 20, TimeSpan.FromSeconds(1));
+        }          
 
         private async Task<bool> IsImageRealAsync(string imageIdentifier, DockerClient dockerClient)
         {
@@ -343,10 +385,8 @@ namespace Triceratops.Api.Services.DockerService
 
                 return true;
             }
-            catch (Exception exception)
+            catch
             {
-                _logger.LogError($"Failed retry check for image {imageIdentifier}: {exception.Message}");
-
                 return false;
             }
         }
@@ -448,6 +488,11 @@ namespace Triceratops.Api.Services.DockerService
         {
             return new DockerClientConfiguration(new Uri(_dockerDaemonUrl))
                 .CreateClient();
+        }
+
+        public void Dispose()
+        {
+            _temporaryContainers.Dispose();
         }
     }
 }

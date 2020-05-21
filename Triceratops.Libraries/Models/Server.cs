@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Models.ServerConfiguration;
 
@@ -47,13 +47,13 @@ namespace Triceratops.Libraries.Models
 
         public object DeserialiseConfiguration()
         {
-            return JsonConvert.DeserializeObject(JsonConfiguration, ConfigurationType);
+            return JsonHelper.Deserialise(JsonConfiguration, ConfigurationType);
         }
 
         public void SetConfiguration(AbstractServerConfiguration configuration)
         {
             ConfigurationType = configuration.GetType();
-            JsonConfiguration = JsonConvert.SerializeObject(configuration);
+            JsonConfiguration = JsonHelper.Serialise(configuration);
         }
     }
 }

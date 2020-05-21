@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Triceratops.Api.Services.DockerService.Models;
 using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
 
@@ -23,6 +24,8 @@ namespace Triceratops.Api.Services.ServerService
         Task<Server> GetServerBySlugAsync(string slug);
 
         Task<Server> CreateServerFromConfigurationAsync(AbstractServerConfiguration configuration);
+
+        Task<TemporaryStorageContainer> GetStorageContainerAsync(Guid serverId);
 
         Task CreateServerAsync(Server server);
 

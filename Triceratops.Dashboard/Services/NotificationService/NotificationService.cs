@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Triceratops.Libraries.Helpers;
 
 namespace Triceratops.Dashboard.Services.NotificationService
 {
@@ -55,7 +55,8 @@ namespace Triceratops.Dashboard.Services.NotificationService
                 if (_session.TryGetValue(SessionKey, out var bytes) && bytes.Any())
                 {
                     var json = Encoding.UTF8.GetString(bytes);
-                    return JsonConvert.DeserializeObject<Message[]>(json) ?? new Message[0];
+
+                    return JsonHelper.Deserialise<Message[]>(json) ?? new Message[0];
                 }
             }
             catch (Exception exception)
@@ -74,7 +75,7 @@ namespace Triceratops.Dashboard.Services.NotificationService
         {
             try
             {
-                var json = JsonConvert.SerializeObject(messages);
+                var json = JsonHelper.Serialise(messages);
                 var bytes = Encoding.UTF8.GetBytes(json);
 
                 _session.Set(SessionKey, bytes);

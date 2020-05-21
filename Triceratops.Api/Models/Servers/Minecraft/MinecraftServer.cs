@@ -21,7 +21,7 @@ namespace Triceratops.Api.Models.Servers.Minecraft
                 .GetServerBuilder(configuration)
                 .CreateContainers(b =>
                 {
-                    b.CreateContainer(DockerImageName)
+                    b.CreateContainer(DockerImageName, DockerImageTag, "Minecraft")
                      .BindPorts(configuration.HostPort, configuration.ContainerPort)
                      .BindPorts(configuration.RconHostPort, configuration.RconContainerPort)
                      .CreateVolume("data", "/data")

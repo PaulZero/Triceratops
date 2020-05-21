@@ -9,7 +9,6 @@ using Triceratops.Dashboard.Models;
 using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Api.Interfaces.Client;
 using Triceratops.Libraries.Http.Api.ResponseModels;
-using Triceratops.Libraries.Http.Storage.Interfaces.Client;
 using Triceratops.Libraries.RouteMapping.Attributes;
 using Triceratops.Libraries.RouteMapping.Enums;
 
@@ -21,19 +20,16 @@ namespace Triceratops.Dashboard.Controllers
 
         private readonly ILogger _logger;
 
-        private readonly ITriceratopsStorageClient _storageClient;
-
-        public ServerController(ITriceratopsApiClient apiService, ILogger<ServerController> logger, ITriceratopsStorageClient storageClient)
+        public ServerController(ITriceratopsApiClient apiService, ILogger<ServerController> logger)
         {
             _apiService = apiService;
             _logger = logger;
-            _storageClient = storageClient;
         }
 
         [DashboardRoute(DashboardRoutes.ListServers)]
         public async Task<IActionResult> ListServers()
         {
-            var response = await _apiService.GetServerListAsync();
+            var response = await _apiService.Servers.GetServerListAsync();
             var models = response.Servers.Select(s => WrapServerResponseAsync(s));
 
             return View(await Task.WhenAll(models));
@@ -44,12 +40,12 @@ namespace Triceratops.Dashboard.Controllers
         {
             try
             {
-                var server = await _apiService.GetServerBySlugAsync(slug);
+                var server = await _apiService.Servers.GetServerBySlugAsync(slug);
                 var model = await WrapServerResponseAsync(server, true, true);
 
                 return View(model);
             }
-            catch (Exception exception)
+            catch
             {
                 return RedirectToRoute(DashboardRoutes.ListServers);
             }
@@ -57,18 +53,17 @@ namespace Triceratops.Dashboard.Controllers
         }
 
         [DashboardRoute(DashboardRoutes.EditServerFile)]
-        public async Task<IActionResult> EditServerFile(string fileHash)
+        public async Task<IActionResult> EditServerFile(string slug, string fileHash)
         {
             var relativeFilePath = HashHelper.CreateString(fileHash);
-            var slug = relativeFilePath.Split('/').First(s => !string.IsNullOrWhiteSpace(s));
 
-            var server = await _apiService.GetServerBySlugAsync(slug);
-            using var receivedFile = await _storageClient.DownloadFileAsync(relativeFilePath);
+            var server = await _apiService.Servers.GetServerBySlugAsync(slug);
+            var receivedFile = await _apiService.Storage.DownloadFileAsync(server.ServerId, relativeFilePath);
 
             return View(new ServerFileViewModel
             {
-                FileName = receivedFile.Name,
-                FileText = receivedFile.GetStreamAsString(),
+                FileName = receivedFile.FileName,
+                FileText = receivedFile.GetFileContents(),
                 ServerName = server.Name,
                 ServerSlug = server.Slug,
                 RelativeFilePath = relativeFilePath
@@ -78,18 +73,21 @@ namespace Triceratops.Dashboard.Controllers
         [DashboardRoute(DashboardRoutes.SaveServerFile)]
         public async Task<IActionResult> SaveServerFile([FromForm]ServerFileViewModel model)
         {
-            await _storageClient.UploadFileAsync(model.RelativeFilePath, new MemoryStream(Encoding.UTF8.GetBytes(model.FileText)));
+            await _apiService.Storage.UploadFileAsync(model.ServerSlug, model.RelativeFilePath, new MemoryStream(Encoding.UTF8.GetBytes(model.FileText)));
 
             return RedirectToRoute(DashboardRoutes.ViewServerDetails, new { slug = model.ServerSlug });
         }
 
         private async Task<ServerViewModel> WrapServerResponseAsync(ServerDetailsResponse response, bool includeStorage = false, bool includeLogs = false)
         {
-            var storage = includeStorage ? await _storageClient.GetServerAsync(response.Slug) : null;
-            var logs = includeLogs ? await _apiService.GetServerLogsAsync(response.ServerId) : null;
-            var model = new ServerViewModel(response, storage?.Server, logs);
+            var storageResponse = includeStorage ? await _apiService.Storage.GetServerVolumesAsync(response.ServerId) : null;
+            var logs = includeLogs ? await _apiService.Servers.GetServerLogsAsync(response.ServerId) : null;
 
-            return model;
+            return new ServerViewModel(
+                response,
+                storageResponse?.Volumes,
+                logs
+            );
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Triceratops.Libraries.Tests.Helpers
 
         private async Task RunTest(uint retries)
         {
-            await RetryHelper.RetryTask(() => AttemptRetry(), retries, TimeSpan.Zero);
+            await RetryHelper.RetryTask(retry => AttemptRetry(), retries, TimeSpan.Zero);
         }
 
         private Task<bool> AttemptRetry()

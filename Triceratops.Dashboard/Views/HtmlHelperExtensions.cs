@@ -4,9 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Triceratops.Libraries.Helpers;
+using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.Storage;
-using Triceratops.Libraries.RouteMapping;
-using Triceratops.Libraries.RouteMapping.Enums;
 
 namespace Triceratops.Dashboard.Views
 {
@@ -25,7 +24,7 @@ namespace Triceratops.Dashboard.Views
             });
         }
 
-        public static IHtmlContent CreateDirectoryTree(this IHtmlHelper helper, ServerDirectory directory, bool show = false, int indent = 1)
+        public static IHtmlContent CreateDirectoryTree(this IHtmlHelper helper, string slug, VolumeDirectory directory, bool show = false, int indent = 1)
         {
             var htmlBuilder = new HtmlContentBuilder();
             var identifier = Guid.NewGuid();
@@ -52,12 +51,15 @@ namespace Triceratops.Dashboard.Views
                 .AppendHtmlLine($"<div class=\"{topLevelClass}\" id=\"{collapseId}\">")
                 .AppendHtmlLine($"<div style=\"margin-left: {leftMargin}px;\">");
 
-            foreach (var childDirectory in directory.Directories)
+            if (directory.HasDirectories)
             {
-                htmlBuilder.AppendHtml(helper.CreateDirectoryTree(childDirectory, false, indent + 1));
+                foreach (var childDirectory in directory.Directories)
+                {
+                    htmlBuilder.AppendHtml(helper.CreateDirectoryTree(slug, childDirectory, false, indent + 1));
+                }
             }
 
-            if (directory.Files.Any())
+            if (directory.HasFiles)
             {
                 foreach (var file in directory.Files)
                 {
@@ -66,7 +68,7 @@ namespace Triceratops.Dashboard.Views
                         htmlBuilder
                             .AppendHtml("<div>")
                             .AppendHtml("<i class=\"far fa-file\"></i> ")
-                            .AppendHtml(helper.RouteLink(file.Name, "EditServerFile", new { fileHash = HashHelper.CreateHash(file.RelativePath) }))
+                            .AppendHtml(helper.RouteLink(file.Name, "EditServerFile", new { slug, fileHash = HashHelper.CreateHash(file.RelativePath) }))
                             .AppendHtml("</div>");
                     }
                     else

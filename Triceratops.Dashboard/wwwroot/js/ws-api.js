@@ -16,7 +16,8 @@ var ApiEvents = {
         this.Emit(this.OperationStarted, this.CreateEventData(serverId, operationType));
     },
     EmitFailedEvent: function (serverId, operationType, error) {
-        console.log(error);
+        console.log('Trying to emit an error of "' + error + '"');
+
         this.Emit(this.OperationFailed, {serverId: serverId, operation: operationType, error: error });
     },
     EmitSucceededEvent: function (serverId, operationType) {
@@ -36,18 +37,6 @@ var ApiEvents = {
     }
 };
 
-//window.addEventListener(ApiEvents.OperationStarted, function (e) {    
-//    console.log("Server operation started: " + e.detail.operation + " for server " + e.detail.serverId);
-//});
-
-//window.addEventListener(ApiEvents.OperationFailed, function (e) {
-//    console.log("Server operation failed: " + e.detail.operation + " for server " + e.detail.serverId);
-//});
-
-//window.addEventListener(ApiEvents.OperationSucceeded, function (e) {
-//    console.log("Server operation succeeded: " + e.detail.operation + " for server " + e.detail.serverId);
-//});
-
 var ApiClient = {
     connection: null,
     init: function () {
@@ -66,9 +55,11 @@ var ApiClient = {
         });
 
         this.connection.on("ServerDetailsReceived", function (json) {
+            console.log('Server details received with some JSON', json);
+
             var serverDetails = JSON.parse(json);
 
-            if (serverDetails.Success) {
+            if (serverDetails.success) {
                 ApiEvents.EmitServerDetailsReceivedEvent(serverDetails);
             }
         });
@@ -139,7 +130,7 @@ var ApiClient = {
             });
     },
     refreshServerStatus: function (serverId) {
-        console.log(serverId);
+        console.log('refreshServerStatus called with a server ID of "' + serverId + '"');
 
         var operationType = ApiEvents.OperationTypes.ServerDetailsRequested;
 

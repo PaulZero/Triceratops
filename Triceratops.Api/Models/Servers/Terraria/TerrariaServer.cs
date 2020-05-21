@@ -21,7 +21,7 @@ namespace Triceratops.Api.Models.Servers.Terraria
                 .GetServerBuilder(configuration)
                 .CreateContainers(b =>
                 {
-                    b.CreateContainer(DockerImageName, DockerImageTag)
+                    b.CreateContainer(DockerImageName, DockerImageTag, "Terraria")
                      .BindPorts(configuration.HostPort, configuration.ContainerPort)
                      .CreateVolume("world", "/world")
                      .CreateVolume("tshock-plugins", "/tshock/ServerPlugins");

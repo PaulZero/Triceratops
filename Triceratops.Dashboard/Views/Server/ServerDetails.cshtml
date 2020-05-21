@@ -58,7 +58,7 @@
             $deleteServerControl.click(function () { ApiClient.deleteServer('@Model.Id') });
 
             function showUpdatingMessage(message) {
-                console.log(message);
+                console.log('Showing updating message "' + message + '"');
 
                 $serverStatusText.text(message);
                 $serverControls.hide();
@@ -94,13 +94,17 @@
             });
 
             window.addEventListener(ApiEvents.ServerDetailsRefreshed, function (event) {
+                console.log('event listener called');
+
                 var hasNonRunningContainer = false;
 
-                $(event.detail.server.Containers).each(function () {
-                    if (this.State != 1) { // TODO: Please use TypeScript, interfaces are so much better. :'(
+                $(event.detail.server.containers).each(function () {
+                    if (this.state != 1) { // TODO: Please use TypeScript, interfaces are so much better. :'(
                         hasNonRunningContainer = true;
                     }
                 });
+
+                console.log(hasNonRunningContainer ? 'Server is stopped' : 'Server is running');
 
                 $showWhenRunning.toggle(!hasNonRunningContainer);
                 $showWhenStopped.toggle(hasNonRunningContainer);
@@ -115,19 +119,19 @@
     {
         <script src="~/lib/codemirror/lib/codemirror.min.js"></script>
         <script>
-    @for (var logIndex = 0; logIndex < Model.Logs.ContainerLogItems.Length; logIndex++)
-    {
-        <text>
-            var textarea_@logIndex = document.getElementById('log_@logIndex');
+        @for (var logIndex = 0; logIndex < Model.Logs.ContainerLogItems.Length; logIndex++)
+        {
+            <text>
+                var textarea_@logIndex = document.getElementById('log_@logIndex');
 
-            var editor_@logIndex = CodeMirror.fromTextArea(textarea_@logIndex, {
-                lineNumbers: true,
-                readOnly: true,
-                theme: 'darcula',
-                autofocus: true
-            });
-        </text>
-    }
+                var editor_@logIndex = CodeMirror.fromTextArea(textarea_@logIndex, {
+                    lineNumbers: true,
+                    readOnly: true,
+                    theme: 'darcula',
+                    autofocus: true
+                });
+            </text>
+        }
         </script>
     }
 }

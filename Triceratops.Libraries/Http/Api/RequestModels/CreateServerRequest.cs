@@ -1,5 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Text.Json.Serialization;
+using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Models.ServerConfiguration;
 
 namespace Triceratops.Libraries.Http.Api.RequestModels
@@ -23,7 +24,7 @@ namespace Triceratops.Libraries.Http.Api.RequestModels
 
         public CreateServerRequest(AbstractServerConfiguration configuration)
         {
-            JsonConfiguration = JsonConvert.SerializeObject(configuration);
+            JsonConfiguration = JsonHelper.Serialise(configuration);
             ConfigurationType = configuration.GetType();
         }
     }

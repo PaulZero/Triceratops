@@ -1,24 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Session;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Triceratops.Dashboard.Services.NotificationService;
+using System.Text.Json;
 using Triceratops.Dashboard.WebSockets;
-using Triceratops.Libraries;
-using Triceratops.Libraries.Http.Api;
-using Triceratops.Libraries.Http.Api.Interfaces.Client;
-using Triceratops.Libraries.Http.Clients.Storage;
-using Triceratops.Libraries.Http.Core;
-using Triceratops.Libraries.Http.Storage.Interfaces.Client;
+using Triceratops.Libraries.Helpers;
 
 namespace Triceratops.Dashboard
 {
@@ -38,14 +25,14 @@ namespace Triceratops.Dashboard
             services.AddSession();
             
             services.AddControllersWithViews()
-                .AddRazorRuntimeCompilation();
+                .AddRazorRuntimeCompilation()
+                .AddJsonOptions(o => JsonHelper.UpdateSerialiserOptions(o.JsonSerializerOptions));
             services.AddHttpContextAccessor();
 
             services.AddSignalR();
 
             services.AddNotificationService();
-            services.AddTriceratopsApiClient();
-            services.AddTriceratopsStorageClient();            
+            services.AddTriceratopsApiClient();         
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

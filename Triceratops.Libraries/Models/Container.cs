@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Triceratops.Libraries.Models
@@ -7,6 +6,8 @@ namespace Triceratops.Libraries.Models
     public class Container
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+
+        public string DisplayName { get; set; }
 
         public string Name { get; set; }
 

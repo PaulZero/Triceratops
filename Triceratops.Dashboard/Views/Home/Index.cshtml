@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Home";
 
-    var response = await ApiClient.GetServerListAsync();
+    var response = await ApiClient.Servers.GetServerListAsync();
     var servers = response.Servers.ToArray();
     var uniqueGameServers = servers.Select(s => s.ServerType).Distinct().Count();
 }

@@ -6,8 +6,7 @@ using Triceratops.Api.Models.Servers.Minecraft;
 using Triceratops.Api.Models.Servers.Terraria;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
-using Triceratops.Libraries.Helpers;
-using Triceratops.Libraries.Http.Storage.Interfaces.Client;
+using Triceratops.Api.Services.DockerService.Models;
 using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
@@ -21,15 +20,10 @@ namespace Triceratops.Api.Services.ServerService
 
         private readonly IDockerService _dockerService;
 
-        private readonly ITriceratopsStorageClient _storageClient;
-
-        public ServerService(IDbService dbService, IDockerService dockerService, ITriceratopsStorageClient storageClient)
+        public ServerService(IDbService dbService, IDockerService dockerService)
         {
             _dbService = dbService;
             _dockerService = dockerService;
-            _storageClient = storageClient;
-
-            UpdateVolumeServerAsync().Wait();
         }
 
         public ServerBuilder GetServerBuilder(AbstractServerConfiguration configuration)
@@ -73,6 +67,8 @@ namespace Triceratops.Api.Services.ServerService
                 if (await _dockerService.CreateContainerAsync(container))
                 {
                     await _dbService.Containers.SaveAsync(container);
+
+                    await Task.Delay(TimeSpan.FromSeconds(5));
                 }
                 else
                 {
@@ -90,6 +86,13 @@ namespace Triceratops.Api.Services.ServerService
             }
         }
 
+        public async Task<TemporaryStorageContainer> GetStorageContainerAsync(Guid serverId)
+        {
+            var server = await GetServerByIdAsync(serverId);
+
+            return await _dockerService.GetStorageContainerAsync(server);
+        }
+
         public async Task DeleteServerAsync(Server server)
         {
             var containers = await _dbService.Containers.FindByServerIdAsync(server.Id);
@@ -101,8 +104,6 @@ namespace Triceratops.Api.Services.ServerService
             }
 
             await _dbService.Servers.DeleteAsync(server);
-
-            await UpdateVolumeServerAsync();
         }
 
         public async Task RestartServerAsync(Server server)
@@ -139,16 +140,12 @@ namespace Triceratops.Api.Services.ServerService
             {
                 var wrappedServer = await MinecraftServer.CreateAsync(minecraftConfiguration, this);
 
-                await UpdateVolumeServerAsync();
-
                 return wrappedServer.ServerEntity;
             }
 
             if (configuration is TerrariaConfiguration terrariaConfiguration)
             {
                 var wrappedServer = await TerrariaServer.CreateAsync(terrariaConfiguration, this);
-
-                await UpdateVolumeServerAsync();
 
                 return wrappedServer.ServerEntity;
             }
@@ -189,27 +186,6 @@ namespace Triceratops.Api.Services.ServerService
             if (existingServers.Any(s => s.Name == configuration.ServerName))
             {
                 throw new Exception($"Server with name {configuration.ServerName} already exists.");
-            }
-        }
-
-        private async Task UpdateVolumeServerAsync()
-        {
-            await _dockerService.UpdateVolumeServerAsync(await _dbService.Servers.FindAllAsync());
-
-            await RetryHelper.RetryTask(() => CheckVolumeServerExistsAsync());
-        }
-
-        private async Task<bool> CheckVolumeServerExistsAsync()
-        {
-            try
-            {
-                await _storageClient.GetServerNamesAsync();
-
-                return true;
-            }
-            catch
-            {
-                return false;
             }
         }
     }

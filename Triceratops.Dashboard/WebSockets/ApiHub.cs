@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Api.Interfaces.Client;
 using Triceratops.Libraries.Http.Api.ResponseModels;
 
@@ -25,7 +23,7 @@ namespace Triceratops.Dashboard.WebSockets
         {
             try
             {
-                var response = await _apiClient.StartServerAsync(serverId);
+                var response = await _apiClient.Servers.StartServerAsync(serverId);
 
                 await Clients.Caller.SendAsync(OperationCompleteMethod, SerialiseResponse(response));
             }
@@ -39,7 +37,7 @@ namespace Triceratops.Dashboard.WebSockets
         {
             try
             {
-                var response = await _apiClient.StopServerAsync(serverId);
+                var response = await _apiClient.Servers.StopServerAsync(serverId);
 
                 await Clients.Caller.SendAsync(OperationCompleteMethod, SerialiseResponse(response));
             }
@@ -53,7 +51,7 @@ namespace Triceratops.Dashboard.WebSockets
         {
             try
             {
-                var response = await _apiClient.RestartServerAsync(serverId);
+                var response = await _apiClient.Servers.RestartServerAsync(serverId);
 
                 await Clients.Caller.SendAsync(OperationCompleteMethod, SerialiseResponse(response));
             }
@@ -67,7 +65,7 @@ namespace Triceratops.Dashboard.WebSockets
         {
             try
             {
-                var response = await _apiClient.DeleteServerAsync(serverId);
+                var response = await _apiClient.Servers.DeleteServerAsync(serverId);
 
                 await Clients.Caller.SendAsync(OperationCompleteMethod, SerialiseResponse(response));
             }
@@ -81,7 +79,7 @@ namespace Triceratops.Dashboard.WebSockets
         {
             try
             {
-                var response = await _apiClient.GetServerByIdAsync(serverId);
+                var response = await _apiClient.Servers.GetServerByIdAsync(serverId);
 
                 await Clients.Caller.SendAsync(ServerDetailsReceivedMethod, SerialiseResponse(response));
             }
@@ -101,9 +99,9 @@ namespace Triceratops.Dashboard.WebSockets
             Message = error
         });
 
-        private string SerialiseResponse(object response)
+        private string SerialiseResponse<T>(T response)
         {
-            return JsonConvert.SerializeObject(response);
+            return JsonHelper.Serialise(response);
         }
     }
 }

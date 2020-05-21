@@ -7,19 +7,19 @@ namespace Triceratops.Libraries.RouteMapping
 {
     public static class RouteMapper
     {
-        public static IRouteResolver<ApiRoutes> Api { get; } = new ApiRouteResolver();
+        public static IRouteResolver<ServerApiRoutes> ServerApi { get; } = new ServerApiRouteResolver();
 
         public static IRouteResolver<DashboardRoutes> Dashboard { get; } = new DashboardRouteResolver();
 
-        public static IRouteResolver<VolumeManagerRoutes> VolumeManager { get; } = new VolumeManagerRouteResolver();
+        public static IRouteResolver<StorageApiRoutes> StorageApi { get; } = new StorageApiRouteResolver();
 
         public static IRouteResolver<TRouteEnum> GetResolverForEnum<TRouteEnum>()
         {
             var type = typeof(TRouteEnum);
 
-            if (type == typeof(ApiRoutes))
+            if (type == typeof(ServerApiRoutes))
             {
-                return Api as IRouteResolver<TRouteEnum>;
+                return ServerApi as IRouteResolver<TRouteEnum>;
             }
 
             if (type == typeof(DashboardRoutes))
@@ -27,9 +27,9 @@ namespace Triceratops.Libraries.RouteMapping
                 return Dashboard as IRouteResolver<TRouteEnum>;
             }
 
-            if (type == typeof(VolumeManagerRoutes))
+            if (type == typeof(StorageApiRoutes))
             {
-                return VolumeManager as IRouteResolver<TRouteEnum>;
+                return StorageApi as IRouteResolver<TRouteEnum>;
             }
 
             throw new Exception("You can't just make up resolvers...");

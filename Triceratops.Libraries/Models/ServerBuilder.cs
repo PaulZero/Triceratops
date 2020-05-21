@@ -58,9 +58,9 @@ namespace Triceratops.Libraries.Models
                 ServerBuilder = serverBuilder;
             }
 
-            public ContainerBuilder CreateContainer(string imageName, string imageTag = "latest", string customName = null)
+            public ContainerBuilder CreateContainer(string imageName, string imageTag, string displayName)
             {
-                return new ContainerBuilder(this, imageName, imageTag, customName);
+                return new ContainerBuilder(this, imageName, imageTag, displayName);
             }
 
             public class ContainerBuilder
@@ -73,13 +73,19 @@ namespace Triceratops.Libraries.Models
 
                 protected Container Container { get; }
 
-                public ContainerBuilder(ContainerListBuilder containerListBuilder, string imageName, string imageTag = "latest", string customName = null)
+                public ContainerBuilder(ContainerListBuilder containerListBuilder, string imageName, string imageTag, string displayName)
                 {
                     ContainerListBuilder = containerListBuilder;
 
+                    if (string.IsNullOrWhiteSpace(imageTag))
+                    {
+                        imageTag = "latest";
+                    }
+
                     Container = new Container
                     {
-                        Name = NameHelper.CreateContainerName(Server, Configuration.ServerType, customName),
+                        DisplayName = displayName,
+                        Name = NameHelper.CreateContainerName(Server, Configuration.ServerType, displayName),
                         ServerId = Server.Id,
                         ImageName = imageName,
                         ImageVersion = imageTag

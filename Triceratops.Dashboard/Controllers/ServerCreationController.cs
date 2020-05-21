@@ -50,7 +50,7 @@ namespace Triceratops.Dashboard.Controllers
                 var factory = new ServerConfigurationFactory();
                 var configuration = factory.CreateFromDictionary(formFields);
 
-                var server = await _apiClient.CreateServerAsync(new CreateServerRequest(configuration));
+                var server = await _apiClient.Servers.CreateServerAsync(new CreateServerRequest(configuration));
 
                 if (!server?.Success ?? false)
                 {

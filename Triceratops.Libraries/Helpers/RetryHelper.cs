@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace Triceratops.Libraries.Helpers
         /// <param name="retryLimit">How many times to try the task before giving up entirely (default 10)</param>
         /// <param name="interval">How long to wait after the task has failed (default 500 milliseconds)</param>
         /// <returns></returns>
-        public static async Task<bool> RetryTask(Func<Task<bool>> taskCallback, uint? retryLimit = null, TimeSpan? interval = null)
+        public static async Task<bool> RetryTask(Func<int, Task<bool>> taskCallback, uint? retryLimit = null, TimeSpan? interval = null)
         {
             var maxRetries = retryLimit ?? DefaultRetryLimit;
             var retryDelay = interval ?? DefaultInterval;
@@ -26,7 +27,7 @@ namespace Triceratops.Libraries.Helpers
 
             do
             {
-                var task = taskCallback();
+                var task = taskCallback(retries);
 
                 try
                 {
@@ -34,6 +35,8 @@ namespace Triceratops.Libraries.Helpers
                     {
                         return true;
                     }
+
+                    await Task.Delay(retryDelay);
                 }
                 catch
                 {

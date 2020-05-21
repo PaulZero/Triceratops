@@ -9,7 +9,6 @@ using Triceratops.Dashboard.Models;
 using Triceratops.Dashboard.Services.NotificationService;
 using Triceratops.Libraries.Http.Api.Interfaces.Client;
 using Triceratops.Libraries.Http.Api.ResponseModels;
-using Triceratops.Libraries.Http.Storage.Interfaces.Client;
 using Triceratops.Libraries.RouteMapping.Attributes;
 using Triceratops.Libraries.RouteMapping.Enums;
 
@@ -37,7 +36,7 @@ namespace Triceratops.Dashboard.Controllers
         [DashboardRoute(DashboardRoutes.Home)]
         public async Task<IActionResult> Index()
         {
-            var servers = await _apiClient.GetServerListAsync();
+            var servers = await _apiClient.Servers.GetServerListAsync();
 
             return View(servers);
         }
@@ -48,7 +47,7 @@ namespace Triceratops.Dashboard.Controllers
             try
             {
                 var serverId = await GetGuidFromServerSlug(slug);
-                var response = await _apiClient.StartServerAsync(serverId);
+                var response = await _apiClient.Servers.StartServerAsync(serverId);
 
                 PushMessageForServerOperationResponse(
                     response,
@@ -72,7 +71,7 @@ namespace Triceratops.Dashboard.Controllers
             try
             {
                 var serverId = await GetGuidFromServerSlug(slug);
-                var response = await _apiClient.StopServerAsync(serverId);
+                var response = await _apiClient.Servers.StopServerAsync(serverId);
 
                 PushMessageForServerOperationResponse(
                     response,
@@ -95,7 +94,7 @@ namespace Triceratops.Dashboard.Controllers
             try
             {
                 var serverId = await GetGuidFromServerSlug(slug);
-                var response = await _apiClient.RestartServerAsync(serverId);
+                var response = await _apiClient.Servers.RestartServerAsync(serverId);
 
                 PushMessageForServerOperationResponse(
                     response,
@@ -119,7 +118,7 @@ namespace Triceratops.Dashboard.Controllers
             try
             {
                 var serverId = await GetGuidFromServerSlug(slug);
-                var response = await _apiClient.DeleteServerAsync(serverId);
+                var response = await _apiClient.Servers.DeleteServerAsync(serverId);
 
                 PushMessageForServerOperationResponse(
                     response,
@@ -151,7 +150,7 @@ namespace Triceratops.Dashboard.Controllers
 
         private async Task<Guid> GetGuidFromServerSlug(string slug)
         {
-            var server = await _apiClient.GetServerBySlugAsync(slug);
+            var server = await _apiClient.Servers.GetServerBySlugAsync(slug);
 
             return server.ServerId;
         }
