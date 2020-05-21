@@ -1,8 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using CoreRCON;
+using CoreRCON.Parsers.Standard;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using Triceratops.Api.Models;
+using Triceratops.Api.Models.View.Transformers.Interfaces;
 using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
 using Triceratops.Libraries.Enums;
@@ -256,6 +266,38 @@ namespace Triceratops.Api.Controllers
                 return CreateErrorResponse<ServerDetailsResponse>(exception.Message);
             }
         }
+        
+        [HttpGet("/servers/{guid}/rcon")]
+        [HttpPost("/servers/{guid}/rcon")]
+        public async Task<IActionResult> ServerRconCommand(Guid guid)
+        {
+            // TODO: Put this somewhere sensible
+            // TODO: Handle non-Minecraft servers
+            // TODO: Figure out how to stream responses and events
+            var server = await Servers.GetServerByIdAsync(guid);
+            // TODO: Make it so that server.Containers is actually poopulated instead of doing this
+            var containers = await Servers.GetContainersForServer(server);
+            var config = server.DeserialiseConfiguration() as MinecraftConfiguration;
+            var containerPort = config.RconContainerPort;
+            // TODO: Is this reliable?
+            var container = containers.ToList().Find(c => c.ServerPorts.Any(p => p.ContainerPort == containerPort));
+
+            if (container == null)
+            {
+                // TODO: Remove this once the Rcon port is properly exposed
+                container = containers.First();
+            }
+
+            // TODO: Don't hardcode this
+            var ipAddresses = await Dns.GetHostAddressesAsync($"TRICERATOPS_{container.Name}");
+
+            var rcon = new RCON(ipAddresses[0], containerPort, "testing");
+            await rcon.ConnectAsync();
+
+            string help = await rcon.SendCommandAsync("help");
+
+            return Success($"We got help from the server: {help}");
+        }
 
         private async Task<ServerDetailsResponse> CreateResponseFromServerAsync(Server server)
         {
@@ -287,7 +329,7 @@ namespace Triceratops.Api.Controllers
                 return false;
             }
         }
-
+        
         private T CreateErrorResponse<T>(string error)
             where T : IApiResponse, new()
         {

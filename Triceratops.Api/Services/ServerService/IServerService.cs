@@ -36,5 +36,7 @@ namespace Triceratops.Api.Services.ServerService
         Task RestartServerAsync(Server server);
 
         Task DeleteServerAsync(Server server);
+
+        Task<Container[]> GetContainersForServer(Server server);
     }
 }

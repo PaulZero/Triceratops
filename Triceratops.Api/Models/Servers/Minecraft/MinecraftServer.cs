@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Triceratops.Api.Services.ServerService;
 using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
@@ -25,7 +25,12 @@ namespace Triceratops.Api.Models.Servers.Minecraft
                      .BindPorts(configuration.HostPort, configuration.ContainerPort)
                      .BindPorts(configuration.RconHostPort, configuration.RconContainerPort)
                      .CreateVolume("data", "/data")
-                     .WithArguments("EULA=TRUE");
+                     .WithArguments(
+                         "EULA=TRUE",
+                         "ENABLE_RCON=true",
+                         "RCON_PASSWORD=testing",
+                         $"RCON_PORT={configuration.RconContainerPort}"
+                     );
                 })
                 .GetServer();
 

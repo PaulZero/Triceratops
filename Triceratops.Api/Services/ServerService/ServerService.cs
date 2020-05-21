@@ -153,6 +153,11 @@ namespace Triceratops.Api.Services.ServerService
             throw new Exception($"Unrecognised server configuration: {configuration.GetType().Name}");
         }
 
+        public async Task<Container[]> GetContainersForServer(Server server)
+        {
+            return await DbService.Containers.FindByServerIdAsync(server.Id);
+        }
+
         private async Task CleanUpFailedServer(Server server)
         {
             foreach (var container in server.Containers)
