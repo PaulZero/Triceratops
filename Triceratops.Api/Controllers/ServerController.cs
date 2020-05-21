@@ -1,7 +1,8 @@
-﻿using CoreRCON;
+using CoreRCON;
 using CoreRCON.Parsers.Standard;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using Newtonsoft.Json;
 using System;
@@ -12,113 +13,229 @@ using System.Net;
 using System.Threading.Tasks;
 using Triceratops.Api.Models;
 using Triceratops.Api.Models.View.Transformers.Interfaces;
+using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
-using Triceratops.Libraries.Models.Api.Request;
+using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Helpers;
+using Triceratops.Libraries.Http.Api.Interfaces;
+using Triceratops.Libraries.Http.Api.Interfaces.Server;
+using Triceratops.Libraries.Http.Api.RequestModels;
+using Triceratops.Libraries.Http.Api.ResponseModels;
+using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
 using Triceratops.Libraries.Models.ServerConfiguration.Terraria;
-using Triceratops.Libraries.Models.View;
+using Triceratops.Libraries.RouteMapping;
+using Triceratops.Libraries.RouteMapping.Attributes;
+using Triceratops.Libraries.RouteMapping.Enums;
+using static Triceratops.Libraries.Http.Api.ResponseModels.ServerLogResponse;
 
 namespace Triceratops.Api.Controllers
 {
-    public class ServerController : AbstractApiController
+    public class ServerController : AbstractApiController, ITriceratopsServerEndpoints
     {
-        protected IServerService Servers { get; }
+        private readonly IServerService _servers;
 
-        protected IViewModelTransformer ViewModelTransformer { get; }
+        private readonly IDockerService _dockerService;
 
-        public ServerController(IServerService serverService, IViewModelTransformer viewModelTransformer)
+        private readonly ILogger _logger;
+
+        public ServerController(IServerService serverService, IDockerService dockerService, ILogger<ServerController> logger)
         {
-            Servers = serverService;
-            ViewModelTransformer = viewModelTransformer;
+            _dockerService = dockerService;
+            _servers = serverService;
+            _logger = logger;
         }
 
-        [HttpGet("/servers/list")]
-        public async Task<IActionResult> ListServers()
-        {
-            try
-            {
-                var servers = await Servers.GetServerListAsync();
-                var viewModels = await ViewModelTransformer.WrapServersAsync(servers);
-
-                return ViewModel(viewModels);
-
-            }
-            catch (Exception exception)
-            {
-                return Error($"Failed to fetch list of servers: {exception.Message}");
-            }
-        }
-
-        [HttpGet("/servers/{guid}")]
-        public async Task<IActionResult> GetServer(Guid guid)
+        [ServerApiRoute(ServerApiRoutes.GetServerList)]
+        public async Task<ServerListResponse> GetServerListAsync()
         {
             try
             {
-                var server = await Servers.GetServerByIdAsync(guid);
-                var viewModel = await ViewModelTransformer.WrapServerAsync(server);
+                var servers = await _servers.GetServerListAsync();
+                var responses = await Task.WhenAll(servers.Select(CreateResponseFromServerAsync));
 
-                return ViewModel(viewModel);
+                return new ServerListResponse
+                {
+                    Success = true,
+                    Servers = responses
+                };
             }
             catch (Exception exception)
             {
-                return Error($"Failed to fetch server: {exception.Message}");
+                _logger.LogError($"Failed to get list of servers: {exception.Message}");
+
+                return CreateErrorResponse<ServerListResponse>("Failed to get list of servers");
             }
         }
 
-        [HttpPost("/servers/{guid}/start")]
-        public async Task<IActionResult> StartServer(Guid guid)
+        [ServerApiRoute(ServerApiRoutes.GetServerLogs)]
+        public async Task<ServerLogResponse> GetServerLogsAsync(Guid serverId)
         {
             try
             {
-                var server = await Servers.GetServerByIdAsync(guid);
+                var server = await _servers.GetServerByIdAsync(serverId);
+                var logDictionary = await _servers.GetServerLogsAsync(serverId, 300);
 
-                await Servers.StartServerAsync(server);
-
-                return Success("Server started successfully");
+                return new ServerLogResponse
+                {
+                    ServerId = server.Id,
+                    ServerName = server.Name,
+                    ContainerLogItems = server.Containers.Select(c =>
+                    {
+                        return new ContainerLogItem
+                        {
+                            ContainerId = c.Id,
+                            ContainerName = c.Name,
+                            LogRows = logDictionary[c.Id]
+                        };
+                    }).ToArray()
+                };
             }
             catch (Exception exception)
             {
-                return Error($"Failed to start server: {exception.Message}");
+                _logger.LogError($"Failed to fetch server logs: {exception.Message}");
+
+                return CreateErrorResponse<ServerLogResponse>("Failed to fetch server logs");
             }
         }
 
-        [HttpPost("/servers/{guid}/stop")]
-        public async Task<IActionResult> StopServer(Guid guid)
+        [ServerApiRoute(ServerApiRoutes.GetServerById)]
+        public async Task<ServerDetailsResponse> GetServerByIdAsync(Guid serverId)
         {
             try
             {
-                var server = await Servers.GetServerByIdAsync(guid);
+                var server = await _servers.GetServerByIdAsync(serverId);
 
-                await Servers.StopServerAsync(server);
-
-                return Success("Server stopped successfully");
+                return await CreateResponseFromServerAsync(server);
             }
             catch (Exception exception)
             {
-                return Error($"Failed to stop server: {exception.Message}");
+                _logger.LogError($"Failed to fetch server: {exception.Message}");
+
+                return CreateErrorResponse<ServerDetailsResponse>("Failed to fetch server");
             }
         }
 
-        [HttpPost("/servers/{guid}/restart")]
-        public async Task<IActionResult> RestartServer(Guid guid)
+        [ServerApiRoute(ServerApiRoutes.GetServerBySlug)]
+        public async Task<ServerDetailsResponse> GetServerBySlugAsync(string slug)
         {
             try
             {
-                var server = await Servers.GetServerByIdAsync(guid);
+                var server = await _servers.GetServerBySlugAsync(slug);
 
-                await Servers.RestartServerAsync(server);
-
-                return Success("Server restarted successfully");
+                return await CreateResponseFromServerAsync(server);
             }
             catch (Exception exception)
             {
-                return Error($"Failed to restart server: {exception.Message}");
+                _logger.LogError($"Failed to fetch server: {exception.Message}");
+
+                return CreateErrorResponse<ServerDetailsResponse>("Failed to fetch server");
             }
         }
 
-        [HttpPost("/servers/create")]
-        public async Task<IActionResult> CreateServer([FromBody]CreateServerRequest request)
+        [ServerApiRoute(ServerApiRoutes.StartServer)]
+        public async Task<ServerOperationResponse> StartServerAsync(Guid serverId)
+        {
+            try
+            {
+                var server = await _servers.GetServerByIdAsync(serverId);
+
+                await _servers.StartServerAsync(server);
+
+                return new ServerOperationResponse
+                {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(server),
+                    Success = true
+                };
+            }
+            catch (Exception exception)
+            {
+                return new ServerOperationResponse
+                {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(serverId),
+                    Success = false,
+                    Message = exception.Message
+                };
+            }
+        }
+
+        [ServerApiRoute(ServerApiRoutes.StopServer)]
+        public async Task<ServerOperationResponse> StopServerAsync(Guid serverId)
+        {
+            try
+            {
+                var server = await _servers.GetServerByIdAsync(serverId);
+
+                await _servers.StopServerAsync(server);
+
+                return new ServerOperationResponse
+                {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(server),
+                    Success = true
+                };
+            }
+            catch (Exception exception)
+            {
+                return new ServerOperationResponse
+                {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(serverId),
+                    Success = false,
+                    Message = exception.Message
+                };
+            }
+        }
+
+        [ServerApiRoute(ServerApiRoutes.RestartServer)]
+        public async Task<ServerOperationResponse> RestartServerAsync(Guid serverId)
+        {
+            try
+            {
+                var server = await _servers.GetServerByIdAsync(serverId);
+
+                await _servers.RestartServerAsync(server);
+
+                return new ServerOperationResponse
+                {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(server),
+                    Success = true
+                };
+            }
+            catch (Exception exception)
+            {
+                return CreateErrorResponse<ServerOperationResponse>(exception.Message);
+            }
+        }
+
+        [ServerApiRoute(ServerApiRoutes.DeleteServer)]
+        public async Task<ServerOperationResponse> DeleteServerAsync(Guid serverId)
+        {
+            try
+            {
+                var server = await _servers.GetServerByIdAsync(serverId);
+
+                await _servers.DeleteServerAsync(server);
+
+                return new ServerOperationResponse
+                {
+                    ServerId = serverId,
+                    IsRunning = await IsServerRunningAsync(server),
+                    Success = true
+                };
+            }
+            catch (Exception exception)
+            {
+                return CreateErrorResponse<ServerOperationResponse>(exception.Message);
+            }
+        }
+
+        [ServerApiRoute(ServerApiRoutes.CreateServer)]
+        public async Task<ServerDetailsResponse> CreateServerAsync([FromBody]CreateServerRequest request)
         {
             try
             {
@@ -126,46 +243,30 @@ namespace Triceratops.Api.Controllers
 
                 if (request.ConfigurationType == typeof(MinecraftConfiguration))
                 {
-                    configuration = JsonConvert.DeserializeObject<MinecraftConfiguration>(request.JsonConfiguration);                    
+                    configuration = JsonHelper.Deserialise<MinecraftConfiguration>(request.JsonConfiguration);
                 }
                 else if (request.ConfigurationType == typeof(TerrariaConfiguration))
                 {
-                    configuration = JsonConvert.DeserializeObject<TerrariaConfiguration>(request.JsonConfiguration);
+                    configuration = JsonHelper.Deserialise<TerrariaConfiguration>(request.JsonConfiguration);
                 }
 
                 if (configuration != null)
                 {
-                    var server = await Servers.CreateServerFromConfigurationAsync(configuration);
-                    var viewModel = await ViewModelTransformer.WrapServerAsync(server);
+                    var server = await _servers.CreateServerFromConfigurationAsync(configuration);
 
-                    return ViewModel(viewModel);
+                    return await CreateResponseFromServerAsync(server);
                 }
 
-                return Error($"Unsupported configuration: {request.ConfigurationTypeName}");
+                throw new Exception($"Unsupported configuration: {request.ConfigurationTypeName}");
             }
             catch (Exception exception)
             {
-                return Error($"Failed to create new server: {exception.Message}");
+                _logger.LogError($"Failed to create new server: {exception.Message}");
+
+                return CreateErrorResponse<ServerDetailsResponse>(exception.Message);
             }
         }
-
-        [HttpPost("/servers/{guid}/delete")]
-        public async Task<IActionResult> DeleteServer(Guid guid)
-        {
-            try
-            {
-                var server = await Servers.GetServerByIdAsync(guid);
-
-                await Servers.DeleteServerAsync(server);
-
-                return Success("Server deleted successfully");
-            }
-            catch (Exception exception)
-            {
-                return Error($"Failed to delete server: {exception.Message}");
-            }
-        }
-
+        
         [HttpGet("/servers/{guid}/rcon")]
         [HttpPost("/servers/{guid}/rcon")]
         public async Task<IActionResult> ServerRconCommand(Guid guid)
@@ -196,6 +297,58 @@ namespace Triceratops.Api.Controllers
             string help = await rcon.SendCommandAsync("help");
 
             return Success($"We got help from the server: {help}");
+        }
+
+        private async Task<ServerDetailsResponse> CreateResponseFromServerAsync(Server server)
+        {
+            var response = new ServerDetailsResponse(server);
+
+            foreach (var container in server.Containers)
+            {
+                var details = await _dockerService.GetContainerStatusAsync(container);
+
+                response.Containers.Add(new ContainerResponse(container, details.State, details.Created));
+            }
+
+            return response;
+        }
+
+        private async Task<bool> IsServerRunningAsync(Guid serverId)
+            => await IsServerRunningAsync(await _servers.GetServerByIdAsync(serverId));
+
+        private async Task<bool> IsServerRunningAsync(Server server)
+        {
+            try
+            {
+                var containerStatus = await Task.WhenAll(server.Containers.Select(c => _dockerService.GetContainerStatusAsync(c)));
+
+                return containerStatus.All(s => s.State == ServerContainerState.Running);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        private T CreateErrorResponse<T>(string error)
+            where T : IApiResponse, new()
+        {
+            return new T
+            {
+                Success = false,
+                Error = error
+            };
+        }
+
+        private T CreateErrorResponse<T>(string error, Guid serverId)
+            where T : IServerApiResponse, new()
+        {
+            return new T
+            {
+                Success = false,
+                Error = error,
+                ServerId = serverId
+            };
         }
     }
 }

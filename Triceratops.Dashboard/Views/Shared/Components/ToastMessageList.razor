@@ -1,0 +1,21 @@
+﻿@if (Messages.Any())
+{
+    <div aria-live="polite" aria-atomic="true" style="position: absolute; top: 16px; right: 16px">
+        <div style="position: absolute; top: 0; right: 0;">
+            @foreach (var message in Messages)
+            {
+                <ToastMessage Message="message" Timeout="Timeout" />
+            }
+        </div>
+    </div>
+}
+
+@using Triceratops.Dashboard.Services.NotificationService
+
+@code {
+    [Parameter]
+    public IEnumerable<Message> Messages { get; set; }
+
+    [Parameter]
+    public TimeSpan Timeout { get; set; }
+}

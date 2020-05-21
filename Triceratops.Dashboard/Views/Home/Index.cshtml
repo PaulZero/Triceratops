@@ -1,25 +1,27 @@
-﻿@model Triceratops.Libraries.Models.View.ServerViewModel[]
-@using Triceratops.Dashboard.Views
-@using Triceratops.Libraries.Helpers
+﻿@inject Triceratops.Libraries.Http.Api.Interfaces.Client.ITriceratopsApiClient ApiClient
 
 @{
-    ViewData["Title"] = "Servers";
+    ViewData["Title"] = "Home";
+
+    var response = await ApiClient.Servers.GetServerListAsync();
+    var servers = response.Servers.ToArray();
+    var uniqueGameServers = servers.Select(s => s.ServerType).Distinct().Count();
 }
 
-<div class="text-center">
-    <h1>Servers</h1>
+<h1 class="h3">Home</h1>
 
-    <h2>Create New Server</h2>
+@if (!servers.Any())
+{
+    <p>
+        Welcome to Triceratops, why don&#39;t you have any servers yet? Click <strong>Create Server</strong> up at the top to get started!
+    </p>
+}
+else
+{
+<p>
+        <dashboard-link route="@DashboardRoutes.ListServers">TESTKEK</dashboard-link>
+        Welcome to Triceratops, you currently have <dashboard-link route="@DashboardRoutes.ListServers"><pluralise name="server" values="@servers" /></dashboard-link>
+        set up using <pluralise name="game" count="@uniqueGameServers" />
+</p>
+}
 
-    @foreach (var serverType in ServerTypeHelper.AllowedServerTypes)
-    {
-        <p>@Html.RouteLink(serverType.ToString(), "Server_Create", new { serverType })</p>
-    }
-
-    <h2>Existing Servers</h2>
-
-    @foreach (var server in Model)
-    {
-        await Html.RenderPartialAsync("_ServerStatus", server);
-    }
-</div>

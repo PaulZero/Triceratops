@@ -27,9 +27,6 @@
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
-      "environmentVariables": {
-        "DB_USE_MEMORY": "true"
-      },
       "publishAllPorts": true
     }
   }

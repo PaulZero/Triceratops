@@ -1,22 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DockerDesktopDebug|AnyCPU">
+      <Configuration>DockerDesktopDebug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DockerToolboxDebug|AnyCPU">
+      <Configuration>DockerToolboxDebug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>4e6fbd55-044a-413a-bc70-7fd83ad9de36</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
-    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
     <DockerServiceName>triceratops.dashboard</DockerServiceName>
+    <DockerServiceUrl>{Scheme}://{ServiceIPAddress}{ServicePort}</DockerServiceUrl>
+    <DockerComposeBaseFilePath>composefiles/docker-compose.production</DockerComposeBaseFilePath>
+  </PropertyGroup>
+  <PropertyGroup Label="Custom">
+    <DockerDevelopmentMode Condition="'$(Configuration)'=='DockerDesktopDebug'">Fast</DockerDevelopmentMode>
+    <DockerDevelopmentMode Condition="'$(Configuration)'=='DockerToolboxDebug'">Fast</DockerDevelopmentMode>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='DockerDesktopDebug'">
+    <AdditionalComposeFilePaths>composefiles/docker-compose.debug.yml;composefiles/docker-compose.docker-desktop.yml</AdditionalComposeFilePaths>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='DockerToolboxDebug'">
+    <AdditionalComposeFilePaths>composefiles/docker-compose.debug.yml;composefiles/docker-compose.docker-toolbox.yml</AdditionalComposeFilePaths>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="docker-compose.override.yml">
-      <DependentUpon>docker-compose.yml</DependentUpon>
-    </None>
-    <None Include="docker-compose.toolbox.yml">
-      <DependentUpon>docker-compose.yml</DependentUpon>
-    </None>
-    <None Include="docker-compose.yml" />
+    <None Include="composefiles/docker-compose.production.yml" />
+    <None Include="composefiles/docker-compose.debug.yml" />
+    <None Include="composefiles/docker-compose.docker-desktop.yml" />
+    <None Include="composefiles/docker-compose.docker-toolbox.yml" />
+    <None Include="composefiles/docker-compose.linux.yml" />
     <None Include=".dockerignore" />
+    <None Include="dockersources\Terraria\Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="dockersources\Terraria\ImageConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+    <None Include="dockersources\VolumeInspector\appsettings.json" />
+    <None Include="dockersources\VolumeInspector\Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="dockersources\VolumeInspector\ImageConfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+    <None Include="dockersources\VolumeInspector\Program.cs" />
+    <None Include="dockersources\VolumeInspector\Properties\launchSettings.json" />
+    <None Include="dockersources\VolumeInspector\Startup.cs" />
+    <None Include="dockersources\VolumeInspector\Triceratops.VolumeInspector.csproj" />
     <None Include="install.sh" />
     <None Include="uninstall.sh" />
     <None Include="VolumeManager.Dockerfile" />

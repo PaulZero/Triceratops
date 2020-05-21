@@ -1,3 +1,2 @@
 #!/bin/bash
-docker build -t triceratops_volumemanager:latest Triceratops.VolumeManager
-docker-compose -f docker-compose.yml up -d
+docker-compose -f composefiles/docker-compose.production.yml -f composefiles/docker-compose.linux.yml up -d

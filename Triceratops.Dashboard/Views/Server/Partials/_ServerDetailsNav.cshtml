@@ -1,0 +1,31 @@
+﻿@model ServerViewModel
+
+@{ 
+    var backgroundClass = Model.AllRunning ? "serverNavBar_Running" : "serverNavBar_Stopped";
+}
+
+<div class="navbar navbar-dark navbar-expand-sm server-details-navbar @backgroundClass">
+    <ul class="nav navbar-nav mr-auto" id="serverDetails_tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="manage-tab" data-toggle="tab" href="#manage" role="tab" aria-controls="manage" aria-selected="true">Manage</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="files-tab" data-toggle="tab" href="#files" role="tab" aria-controls="files" aria-selected="false">Files</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="logs-tab" data-toggle="tab" href="#logs" role="tab" aria-controls="logs" aria-selected="false">Logs</a>
+        </li>
+    </ul>
+
+    <partial name="Partials/_ServerStatus" model="Model" />
+</div>
+
+<style>
+    .serverNavBar_Running {
+        background-color: darkgreen;
+    }
+
+    .serverNavBar_Stopped {
+        background-color: darkred;
+    }
+</style>

@@ -1,0 +1,149 @@
+﻿@using Triceratops.Libraries.Helpers
+@using Triceratops.Dashboard.Views
+@using Triceratops.Dashboard.Services.NotificationService
+@inject INotificationService NotificationService
+@model ServerViewModel
+
+@{
+    ViewData["Title"] = "ServerDetails";
+
+    var notificationMessages = NotificationService?.GetMessages()?.ToArray() ?? new Message[0];
+}
+
+@section PageNav {
+    <partial name="Partials/_ServerDetailsNav" model="Model" />
+}
+
+<component type="typeof(PageHeading)" param-Title="@Model.Name" render-mode="Static" />
+
+<div class="tab-content p-1" id="myTabContent">
+    <div class="tab-pane fade show active" id="manage" role="tabpanel" aria-labelledby="manage-tab">
+        <p>TODO: This could probably display some current info and stuff?</p>
+    </div>
+
+    <div class="tab-pane fade p-1" id="files" role="tabpanel" aria-labelledby="files-tab">
+        <partial name="Partials/_ServerFileBrowser" model="Model" />
+    </div>
+
+    <div class="tab-pane fade" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+        <partial name="Partials/_ServerLogViewer" model="Model" />
+    </div>
+</div>
+
+<component type="typeof(ToastMessageList)"
+           param-Messages="notificationMessages"
+           param-Timeout="TimeSpan.FromSeconds(5)"
+           render-mode="Static" />
+
+@section Scripts
+{
+    <script>
+        var currentServerId = '@Model.Id';
+
+        $(function () {
+            var $serverControls = $('.server-controls-@Model.Id');
+            var $serverStatusTextWrapper = $('.server-update-status-@Model.Id');
+            var $serverStatusText = $('.update-status-text', $serverStatusTextWrapper);
+            var $startServerControl = $('.start-server-control', $serverControls);
+            var $stopServerControl = $('.stop-server-control', $serverControls);
+            var $restartServerControl = $('.restart-server-control', $serverControls);
+            var $deleteServerControl = $('.delete-server-control', $serverControls);
+            var $showWhenStopped = $('.show-when-stopped', $serverControls);
+            var $showWhenRunning = $('.show-when-running', $serverControls);
+            var $serverDetailsNav = $('.server-details-navbar');
+
+            $startServerControl.click(function () { ApiClient.startServer('@Model.Id') });
+            $restartServerControl.click(function () { ApiClient.restartServer('@Model.Id') });
+            $stopServerControl.click(function () { ApiClient.stopServer('@Model.Id') });
+            $deleteServerControl.click(function () { ApiClient.deleteServer('@Model.Id') });
+
+            function showUpdatingMessage(message) {
+                console.log('Showing updating message "' + message + '"');
+
+                $serverStatusText.text(message);
+                $serverControls.hide();
+                $serverStatusTextWrapper.show();
+            }
+
+            function hideUpdatingMessage() {
+                $serverStatusTextWrapper.hide();
+            }
+
+            window.addEventListener(ApiEvents.OperationStarted, function (event) {
+                if (event.detail.operation == ApiEvents.OperationTypes.ServerStart) {
+                    showUpdatingMessage('Server starting');
+                }
+                else if (event.detail.operation == ApiEvents.OperationTypes.ServerStop) {
+                    showUpdatingMessage('Server stopping');
+                }
+                else if (event.detail.operation == ApiEvents.OperationTypes.ServerRestart) {
+                    showUpdatingMessage('Server restarting');
+                }
+                else if (event.detail.operation == ApiEvents.OperationTypes.ServerDelete) {
+                    showUpdatingMessage('Server deleting');
+                }
+            });
+
+            window.addEventListener(ApiEvents.OperationSucceeded, function (event) {
+                ApiClient.refreshServerStatus('@Model.Id');
+            });
+
+            window.addEventListener(ApiEvents.OperationFailed, function (event) {
+                hideUpdatingMessage();
+                console.log("It failed... lol", event);
+            });
+
+            window.addEventListener(ApiEvents.ServerDetailsRefreshed, function (event) {
+                console.log('event listener called');
+
+                var hasNonRunningContainer = false;
+
+                $(event.detail.server.containers).each(function () {
+                    if (this.state != 1) { // TODO: Please use TypeScript, interfaces are so much better. :'(
+                        hasNonRunningContainer = true;
+                    }
+                });
+
+                console.log(hasNonRunningContainer ? 'Server is stopped' : 'Server is running');
+
+                $showWhenRunning.toggle(!hasNonRunningContainer);
+                $showWhenStopped.toggle(hasNonRunningContainer);
+                $serverDetailsNav.toggleClass('serverNavBar_Running', !hasNonRunningContainer);
+                $serverDetailsNav.toggleClass('serverNavBar_Stopped', hasNonRunningContainer);
+                hideUpdatingMessage();
+                $serverControls.show();
+            });
+        });
+    </script>
+    @if (Model.HasLogs)
+    {
+        <script src="~/lib/codemirror/lib/codemirror.min.js"></script>
+        <script>
+        @for (var logIndex = 0; logIndex < Model.Logs.ContainerLogItems.Length; logIndex++)
+        {
+            <text>
+                var textarea_@logIndex = document.getElementById('log_@logIndex');
+
+                var editor_@logIndex = CodeMirror.fromTextArea(textarea_@logIndex, {
+                    lineNumbers: true,
+                    readOnly: true,
+                    theme: 'darcula',
+                    autofocus: true
+                });
+            </text>
+        }
+        </script>
+    }
+}
+
+@section Styles
+{
+
+    
+    @if (Model.HasLogs)
+    {
+        <link href="~/lib/codemirror/lib/codemirror.min.css" type="text/css" rel="stylesheet" />
+        <link href="~/lib/codemirror/theme/darcula.min.css" type="text/css" rel="stylesheet" />
+    }
+}
+

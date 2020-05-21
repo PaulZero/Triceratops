@@ -1,0 +1,27 @@
+﻿@model ServerViewModel
+
+@if (Model.HasLogs)
+{
+    <h2>Server Logs</h2>
+
+    @for (var logIndex = 0; logIndex < Model.Logs.ContainerLogItems.Length; logIndex++)
+    {
+        var containerLog = Model.Logs.ContainerLogItems[logIndex];
+
+        <textarea id="log_@logIndex">
+                    @{ var lastIndex = containerLog.LogRows.Length - 1; }
+                    @for (var rowIndex = 0; rowIndex < containerLog.LogRows.Length; rowIndex++)
+                    {
+                        var row = containerLog.LogRows[rowIndex];
+@row 
+                        @if (rowIndex < lastIndex) {
+                            @Environment.NewLine
+                        }
+                    }
+                </textarea>
+    }
+}
+else
+{
+    <p>There are no logs available for this server.</p>
+}

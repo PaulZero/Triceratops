@@ -19,7 +19,7 @@ namespace Triceratops.Api.Services.DbService.Mongo
         }
 
         public async Task DeleteAsync(Container container)
-        {            
+        {
             await _mongoCollection.DeleteOneAsync(CreateFindByIdFilter(container.Id));
 
             foreach (var volume in container.Volumes)

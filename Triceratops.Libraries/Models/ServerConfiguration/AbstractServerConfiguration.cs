@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json.Serialization;
 using Triceratops.Libraries.Enums;
 using Triceratops.Libraries.Models.Validation;
 
@@ -25,7 +25,7 @@ namespace Triceratops.Libraries.Models.ServerConfiguration
 
         [Range(1, 5)]
         public int Test { get; set; }
-        
+
         [JsonIgnore]
         public abstract ushort ContainerPort { get; }
 
@@ -61,6 +61,6 @@ namespace Triceratops.Libraries.Models.ServerConfiguration
 
             return fieldDictionary;
         }
-            
+
     }
 }

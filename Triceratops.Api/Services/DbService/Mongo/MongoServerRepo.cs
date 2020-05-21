@@ -26,7 +26,7 @@ namespace Triceratops.Api.Services.DbService.Mongo
 
         public async Task<Server[]> FindAllAsync()
         {
-            var result = await _mongoCollection.FindAsync(Builders<Server>.Filter.Empty);
+            using var result = await _mongoCollection.FindAsync(Builders<Server>.Filter.Empty);
             var items = await result.ToListAsync();
 
             foreach (var server in items)
@@ -39,9 +39,32 @@ namespace Triceratops.Api.Services.DbService.Mongo
 
         public async Task<Server> FindByIdAsync(Guid id)
         {
-            var result = await _mongoCollection.FindAsync(CreateFindByIdFilter(id));
+            using var result = await _mongoCollection.FindAsync(CreateFindByIdFilter(id));
+            var server = await result.FirstOrDefaultAsync();
 
-            return await result.FirstOrDefaultAsync();
+            if (server == null)
+            {
+                throw new Exception($"Server with id {id} does not exist");
+            }
+
+            await PopulateContainers(server);
+
+            return server;
+        }
+
+        public async Task<Server> FindBySlugAsync(string slug)
+        {
+            using var result = await _mongoCollection.FindAsync(CreateFindBySlugFilter(slug));
+            var server = await result.FirstOrDefaultAsync();
+
+            if (server == null)
+            {
+                throw new Exception($"Server with slug {slug} does not exist");
+            }
+
+            await PopulateContainers(server);
+
+            return server;
         }
 
         public async Task SaveAsync(Server server)
@@ -51,7 +74,7 @@ namespace Triceratops.Api.Services.DbService.Mongo
                 if (container.ServerId == default)
                 {
                     container.ServerId = server.Id;
-                }                
+                }
             }
 
             await _mongoCollection.ReplaceOneAsync(
@@ -79,6 +102,11 @@ namespace Triceratops.Api.Services.DbService.Mongo
         private FilterDefinition<Server> CreateFindByIdFilter(Guid id)
         {
             return Builders<Server>.Filter.Where(s => s.Id == id);
+        }
+
+        private FilterDefinition<Server> CreateFindBySlugFilter(string serverName)
+        {
+            return Builders<Server>.Filter.Where(s => s.Slug == serverName);
         }
     }
 }

@@ -1,0 +1,46 @@
+version: '3.7'
+
+services:
+  triceratops.api:
+    user: root
+    container_name: Triceratops.Api
+    hostname: Triceratops.Api
+    image: ${DOCKER_REGISTRY-}triceratopsapi    
+    restart: always
+    build:
+      context: ..
+      dockerfile: Triceratops.Api/Dockerfile
+    networks:
+      - triceratops.network
+    volumes:
+      - ../dockersources:/app/dockersources:ro
+    environment:
+      MONGO_USERNAME: root
+      MONGO_PASSWORD: fkQ2Y5xAt5Jwv5jj8hSK5puJMP7YkpJs
+
+  triceratops.dashboard:
+    container_name: Triceratops.Dashboard
+    hostname: Triceratops.Dashboard
+    image: ${DOCKER_REGISTRY-}triceratopsdashboard    
+    restart: always
+    build:
+      context: ..
+      dockerfile: Triceratops.Dashboard/Dockerfile
+    networks:
+      - triceratops.network
+
+  triceratops.mongo:
+    image: mongo
+    container_name: Triceratops.Mongo
+    hostname: Triceratops.Mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: fkQ2Y5xAt5Jwv5jj8hSK5puJMP7YkpJs
+    networks:
+      - triceratops.network
+
+networks:
+  triceratops.network:
+    name: triceratops.network
+    driver: bridge

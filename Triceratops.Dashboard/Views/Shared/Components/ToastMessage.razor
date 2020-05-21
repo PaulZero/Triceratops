@@ -1,0 +1,28 @@
+﻿<div class="toast border-@Style" role="alert" aria-live="assertive" aria-atomic="true" data-timeout="@TimeoutSeconds" style="min-width: 200px;">
+    <div class="toast-header">
+        <span class="text-@Style h6">
+            <i class="@Icon"></i> @Title
+        </span>
+    </div>
+    <div class="toast-body">
+        @Message.Text
+    </div>
+</div>
+
+@using Triceratops.Dashboard.Services.NotificationService;
+
+@code {
+    [Parameter]
+    public Message Message { get; set; }
+
+    [Parameter]
+    public TimeSpan Timeout { get; set; }
+
+    public string Title => Message.Level == MessageLevel.Success ? "Success" : "Error";
+
+    public string Style => Message.Level == MessageLevel.Success ? "success" : "danger";
+
+    public string Icon => Message.Level == MessageLevel.Success ? "fas fa-check-circle" : "fas fa-exclamation-circle";
+
+    public int TimeoutSeconds => (int)Timeout.TotalMilliseconds;
+}

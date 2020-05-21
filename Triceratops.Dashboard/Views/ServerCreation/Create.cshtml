@@ -1,6 +1,8 @@
 ﻿@model Triceratops.Libraries.Models.ServerConfiguration.AbstractServerConfiguration
 @{
     ViewData["Title"] = $"Create {Model.ServerType} Server";
+
+    var routeDefinition = Triceratops.Libraries.RouteMapping.RouteMapper.Dashboard.GetDefinitionForRoute(DashboardRoutes.SaveServer);
 }
 
 <h1>Create @Model.ServerType Server</h1>
@@ -8,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-route="Server_Save">
+        <form asp-route="@routeDefinition.Name">
             <div asp-validation-summary="All" class="text-danger"></div>
             @foreach (var kvp in Model.GetEditableFields())
             {

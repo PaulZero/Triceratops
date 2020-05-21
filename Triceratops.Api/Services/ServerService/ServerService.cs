@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Triceratops.Api.Models.Servers;
 using Triceratops.Api.Models.Servers.Minecraft;
 using Triceratops.Api.Models.Servers.Terraria;
-using Triceratops.Api.Models.View;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
+using Triceratops.Api.Services.DockerService.Models;
 using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
@@ -17,36 +16,60 @@ namespace Triceratops.Api.Services.ServerService
 {
     public class ServerService : IServerService
     {
-        private IDbService DbService { get; }
+        private readonly IDbService _dbService;
 
-        private IDockerService DockerService { get; }
+        private readonly IDockerService _dockerService;
 
         public ServerService(IDbService dbService, IDockerService dockerService)
         {
-            DbService = dbService;
-            DockerService = dockerService;
+            _dbService = dbService;
+            _dockerService = dockerService;
+        }
 
-            UpdateVolumeServerAsync().Wait();
+        public ServerBuilder GetServerBuilder(AbstractServerConfiguration configuration)
+        {
+            return new ServerBuilder(configuration, new ServerValidator(_dbService));
         }
 
         public async Task<Server[]> GetServerListAsync()
         {
-            return await DbService.Servers.FindAllAsync();
+            return await _dbService.Servers.FindAllAsync();
         }
 
-        public async Task<Server> GetServerByIdAsync(Guid guid)
+        public async Task<Dictionary<Guid, string[]>> GetServerLogsAsync(Guid serverId, uint rows)
         {
-           return await DbService.Servers.FindByIdAsync(guid);
+            var containers = await _dbService.Containers.FindByServerIdAsync(serverId);
+
+            var groupedLogs = await Task.WhenAll(containers.Select(async c =>
+            {
+                var logs = await _dockerService.GetContainerLogAsync(c.DockerId, rows);
+
+                return (c.Id, logs);
+            }));
+
+            return groupedLogs.ToDictionary(g => g.Id, g => g.logs);
+        }
+
+        public async Task<Server> GetServerByIdAsync(Guid serverId)
+        {
+            return await _dbService.Servers.FindByIdAsync(serverId);
+        }
+
+        public async Task<Server> GetServerBySlugAsync(string slug)
+        {
+            return await _dbService.Servers.FindBySlugAsync(slug);
         }
 
         public async Task CreateServerAsync(Server server)
         {
             foreach (var container in server.Containers)
             {
-                if (await DockerService.CreateContainerAsync(container))
+                if (await _dockerService.CreateContainerAsync(container))
                 {
-                    await DbService.Containers.SaveAsync(container);
-                } 
+                    await _dbService.Containers.SaveAsync(container);
+
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                }
                 else
                 {
                     await CleanUpFailedServer(server);
@@ -55,7 +78,7 @@ namespace Triceratops.Api.Services.ServerService
                 }
             }
 
-            await DbService.Servers.SaveAsync(server);
+            await _dbService.Servers.SaveAsync(server);
 
             if (server.HasVolumes)
             {
@@ -63,19 +86,24 @@ namespace Triceratops.Api.Services.ServerService
             }
         }
 
+        public async Task<TemporaryStorageContainer> GetStorageContainerAsync(Guid serverId)
+        {
+            var server = await GetServerByIdAsync(serverId);
+
+            return await _dockerService.GetStorageContainerAsync(server);
+        }
+
         public async Task DeleteServerAsync(Server server)
         {
-            var containers = await DbService.Containers.FindByServerIdAsync(server.Id);
+            var containers = await _dbService.Containers.FindByServerIdAsync(server.Id);
 
             foreach (var container in containers)
             {
-                await DockerService.DeleteContainerAsync(container.DockerId, true);
-                await DbService.Containers.DeleteAsync(container);
+                await _dockerService.DeleteContainerAsync(container.DockerId, true);
+                await _dbService.Containers.DeleteAsync(container);
             }
 
-            await DbService.Servers.DeleteAsync(server);
-
-            await UpdateVolumeServerAsync();
+            await _dbService.Servers.DeleteAsync(server);
         }
 
         public async Task RestartServerAsync(Server server)
@@ -86,21 +114,21 @@ namespace Triceratops.Api.Services.ServerService
 
         public async Task StartServerAsync(Server server)
         {
-            var containers = await DbService.Containers.FindByServerIdAsync(server.Id);
+            var containers = await _dbService.Containers.FindByServerIdAsync(server.Id);
 
             foreach (var container in containers)
             {
-                await DockerService.RunContainerAsync(container.DockerId);
+                await _dockerService.RunContainerAsync(container.DockerId);
             }
         }
 
         public async Task StopServerAsync(Server server)
         {
-            var containers = await DbService.Containers.FindByServerIdAsync(server.Id);
+            var containers = await _dbService.Containers.FindByServerIdAsync(server.Id);
 
             foreach (var container in containers)
             {
-                await DockerService.StopContainerAsync(container.DockerId);
+                await _dockerService.StopContainerAsync(container.DockerId);
             }
         }
 
@@ -112,16 +140,12 @@ namespace Triceratops.Api.Services.ServerService
             {
                 var wrappedServer = await MinecraftServer.CreateAsync(minecraftConfiguration, this);
 
-                await UpdateVolumeServerAsync();
-
                 return wrappedServer.ServerEntity;
             }
 
             if (configuration is TerrariaConfiguration terrariaConfiguration)
             {
                 var wrappedServer = await TerrariaServer.CreateAsync(terrariaConfiguration, this);
-
-                await UpdateVolumeServerAsync();
 
                 return wrappedServer.ServerEntity;
             }
@@ -140,18 +164,18 @@ namespace Triceratops.Api.Services.ServerService
             {
                 if (!string.IsNullOrWhiteSpace(container.DockerId))
                 {
-                    await DockerService.DeleteContainerAsync(container.DockerId);
+                    await _dockerService.DeleteContainerAsync(container.DockerId);
                 }
 
                 if (container.Id != default)
                 {
-                    await DbService.Containers.DeleteAsync(container);
+                    await _dbService.Containers.DeleteAsync(container);
                 }
             }
 
             if (server.Id != default)
             {
-                await DbService.Servers.DeleteAsync(server);
+                await _dbService.Servers.DeleteAsync(server);
             }
         }
 
@@ -163,16 +187,11 @@ namespace Triceratops.Api.Services.ServerService
             {
                 throw new Exception($"Server with port {configuration.HostPort} already exists.");
             }
-            
+
             if (existingServers.Any(s => s.Name == configuration.ServerName))
             {
                 throw new Exception($"Server with name {configuration.ServerName} already exists.");
             }
-        }
-
-        private async Task UpdateVolumeServerAsync()
-        {
-            await DockerService.UpdateVolumeServerAsync(await DbService.Servers.FindAllAsync());
         }
     }
 }

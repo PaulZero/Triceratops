@@ -1,0 +1,1 @@
+﻿The files in this directory are duplicated from the libraries app. God damn abomination!

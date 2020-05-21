@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  triceratops.api:
+    ports:
+      - "9090:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      MONGO_USERNAME: root
+      MONGO_PASSWORD: password
+    build:
+      args:
+        BUILD_CONFIGURATION: Debug
+
+  triceratops.dashboard:
+    ports:
+      - "8080:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    build:
+      args:
+        BUILD_CONFIGURATION: Debug
+
+  triceratops.mongo:
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password

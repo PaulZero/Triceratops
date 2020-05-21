@@ -14,7 +14,7 @@ namespace Triceratops.Libraries.Helpers
             ServerType.Unknown
         };
 
-        public static ServerType[] AllowedServerTypes => 
+        public static ServerType[] AllowedServerTypes =>
             Enum.GetValues(typeof(ServerType))
             .Cast<ServerType>()
             .Where(s => !DisallowedServerTypes.Contains(s))

@@ -1,0 +1,21 @@
+﻿@model ServerViewModel
+
+<div>
+    <span class="navbar-text server-update-status-@Model.Id" style="display: none;">
+        <i class="fas fa-cog fa-spin fa-sm"></i> <span class="update-status-text"></span>
+    </span>
+    <ul class="nav navbar-nav server-controls-@Model.Id">
+        <li class="nav-item show-when-running" style="display: none;">
+            <a role="button" class="nav-link restart-server-control">Restart</a>
+        </li>
+        <li class="nav-item show-when-running" style="display: none;">
+            <a role="button" class="nav-link stop-server-control">Stop</a>
+        </li>
+        <li class="nav-item show-when-stopped" style="display: none;">
+            <a role="button" class="nav-link start-server-control">Start</a>
+        </li>
+        <li class="nav-item">
+            <a role="button" class="nav-link delete-server-control">Delete</a>
+        </li>
+    </ul>
+</div>

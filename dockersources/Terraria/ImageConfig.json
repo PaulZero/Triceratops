@@ -1,0 +1,11 @@
+{
+  "name": "triceratops_terraria",
+  "versions": [
+    {
+      "tag": "1.3.5.3",
+      "environmentVariables": {
+        "TSHOCK_VERSION": "4.3.26"
+      }
+    }
+  ]
+}

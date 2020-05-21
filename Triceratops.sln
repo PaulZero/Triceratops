@@ -9,36 +9,68 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Dashboard", "Triceratops.Dashboard\Triceratops.Dashboard.csproj", "{8E967A9D-2E7C-471A-84EB-35EA67332B58}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Libraries", "Triceratops.Libraries\Triceratops.Libraries.csproj", "{587989EC-C910-4380-A1DA-983505C4896E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Libraries", "Triceratops.Libraries\Triceratops.Libraries.csproj", "{4E928460-EFEF-4083-AB83-249CD47390DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triceratops.VolumeManager", "Triceratops.VolumeManager\Triceratops.VolumeManager.csproj", "{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.Libraries.Tests", "Triceratops.Libraries.Tests\Triceratops.Libraries.Tests.csproj", "{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.VolumeInspector", "dockersources\VolumeInspector\Triceratops.VolumeInspector.csproj", "{FCB7ACA7-1F97-448E-AB94-8C1CE3C8ECD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		DockerDesktopDebug|Any CPU = DockerDesktopDebug|Any CPU
+		DockerToolboxDebug|Any CPU = DockerToolboxDebug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0AFE7A07-EAF2-4DB2-9302-DE8527310FF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0AFE7A07-EAF2-4DB2-9302-DE8527310FF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AFE7A07-EAF2-4DB2-9302-DE8527310FF3}.DockerDesktopDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AFE7A07-EAF2-4DB2-9302-DE8527310FF3}.DockerDesktopDebug|Any CPU.Build.0 = Debug|Any CPU
+		{0AFE7A07-EAF2-4DB2-9302-DE8527310FF3}.DockerToolboxDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AFE7A07-EAF2-4DB2-9302-DE8527310FF3}.DockerToolboxDebug|Any CPU.Build.0 = Debug|Any CPU
 		{0AFE7A07-EAF2-4DB2-9302-DE8527310FF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AFE7A07-EAF2-4DB2-9302-DE8527310FF3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.DockerDesktopDebug|Any CPU.ActiveCfg = DockerDesktopDebug|Any CPU
+		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.DockerDesktopDebug|Any CPU.Build.0 = DockerDesktopDebug|Any CPU
+		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.DockerToolboxDebug|Any CPU.ActiveCfg = DockerToolboxDebug|Any CPU
+		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.DockerToolboxDebug|Any CPU.Build.0 = DockerToolboxDebug|Any CPU
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.DockerDesktopDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.DockerDesktopDebug|Any CPU.Build.0 = Debug|Any CPU
+		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.DockerToolboxDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.DockerToolboxDebug|Any CPU.Build.0 = Debug|Any CPU
 		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Release|Any CPU.Build.0 = Release|Any CPU
-		{587989EC-C910-4380-A1DA-983505C4896E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{587989EC-C910-4380-A1DA-983505C4896E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{587989EC-C910-4380-A1DA-983505C4896E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{587989EC-C910-4380-A1DA-983505C4896E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3C474CA6-A174-4E11-B332-7A5EF0DF5CCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E928460-EFEF-4083-AB83-249CD47390DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E928460-EFEF-4083-AB83-249CD47390DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E928460-EFEF-4083-AB83-249CD47390DE}.DockerDesktopDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E928460-EFEF-4083-AB83-249CD47390DE}.DockerDesktopDebug|Any CPU.Build.0 = Debug|Any CPU
+		{4E928460-EFEF-4083-AB83-249CD47390DE}.DockerToolboxDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E928460-EFEF-4083-AB83-249CD47390DE}.DockerToolboxDebug|Any CPU.Build.0 = Debug|Any CPU
+		{4E928460-EFEF-4083-AB83-249CD47390DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E928460-EFEF-4083-AB83-249CD47390DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.DockerDesktopDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.DockerDesktopDebug|Any CPU.Build.0 = Debug|Any CPU
+		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.DockerToolboxDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.DockerToolboxDebug|Any CPU.Build.0 = Debug|Any CPU
+		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67287FAF-FAC4-43EE-9AEA-E2AD1442CA87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCB7ACA7-1F97-448E-AB94-8C1CE3C8ECD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCB7ACA7-1F97-448E-AB94-8C1CE3C8ECD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCB7ACA7-1F97-448E-AB94-8C1CE3C8ECD1}.DockerDesktopDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCB7ACA7-1F97-448E-AB94-8C1CE3C8ECD1}.DockerDesktopDebug|Any CPU.Build.0 = Debug|Any CPU
+		{FCB7ACA7-1F97-448E-AB94-8C1CE3C8ECD1}.DockerToolboxDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCB7ACA7-1F97-448E-AB94-8C1CE3C8ECD1}.DockerToolboxDebug|Any CPU.Build.0 = Debug|Any CPU
+		{FCB7ACA7-1F97-448E-AB94-8C1CE3C8ECD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCB7ACA7-1F97-448E-AB94-8C1CE3C8ECD1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

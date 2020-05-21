@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Triceratops.Dashboard.Services.ApiService;
-using Triceratops.Dashboard.Services.ApiService.Interfaces;
+using System.Text.Json;
+using Triceratops.Dashboard.WebSockets;
+using Triceratops.Libraries.Helpers;
 
 namespace Triceratops.Dashboard
 {
@@ -24,9 +21,18 @@ namespace Triceratops.Dashboard
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddDistributedMemoryCache();
+            services.AddSession();
+            
+            services.AddControllersWithViews()
+                .AddRazorRuntimeCompilation()
+                .AddJsonOptions(o => JsonHelper.UpdateSerialiserOptions(o.JsonSerializerOptions));
+            services.AddHttpContextAccessor();
 
-            services.AddSingleton<IApiService>(new ApiService());
+            services.AddSignalR();
+
+            services.AddNotificationService();
+            services.AddTriceratopsApiClient();         
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,14 +46,16 @@ namespace Triceratops.Dashboard
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthorization();
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<ApiHub>("/ws-api");
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

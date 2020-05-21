@@ -1,0 +1,14 @@
+﻿@model IEnumerable<Triceratops.Dashboard.Models.ServerViewModel>
+
+@{
+    ViewData["Title"] = "ListServers";
+}
+
+<h1>Servers</h1>
+
+@foreach (var server in Model)
+{
+    <div style="text-align: center;"><dashboard-link route="DashboardRoutes.ViewServerDetails" param-slug="@server.Slug">@server.Name (@server.ServerType)</dashboard-link></div>
+}
+
+<dashboard-link route="@DashboardRoutes.ListServers">Back to Servers</dashboard-link>

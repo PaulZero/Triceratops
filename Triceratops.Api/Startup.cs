@@ -3,12 +3,17 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Triceratops.Api.Models.View.Transformers;
-using Triceratops.Api.Models.View.Transformers.Interfaces;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Net;
+using System.Threading.Tasks;
+using Triceratops.Api.Models.ActionFilters;
 using Triceratops.Api.Services.DbService;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
+using Triceratops.Libraries.Helpers;
+using Triceratops.Libraries.Http.Core;
 
 namespace Triceratops.Api
 {
@@ -24,11 +29,16 @@ namespace Triceratops.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services
+                .AddControllersWithViews(o =>
+                {
+                    o.Filters.Add(new TimedRequestAttribute());
+                })
+                .AddJsonOptions(o => JsonHelper.UpdateSerialiserOptions(o.JsonSerializerOptions));
 
-            services.AddSingleton<IDockerService>(s => new DockerService());            
+            ConfigureDocker(services);
 
-            services.AddSingleton(s => DbServiceFactory.CreateFromEnvironmentVariables(s.GetRequiredService<IConfiguration>()));
+            services.AddSingleton(s => DbServiceFactory.CreateFromEnvironmentVariables());
             services.AddSingleton(s => s.GetRequiredService<IDbService>().Servers);
             services.AddSingleton(s => s.GetRequiredService<IDbService>().Containers);
 
@@ -36,8 +46,6 @@ namespace Triceratops.Api
                 s.GetRequiredService<IDbService>(),
                 s.GetRequiredService<IDockerService>()
             ));
-
-            services.AddSingleton<IViewModelTransformer>(s => new ViewModelTransformer(s.GetRequiredService<IDockerService>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,10 +59,9 @@ namespace Triceratops.Api
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -62,6 +69,32 @@ namespace Triceratops.Api
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapFallback(context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+
+                    return Task.CompletedTask;
+                });
+            });
+        }
+
+        private void ConfigureDocker(IServiceCollection services)
+        {
+            var dockerDaemonUrl = Environment.GetEnvironmentVariable("DOCKER_DAEMON_URL");
+
+            if (string.IsNullOrWhiteSpace(dockerDaemonUrl))
+            {
+                throw new Exception($"The environment variable DOCKER_DAEMON_URL must be set for Triceratops to run!");
+            }
+
+            services.AddSingleton<IDockerService>(s =>
+            {
+                var dockerService = new DockerService(dockerDaemonUrl, s.GetRequiredService<ILogger<IDockerService>>());
+
+                dockerService.PrepareAsync().Wait();
+
+                return dockerService;
             });
         }
     }

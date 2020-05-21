@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Triceratops.Libraries.Models
 {
     public class Container
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+
+        public string DisplayName { get; set; }
 
         public string Name { get; set; }
 
@@ -16,10 +19,10 @@ namespace Triceratops.Libraries.Models
 
         public string ImageVersion { get; set; }
 
-        public ServerPorts[] ServerPorts { get; set; } = new ServerPorts[0];
+        public List<ServerPorts> ServerPorts { get; set; } = new List<ServerPorts>();
 
-        public Volume[] Volumes { get; set; } = new Volume[0];
+        public List<Volume> Volumes { get; set; } = new List<Volume>();
 
-        public string[] Arguments { get; set; }
+        public List<string> Arguments { get; set; } = new List<string>();
     }
 }

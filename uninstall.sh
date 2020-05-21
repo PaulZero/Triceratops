@@ -1,4 +1,4 @@
 #!/bin/bash
-docker image rm triceratops_volumemanager:latest
-docker-compose stop
-docker-compose rm -f
+docker container rm -f Triceratops.VolumeManager
+docker image rm -f triceratops_volumemanager:latest
+docker-compose down -v --rmi all

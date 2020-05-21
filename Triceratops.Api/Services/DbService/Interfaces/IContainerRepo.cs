@@ -8,7 +8,7 @@ namespace Triceratops.Api.Services.DbService.Interfaces
     {
         Task<Container> FindByIdAsync(Guid id);
 
-        Task<Container[]> FindByServerIdAsync(Guid stackId);
+        Task<Container[]> FindByServerIdAsync(Guid serverId);
 
         Task SaveAsync(Container container);
 
