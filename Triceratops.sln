@@ -35,8 +35,8 @@ Global
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.DockerDesktopDebug|Any CPU.ActiveCfg = DockerDesktopDebug|Any CPU
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.DockerDesktopDebug|Any CPU.Build.0 = DockerDesktopDebug|Any CPU
-		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.DockerToolboxDebug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.DockerToolboxDebug|Any CPU.Build.0 = Debug|Any CPU
+		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.DockerToolboxDebug|Any CPU.ActiveCfg = DockerToolboxDebug|Any CPU
+		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.DockerToolboxDebug|Any CPU.Build.0 = DockerToolboxDebug|Any CPU
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E6FBD55-044A-413A-BC70-7FD83AD9DE36}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8E967A9D-2E7C-471A-84EB-35EA67332B58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
