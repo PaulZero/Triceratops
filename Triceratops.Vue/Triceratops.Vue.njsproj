@@ -34,6 +34,13 @@
     <Content Include="public\favicon.ico" />
     <Content Include="public\index.html" />
     <Content Include="src\App.vue" />
+    <Content Include="src\components\navigation\ServerSelector.vue">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="src\components\navigation\SiteNavigation.vue" />
+    <Content Include="src\views\Layout.vue">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="src\views\Servers.vue">
       <SubType>Code</SubType>
     </Content>
@@ -49,7 +56,13 @@
     <Folder Include="public\" />
     <Folder Include="src\" />
     <Folder Include="src\assets\" />
+    <Folder Include="src\assets\scss\" />
     <Folder Include="src\components\" />
+    <Folder Include="src\components\navigation\" />
+    <Folder Include="src\ts\" />
+    <Folder Include="src\ts\services\" />
+    <Folder Include="src\ts\services\api-client\" />
+    <Folder Include="src\ts\services\api-client\interfaces\" />
     <Folder Include="src\views\" />
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +75,18 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="src\router.ts" />
+    <TypeScriptCompile Include="src\ts\services\api-client\ApiClient.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\ts\services\api-client\interfaces\IContainerResponse.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\ts\services\api-client\interfaces\IServerDetailsResponse.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="src\ts\services\api-client\interfaces\IServerListResponse.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
   <ProjectExtensions>
