@@ -1,17 +1,17 @@
-﻿using Docker.DotNet;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Triceratops.Api.Services.DockerService.Managers.ClientManager;
+using Triceratops.Api.Services.DockerService.Models;
 
-namespace Triceratops.Api.Services.DockerService.Models
+namespace Triceratops.Api.Services.DockerService.Managers
 {
     public class TemporaryContainerManager : IDisposable
     {
-        private readonly Func<DockerClient> _createClientCallback;
+        private readonly ClientManager.DockerClientManager _clientManager;
 
         private readonly TimeSpan _maxContainerAge;
 
@@ -25,27 +25,33 @@ namespace Triceratops.Api.Services.DockerService.Models
 
         private readonly ILogger _logger;
 
-        public TemporaryContainerManager(Func<DockerClient> createClientCallback, TimeSpan maxContainerAge, ILogger logger)
+        public TemporaryContainerManager(DockerClientManager clientManager, TimeSpan maxContainerAge, ILogger logger)
         {
-            _createClientCallback = createClientCallback;
+            _clientManager = clientManager;
             _maxContainerAge = maxContainerAge;
             _logger = logger;
 
             _destructionTask = Task.Run(RunDestructionLoop);
         }
 
-        public TemporaryContainer GetContainer(Guid temporaryContainerId, bool refreshIfFound)
+        public TContainer GetContainer<TContainer>(Guid temporaryContainerId, bool refreshIfFound)
+            where TContainer : TemporaryContainer
         {
             lock (_lockingObject)
             {
                 var container = _containers.FirstOrDefault(c => c.TemporaryContainerId == temporaryContainerId);
 
-                if (refreshIfFound && container != null)
+                if (container is TContainer matchedContainer)
                 {
-                    container.RefreshLastAccessed();
+                    if (refreshIfFound)
+                    {
+                        matchedContainer.RefreshLastAccessed();
+                    }
+
+                    return matchedContainer;
                 }
 
-                return container;
+                return null;
             }
         }
 
@@ -62,11 +68,6 @@ namespace Triceratops.Api.Services.DockerService.Models
             }
         }
 
-        public async Task CleanupHangingContainers()
-        {
-
-        }
-
         private async Task RunDestructionLoop()
         {
             while (!_cancellationTokenSource.IsCancellationRequested)
@@ -77,13 +78,13 @@ namespace Triceratops.Api.Services.DockerService.Models
                     {
                         _logger.LogInformation("Starting temporary container cleanup.");
 
-                        var containersToBeDeleted = _containers.Where(c => (DateTime.Now - c.LastAccessed) > _maxContainerAge).ToArray();
+                        var containersToBeDeleted = _containers.Where(c => DateTime.Now - c.LastAccessed > _maxContainerAge).ToArray();
 
                         if (containersToBeDeleted.Any())
                         {
                             _logger.LogInformation($"{containersToBeDeleted.Length} container(s) to be cleaned up.");
 
-                            using var dockerClient = _createClientCallback();
+                            using var dockerClient = _clientManager.CreateDockerClient();
 
                             foreach (var container in containersToBeDeleted)
                             {
@@ -115,7 +116,7 @@ namespace Triceratops.Api.Services.DockerService.Models
 
         public void Dispose()
         {
-            var dockerClient = _createClientCallback();
+            var dockerClient = _clientManager.CreateDockerClient();
 
             foreach (var container in _containers)
             {
