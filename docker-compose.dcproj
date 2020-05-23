@@ -66,6 +66,7 @@
     <None Include="dockersources\VolumeInspector\Startup.cs" />
     <None Include="dockersources\VolumeInspector\Triceratops.VolumeInspector.csproj" />
     <None Include="install.sh" />
+    <None Include="nginx-proxy.conf" />
     <None Include="uninstall.sh" />
     <None Include="VolumeManager.Dockerfile" />
   </ItemGroup>

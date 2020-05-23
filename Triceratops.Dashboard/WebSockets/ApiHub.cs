@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Api.Interfaces.Client;
@@ -17,6 +20,29 @@ namespace Triceratops.Dashboard.WebSockets
         public ApiHub(ITriceratopsApiClient apiClient)
         {
             _apiClient = apiClient;
+        }
+
+        public async IAsyncEnumerable<string> ServerLogsAsync(
+            [EnumeratorCancellation]
+            CancellationToken token
+        )
+        {
+            while (true)
+            {
+                try
+                {
+                    token.ThrowIfCancellationRequested();
+                }
+                catch
+                {
+                    break;
+                }                   
+
+                yield return "Let us all unite!";
+
+                await Task.Delay(TimeSpan.FromMilliseconds(1));
+            }
+
         }
 
         public async Task StartServerAsync(Guid serverId)

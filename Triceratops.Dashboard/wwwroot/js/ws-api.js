@@ -41,7 +41,7 @@ var ApiClient = {
     connection: null,
     init: function () {
         if (this.connection == null) {
-            this.connection = new signalR.HubConnectionBuilder().withUrl("/ws-api").build();
+            this.connection = new signalR.HubConnectionBuilder().withUrl("/ws/dashboard").build();
 
             this.registerListeners();
             this.openConnection();
@@ -63,6 +63,25 @@ var ApiClient = {
                 ApiEvents.EmitServerDetailsReceivedEvent(serverDetails);
             }
         });
+    },
+    joinStream: function () {
+        var streamResult = this.connection
+            .stream("ServerLogsAsync");
+
+        // You can call dispose() on this bollocks to effectively kill it from this end, LOL
+        var subscription = streamResult.subscribe({
+            next: (item) => {
+                console.log(item);
+            },
+            complete: () => {
+                console.log('It finished, I do not remember asking for this?');
+            },
+            error: (err) => {
+                console.log('It fucked up *angery reacts only*')
+            },
+        });
+
+        return subscription;
     },
     openConnection: function () {
         this.connection.start()

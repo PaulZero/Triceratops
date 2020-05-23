@@ -142,6 +142,23 @@ namespace Triceratops.Api.Services.DockerService.Managers.ClientManager
             return await DeleteContainersWithFiltersAsync(filters, true, true, false);
         }
 
+        public async Task<Stream> GetContainerLogStreamAsync(string containerId, bool tail = false)
+        {
+            try
+            {
+                using var dockerClient = CreateDockerClient();
+
+                return await dockerClient.Containers.GetContainerLogsAsync(containerId, new ContainerLogsParameters
+                {
+                    Follow = tail
+                });
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<RawDockerResponse<ContainerInspectResponse>> InspectContainerAsync(string containerId)
         {
             using var loggerScope = _logger.BeginScope($"Inspecting container {containerId}");

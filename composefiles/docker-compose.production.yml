@@ -40,6 +40,18 @@ services:
     networks:
       - triceratops.network
 
+  triceratops.proxy:
+    image: nginx
+    container_name: Triceratops.Proxy
+    hostname: Triceratops.Proxy
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ../nginx-proxy.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - triceratops.network
+
 networks:
   triceratops.network:
     name: triceratops.network
