@@ -38,16 +38,10 @@ namespace Triceratops.Api.Services.ServerService
 
         public async Task<Dictionary<Guid, string[]>> GetServerLogsAsync(Guid serverId, uint rows)
         {
-            var containers = await _dbService.Containers.FindByServerIdAsync(serverId);
+            // TODO: Create some funky bullshit pipeline version of this, stream all the bytes!
+            var server = await GetServerByIdAsync(serverId);
 
-            var groupedLogs = await Task.WhenAll(containers.Select(async c =>
-            {
-                var logs = await _dockerService.GetContainerLogAsync(c.DockerId, rows);
-
-                return (c.Id, logs);
-            }));
-
-            return groupedLogs.ToDictionary(g => g.Id, g => g.logs);
+            return server.Containers.ToDictionary(c => c.Id, c=> new string[0]);
         }
 
         public async Task<Server> GetServerByIdAsync(Guid serverId)
@@ -64,7 +58,9 @@ namespace Triceratops.Api.Services.ServerService
         {
             foreach (var container in server.Containers)
             {
-                if (await _dockerService.CreateContainerAsync(container))
+                var dockerResponse = await _dockerService.CreateContainerAsync(container);
+
+                if (dockerResponse.Success)
                 {
                     await _dbService.Containers.SaveAsync(container);
 
@@ -89,8 +85,14 @@ namespace Triceratops.Api.Services.ServerService
         public async Task<TemporaryStorageContainer> GetStorageContainerAsync(Guid serverId)
         {
             var server = await GetServerByIdAsync(serverId);
+            var response = await _dockerService.GetStorageContainerAsync(server);
 
-            return await _dockerService.GetStorageContainerAsync(server);
+            if (response.Success)
+            {
+                return response.Container;
+            }
+
+            throw new Exception("No storage container received from Docker service");
         }
 
         public async Task DeleteServerAsync(Server server)
@@ -99,7 +101,7 @@ namespace Triceratops.Api.Services.ServerService
 
             foreach (var container in containers)
             {
-                await _dockerService.DeleteContainerAsync(container.DockerId, true);
+                await _dockerService.DeleteContainerAsync(container);
                 await _dbService.Containers.DeleteAsync(container);
             }
 
@@ -118,7 +120,7 @@ namespace Triceratops.Api.Services.ServerService
 
             foreach (var container in containers)
             {
-                await _dockerService.RunContainerAsync(container.DockerId);
+                await _dockerService.StartContainerAsync(container.DockerId);
             }
         }
 
@@ -155,7 +157,7 @@ namespace Triceratops.Api.Services.ServerService
 
         public async Task<Container[]> GetContainersForServer(Server server)
         {
-            return await DbService.Containers.FindByServerIdAsync(server.Id);
+            return await _dbService.Containers.FindByServerIdAsync(server.Id);
         }
 
         private async Task CleanUpFailedServer(Server server)
@@ -164,7 +166,7 @@ namespace Triceratops.Api.Services.ServerService
             {
                 if (!string.IsNullOrWhiteSpace(container.DockerId))
                 {
-                    await _dockerService.DeleteContainerAsync(container.DockerId);
+                    await _dockerService.DeleteContainerAsync(container);
                 }
 
                 if (container.Id != default)
