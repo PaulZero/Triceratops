@@ -87,14 +87,10 @@ namespace Triceratops.Api
                 throw new Exception($"The environment variable DOCKER_DAEMON_URL must be set for Triceratops to run!");
             }
 
-            services.AddSingleton<IDockerService>(s =>
-            {
-                var dockerService = new DockerService(dockerDaemonUrl, s.GetRequiredService<ILogger<IDockerService>>());
-
-                dockerService.PrepareAsync().Wait();
-
-                return dockerService;
-            });
+            services.AddSingleton<IDockerService>(s => new DockerService(
+                new Uri(dockerDaemonUrl),
+                s.GetRequiredService<ILoggerFactory>()
+            ));
         }
     }
 }

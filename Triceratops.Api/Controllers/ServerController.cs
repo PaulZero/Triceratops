@@ -258,25 +258,31 @@ namespace Triceratops.Api.Controllers
             }
         }
         
+        /// <summary>
+        /// Jon's vile machinations, fucked up by Paul every god damn commit.
+        /// </summary>
+        /// <param name="serverId"></param>
+        /// <returns></returns>
         [HttpGet("/servers/{guid}/rcon")]
         [HttpPost("/servers/{guid}/rcon")]
-        public async Task<IActionResult> ServerRconCommand(Guid guid)
+        public async Task<IActionResult> ExecuteRconCommand(Guid serverId)
         {
             // TODO: Put this somewhere sensible
             // TODO: Handle non-Minecraft servers
             // TODO: Figure out how to stream responses and events
-            var server = await Servers.GetServerByIdAsync(guid);
-            // TODO: Make it so that server.Containers is actually poopulated instead of doing this
-            var containers = await Servers.GetContainersForServer(server);
+            var server = await _servers.GetServerByIdAsync(serverId);
             var config = server.DeserialiseConfiguration() as MinecraftConfiguration;
             var containerPort = config.RconContainerPort;
             // TODO: Is this reliable?
-            var container = containers.ToList().Find(c => c.ServerPorts.Any(p => p.ContainerPort == containerPort));
+
+            var container = server
+                .Containers
+                .Find(c => c.ServerPorts.Any(p => p.ContainerPort == containerPort));
 
             if (container == null)
             {
                 // TODO: Remove this once the Rcon port is properly exposed
-                container = containers.First();
+                container = server.Containers.First();
             }
 
             // TODO: Don't hardcode this
@@ -287,7 +293,7 @@ namespace Triceratops.Api.Controllers
 
             string help = await rcon.SendCommandAsync("help");
 
-            return Success($"We got help from the server: {help}");
+            return Json($"We got help from the server: {help}");
         }
 
         private async Task<ServerDetailsResponse> CreateResponseFromServerAsync(Server server)

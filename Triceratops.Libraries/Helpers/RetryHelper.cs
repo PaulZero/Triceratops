@@ -39,12 +39,8 @@ namespace Triceratops.Libraries.Helpers
                 {
                     await Task.Delay(retryDelay);
                 }
-                finally
-                {
-                    retries++;
-                }
             }
-            while (retries < maxRetries);
+            while (retries++ < maxRetries);
 
             return false;
         }
