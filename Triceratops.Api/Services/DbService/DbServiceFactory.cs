@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using System;
+﻿using System;
 using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DbService.Mongo;
 

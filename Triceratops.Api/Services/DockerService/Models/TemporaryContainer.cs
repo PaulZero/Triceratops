@@ -1,7 +1,6 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
 using System;
-using System.Threading.Tasks;
 
 namespace Triceratops.Api.Services.DockerService.Models
 {

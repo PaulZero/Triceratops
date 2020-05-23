@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Triceratops.Libraries
+﻿namespace Triceratops.Libraries
 {
     public static class Constants
     {

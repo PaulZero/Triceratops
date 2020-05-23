@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Triceratops.Libraries.Models.Storage;
 
 namespace Triceratops.Libraries.Http.Api.ResponseModels

@@ -1,16 +1,12 @@
 using Docker.DotNet;
 using Docker.DotNet.Models;
-using ICSharpCode.SharpZipLib.Tar;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Triceratops.Api.Services.DockerService.Models;
 using Triceratops.Libraries.Enums;

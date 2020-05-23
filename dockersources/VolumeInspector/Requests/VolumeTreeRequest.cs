@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Triceratops.VolumeInspector.Helpers;
-using Triceratops.VolumeInspector.Models.Responses;
 using Triceratops.VolumeInspector.Models.Responses.Interfaces;
 using Triceratops.VolumeInspector.Models.Responses.StandardResponses;
 

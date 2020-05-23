@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System;
 using System.Diagnostics;
 using Triceratops.Libraries.Http.Api.ResponseModels;
 

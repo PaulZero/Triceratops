@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Triceratops.Libraries.Http.Api.Interfaces
+﻿namespace Triceratops.Libraries.Http.Api.Interfaces
 {
     public interface IApiResponse
     {

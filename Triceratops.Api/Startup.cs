@@ -13,7 +13,6 @@ using Triceratops.Api.Services.DbService.Interfaces;
 using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
 using Triceratops.Libraries.Helpers;
-using Triceratops.Libraries.Http.Core;
 
 namespace Triceratops.Api
 {

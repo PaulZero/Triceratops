@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using Triceratops.Libraries.Http.Api.Interfaces;
 
 namespace Triceratops.Libraries.Http.Api.ResponseModels
