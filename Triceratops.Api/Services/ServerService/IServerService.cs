@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Triceratops.DockerService.Models;
 using Triceratops.Libraries.Models;
@@ -17,7 +18,7 @@ namespace Triceratops.Api.Services.ServerService
 
         Task<Server[]> GetServerListAsync();
 
-        Task<Dictionary<Guid, string[]>> GetServerLogsAsync(Guid serverId, uint rows);
+        Task<Stream> GetServerLogStreamAsync(Guid serverId);
 
         Task<Server> GetServerByIdAsync(Guid serverId);
 

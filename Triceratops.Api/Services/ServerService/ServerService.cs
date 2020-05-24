@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.Api.Models.Servers.Minecraft;
@@ -36,12 +37,19 @@ namespace Triceratops.Api.Services.ServerService
             return await _dbService.Servers.FindAllAsync();
         }
 
-        public async Task<Dictionary<Guid, string[]>> GetServerLogsAsync(Guid serverId, uint rows)
+        public async Task<Stream> GetServerLogStreamAsync(Guid serverId)
         {
-            // TODO: Create some funky bullshit pipeline version of this, stream all the bytes!
-            var server = await GetServerByIdAsync(serverId);
+            var server = await _dbService.Servers.FindByIdAsync(serverId);
+            var container = server.Containers.First();
 
-            return server.Containers.ToDictionary(c => c.Id, c=> new string[0]);
+            var response = await _dockerService.GetContainerLogStreamAsync(container.DockerId);
+
+            if (!response.Success)
+            {
+                throw new Exception("Unable to fetch log stream for server");
+            }
+
+            return response.Stream;
         }
 
         public async Task<Server> GetServerByIdAsync(Guid serverId)

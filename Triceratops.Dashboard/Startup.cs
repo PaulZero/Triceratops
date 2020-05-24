@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Triceratops.Dashboard.WebSockets;
 using Triceratops.Libraries.Helpers;
 
 namespace Triceratops.Dashboard
@@ -53,8 +52,6 @@ namespace Triceratops.Dashboard
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHub<ApiHub>("/ws-api");
-
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

@@ -94,22 +94,15 @@
             });
 
             window.addEventListener(ApiEvents.ServerDetailsRefreshed, function (event) {
-                console.log('event listener called');
+                var response = event.detail.server;
+                var server = response.server;
 
-                var hasNonRunningContainer = false;
+                console.log('Server data received', server);
 
-                $(event.detail.server.containers).each(function () {
-                    if (this.state != 1) { // TODO: Please use TypeScript, interfaces are so much better. :'(
-                        hasNonRunningContainer = true;
-                    }
-                });
-
-                console.log(hasNonRunningContainer ? 'Server is stopped' : 'Server is running');
-
-                $showWhenRunning.toggle(!hasNonRunningContainer);
-                $showWhenStopped.toggle(hasNonRunningContainer);
-                $serverDetailsNav.toggleClass('serverNavBar_Running', !hasNonRunningContainer);
-                $serverDetailsNav.toggleClass('serverNavBar_Stopped', hasNonRunningContainer);
+                $showWhenRunning.toggle(server.isRunning);
+                $showWhenStopped.toggle(!server.isRunning);
+                $serverDetailsNav.toggleClass('serverNavBar_Running', server.isRunning);
+                $serverDetailsNav.toggleClass('serverNavBar_Stopped', !server.isRunning);
                 hideUpdatingMessage();
                 $serverControls.show();
             });

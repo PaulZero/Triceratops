@@ -39,6 +39,7 @@ var ApiEvents = {
 
 var ApiClient = {
     connection: null,
+    currentLogStream: null,
     init: function () {
         if (this.connection == null) {
             this.connection = new signalR.HubConnectionBuilder().withUrl("/ws/dashboard").build();
@@ -64,29 +65,36 @@ var ApiClient = {
             }
         });
     },
-    joinStream: function () {
+    joinStream: function (serverId) {
+        if (this.currentLogStream != null) {
+            this.currentLogStream.dispose();
+        }
+
+        var $logTextarea = $("#serverLogViewer");
+
         var streamResult = this.connection
-            .stream("ServerLogsAsync");
+            .stream("ServerLogsAsync", serverId);
 
         // You can call dispose() on this bollocks to effectively kill it from this end, LOL
-        var subscription = streamResult.subscribe({
+        this.currentLogStream = streamResult.subscribe({
             next: (item) => {
                 console.log(item);
+                $logTextarea.prepend('<div class="log-item">' + item + '</div>');
             },
             complete: () => {
                 console.log('It finished, I do not remember asking for this?');
             },
             error: (err) => {
-                console.log('It fucked up *angery reacts only*')
+                console.log('It fucked up *angery reacts only*' + err)
             },
         });
 
-        return subscription;
+        return this.currentLogStream;
     },
     openConnection: function () {
         this.connection.start()
             .then(function () {
-                if (currentServerId != undefined) {
+                if (typeof currentServerId != "undefined") {
                     ApiClient.refreshServerStatus(currentServerId);
                 }
             })

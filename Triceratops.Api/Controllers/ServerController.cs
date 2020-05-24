@@ -1,9 +1,7 @@
 using CoreRCON;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,7 +10,6 @@ using Triceratops.Api.Services.ServerService;
 using Triceratops.DockerService;
 using Triceratops.Libraries.Enums;
 using Triceratops.Libraries.Helpers;
-using Triceratops.Libraries.Http.Api.Interfaces;
 using Triceratops.Libraries.Http.Api.Interfaces.Server;
 using Triceratops.Libraries.Http.Api.Models;
 using Triceratops.Libraries.Http.Api.RequestModels;
