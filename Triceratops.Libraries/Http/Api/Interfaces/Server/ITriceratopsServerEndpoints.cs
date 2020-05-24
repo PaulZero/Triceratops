@@ -11,8 +11,6 @@ namespace Triceratops.Libraries.Http.Api.Interfaces.Server
 
         Task<ServerDetailsResponse> GetServerByIdAsync(Guid serverId);
 
-        Task<ServerLogResponse> GetServerLogsAsync(Guid serverId);
-
         Task<ServerDetailsResponse> GetServerBySlugAsync(string slug);
 
         Task<ServerDetailsResponse> CreateServerAsync(CreateServerRequest request);

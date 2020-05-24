@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Triceratops.Api.Models.Servers.Minecraft;
 using Triceratops.Api.Models.Servers.Terraria;
 using Triceratops.Api.Services.DbService.Interfaces;
-using Triceratops.Api.Services.DockerService;
-using Triceratops.Api.Services.DockerService.Models;
+using Triceratops.DockerService;
+using Triceratops.DockerService.Models;
 using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
 using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
@@ -18,9 +18,9 @@ namespace Triceratops.Api.Services.ServerService
     {
         private readonly IDbService _dbService;
 
-        private readonly IDockerService _dockerService;
+        private readonly ITriceratopsDockerClient _dockerService;
 
-        public ServerService(IDbService dbService, IDockerService dockerService)
+        public ServerService(IDbService dbService, ITriceratopsDockerClient dockerService)
         {
             _dbService = dbService;
             _dockerService = dockerService;
@@ -95,6 +95,9 @@ namespace Triceratops.Api.Services.ServerService
             throw new Exception("No storage container received from Docker service");
         }
 
+        public async Task DeleteServerAsync(Guid serverId)
+            => await DeleteServerAsync(await GetServerByIdAsync(serverId));
+
         public async Task DeleteServerAsync(Server server)
         {
             var containers = await _dbService.Containers.FindByServerIdAsync(server.Id);
@@ -108,11 +111,17 @@ namespace Triceratops.Api.Services.ServerService
             await _dbService.Servers.DeleteAsync(server);
         }
 
+        public async Task RestartServerAsync(Guid serverId)
+            => await RestartServerAsync(await GetServerByIdAsync(serverId));
+
         public async Task RestartServerAsync(Server server)
         {
             await StopServerAsync(server);
             await StartServerAsync(server);
         }
+
+        public async Task StartServerAsync(Guid serverId)
+            => await StartServerAsync(await GetServerByIdAsync(serverId));
 
         public async Task StartServerAsync(Server server)
         {
@@ -123,6 +132,9 @@ namespace Triceratops.Api.Services.ServerService
                 await _dockerService.StartContainerAsync(container.DockerId);
             }
         }
+
+        public async Task StopServerAsync(Guid serverId)
+            => await StopServerAsync(await GetServerByIdAsync(serverId));
 
         public async Task StopServerAsync(Server server)
         {

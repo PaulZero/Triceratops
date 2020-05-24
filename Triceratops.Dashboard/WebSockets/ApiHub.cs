@@ -122,7 +122,7 @@ namespace Triceratops.Dashboard.WebSockets
         private string CreateErrorResponse(string error) => SerialiseResponse(new ServerOperationResponse
         {
             Success = false,
-            Message = error
+            Error = error
         });
 
         private string SerialiseResponse<T>(T response)

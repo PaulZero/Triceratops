@@ -1,6 +1,6 @@
 ﻿@model ServerViewModel
 
-@if (Model.HasLogs)
+@*@if (Model.HasLogs)
 {
     <h2>Server Logs</h2>
 
@@ -22,6 +22,6 @@
     }
 }
 else
-{
-    <p>There are no logs available for this server.</p>
-}
+{*@
+    <p>There are no logs available for this server (well there probably are, but this is broken right now, lol).</p>
+@*  *@}

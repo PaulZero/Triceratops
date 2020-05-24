@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Triceratops.VolumeInspector.Requests;
+using System.Threading.Tasks;
 
 namespace Triceratops.VolumeInspector
 {
@@ -13,13 +13,12 @@ namespace Triceratops.VolumeInspector
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-           
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            
+        {            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -29,37 +28,17 @@ namespace Triceratops.VolumeInspector
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet<VolumeTreeRequest>("/");
-                endpoints.MapGet<DownloadZipRequest>("/download-zip");
+                endpoints.MapControllers();
 
-                endpoints.MapGet<DownloadFileRequest>("/download/{fileHash}");                
-                endpoints.MapPost<UploadFileRequest>("/upload/{fileHash}");
-                endpoints.MapPost<DeleteFileRequest>("/delete/{fileHash}");
+                endpoints.MapFallback(context =>
+                {
+                    context.Response.StatusCode = 404;
 
-                endpoints.MapGet<VerifyServerRunningRequest>("/verify");
-                endpoints.MapFallback<MissingEndpointRequest>();
+                    context.Response.WriteAsync(context.Request.Path.ToString()).Wait();
+
+                    return Task.CompletedTask;
+                });
             });
-        }
-    }
-
-    internal static class EndpointRouteBuilderExtensions
-    {
-        public static IEndpointConventionBuilder MapGet<TRequest>(this IEndpointRouteBuilder endpoints, string pattern)
-            where TRequest : AbstractRequest, new()
-        {
-            return endpoints.MapGet(pattern, new RequestHandler().HandleRequest<TRequest>);
-        }
-
-        public static IEndpointConventionBuilder MapPost<TRequest>(this IEndpointRouteBuilder endpoints, string pattern)
-            where TRequest : AbstractRequest, new()
-        {
-            return endpoints.MapPost(pattern, new RequestHandler().HandleRequest<TRequest>);
-        }
-
-        public static IEndpointConventionBuilder MapFallback<TRequest>(this IEndpointRouteBuilder endpoints)
-            where TRequest : AbstractRequest, new()
-        {
-            return endpoints.MapFallback(new RequestHandler().HandleRequest<TRequest>);
         }
     }
 }

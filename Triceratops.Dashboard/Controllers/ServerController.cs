@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Triceratops.Dashboard.Models;
 using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Api.Interfaces.Client;
-using Triceratops.Libraries.Http.Api.ResponseModels;
 using Triceratops.Libraries.RouteMapping.Attributes;
 using Triceratops.Libraries.RouteMapping.Enums;
 
@@ -29,9 +28,9 @@ namespace Triceratops.Dashboard.Controllers
         public async Task<IActionResult> ListServers()
         {
             var response = await _apiService.Servers.GetServerListAsync();
-            var models = response.Servers.Select(s => WrapServerResponseAsync(s));
+            var models = response.Servers.Select(s => new ServerViewModel(s));
 
-            return View(await Task.WhenAll(models));
+            return View(models);
         }
 
         [DashboardRoute(DashboardRoutes.ViewServerDetails)]
@@ -39,10 +38,10 @@ namespace Triceratops.Dashboard.Controllers
         {
             try
             {
-                var server = await _apiService.Servers.GetServerBySlugAsync(slug);
-                var model = await WrapServerResponseAsync(server, true, true);
+                var serverResponse = await _apiService.Servers.GetServerBySlugAsync(slug);
+                var volumeResponse = await _apiService.Storage.GetServerVolumesAsync(slug);
 
-                return View(model);
+                return View(new ServerViewModel(serverResponse.Server, volumeResponse.Volumes));
             }
             catch
             {
@@ -56,15 +55,15 @@ namespace Triceratops.Dashboard.Controllers
         {
             var relativeFilePath = HashHelper.CreateString(fileHash);
 
-            var server = await _apiService.Servers.GetServerBySlugAsync(slug);
-            var receivedFile = await _apiService.Storage.DownloadFileAsync(server.ServerId, relativeFilePath);
+            var serverResponse = await _apiService.Servers.GetServerBySlugAsync(slug);
+            var receivedFile = await _apiService.Storage.DownloadFileAsync(serverResponse.Server.ServerId, relativeFilePath);
 
             return View(new ServerFileViewModel
             {
                 FileName = receivedFile.FileName,
                 FileText = receivedFile.GetFileContents(),
-                ServerName = server.Name,
-                ServerSlug = server.Slug,
+                ServerName = serverResponse.Server.Name,
+                ServerSlug = serverResponse.Server.Slug,
                 RelativeFilePath = relativeFilePath
             });
         }
@@ -75,18 +74,6 @@ namespace Triceratops.Dashboard.Controllers
             await _apiService.Storage.UploadFileAsync(model.ServerSlug, model.RelativeFilePath, new MemoryStream(Encoding.UTF8.GetBytes(model.FileText)));
 
             return RedirectToRoute(DashboardRoutes.ViewServerDetails, new { slug = model.ServerSlug });
-        }
-
-        private async Task<ServerViewModel> WrapServerResponseAsync(ServerDetailsResponse response, bool includeStorage = false, bool includeLogs = false)
-        {
-            var storageResponse = includeStorage ? await _apiService.Storage.GetServerVolumesAsync(response.ServerId) : null;
-            var logs = includeLogs ? await _apiService.Servers.GetServerLogsAsync(response.ServerId) : null;
-
-            return new ServerViewModel(
-                response,
-                storageResponse?.Volumes,
-                logs
-            );
         }
     }
 }

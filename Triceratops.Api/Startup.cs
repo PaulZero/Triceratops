@@ -12,8 +12,9 @@ using System.Threading.Tasks;
 using Triceratops.Api.Models.ActionFilters;
 using Triceratops.Api.Services.DbService;
 using Triceratops.Api.Services.DbService.Interfaces;
-using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
+using Triceratops.Api.WebSockets;
+using Triceratops.DockerService;
 using Triceratops.Libraries.Helpers;
 
 namespace Triceratops.Api
@@ -30,6 +31,8 @@ namespace Triceratops.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR();
+            
             services
                 .AddControllersWithViews(o =>
                 {
@@ -45,7 +48,7 @@ namespace Triceratops.Api
 
             services.AddSingleton<IServerService>(s => new ServerService(
                 s.GetRequiredService<IDbService>(),
-                s.GetRequiredService<IDockerService>()
+                s.GetRequiredService<ITriceratopsDockerClient>()
             ));
         }
 
@@ -71,6 +74,8 @@ namespace Triceratops.Api
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+                endpoints.MapHub<ApiHub>("/ws-api");
+
                 endpoints.MapFallback(context =>
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -89,7 +94,7 @@ namespace Triceratops.Api
                 throw new Exception($"The environment variable DOCKER_DAEMON_URL must be set for Triceratops to run!");
             }
 
-            services.AddSingleton<IDockerService>(s => new DockerService(
+            services.AddSingleton<ITriceratopsDockerClient>(s => new TriceratopsDockerClient(
                 new Uri(dockerDaemonUrl),
                 s.GetRequiredService<ILoggerFactory>()
             ));

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Triceratops.Api.Services.DockerService.Models;
+using Triceratops.DockerService.Models;
 using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.ServerConfiguration;
 
@@ -29,11 +29,19 @@ namespace Triceratops.Api.Services.ServerService
 
         Task CreateServerAsync(Server server);
 
+        Task StartServerAsync(Guid serverId);
+
         Task StartServerAsync(Server server);
+
+        Task StopServerAsync(Guid serverId);
 
         Task StopServerAsync(Server server);
 
+        Task RestartServerAsync(Guid serverId);
+
         Task RestartServerAsync(Server server);
+
+        Task DeleteServerAsync(Guid serverId);
 
         Task DeleteServerAsync(Server server);
 

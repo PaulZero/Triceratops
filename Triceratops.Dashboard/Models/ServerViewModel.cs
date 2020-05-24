@@ -2,36 +2,50 @@
 using System.Collections.Generic;
 using System.Linq;
 using Triceratops.Libraries.Enums;
+using Triceratops.Libraries.Http.Api.Models;
 using Triceratops.Libraries.Http.Api.ResponseModels;
+using Triceratops.Libraries.Models;
 using Triceratops.Libraries.Models.Storage;
 
 namespace Triceratops.Dashboard.Models
 {
     public class ServerViewModel
     {
-        public Guid Id => _server.ServerId;
+        public Guid Id { get; }
 
-        public string Name => _server.Name;
+        public string Name { get; }
 
-        public string Slug => _server.Slug;
+        public string Slug { get; }
 
-        public string ServerType => _server.ServerType.ToString();
+        public string ServerType { get; }
 
-        public bool AllRunning => _server.Containers.All(c => c.State == ServerContainerState.Running);
+        public bool IsRunning { get; }
 
-        public IEnumerable<VolumeDirectory> Volumes { get; }
+        public IEnumerable<ContainerBasicDetails> Containers { get; } = new ContainerBasicDetails[0];
 
-        public bool HasLogs => Logs?.ContainerLogItems?.Any() ?? false;
+        public IEnumerable<VolumeDirectory> Volumes { get; } = new VolumeDirectory[0];
 
-        public ServerLogResponse Logs { get; }
+        public bool HasContainers => Containers?.Any() ?? false;
 
-        private readonly ServerDetailsResponse _server;
+        public bool HasVolumes => Volumes?.Any() ?? false;
 
-        public ServerViewModel(ServerDetailsResponse server, IEnumerable<VolumeDirectory> storage = null, ServerLogResponse logs = null)
+        public ServerViewModel(ServerBasicDetails basicDetails)
         {
-            _server = server;
-            Volumes = storage ?? new VolumeDirectory[0];
-            Logs = logs;
+            Id = basicDetails.ServerId;
+            Name = basicDetails.Name;
+            Slug = basicDetails.Slug;
+            IsRunning = basicDetails.IsRunning;
+
+            if (basicDetails is ServerExtendedDetails extendedDetails)
+            {
+                Containers = extendedDetails.Containers;
+            }
+        }
+
+        public ServerViewModel(ServerBasicDetails basicDetails, IEnumerable<VolumeDirectory> volumes)
+            : this(basicDetails)
+        {
+            Volumes = volumes;
         }
     }
 }

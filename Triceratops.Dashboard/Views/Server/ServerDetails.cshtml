@@ -115,35 +115,4 @@
             });
         });
     </script>
-    @if (Model.HasLogs)
-    {
-        <script src="~/lib/codemirror/lib/codemirror.min.js"></script>
-        <script>
-        @for (var logIndex = 0; logIndex < Model.Logs.ContainerLogItems.Length; logIndex++)
-        {
-            <text>
-                var textarea_@logIndex = document.getElementById('log_@logIndex');
-
-                var editor_@logIndex = CodeMirror.fromTextArea(textarea_@logIndex, {
-                    lineNumbers: true,
-                    readOnly: true,
-                    theme: 'darcula',
-                    autofocus: true
-                });
-            </text>
-        }
-        </script>
-    }
 }
-
-@section Styles
-{
-
-    
-    @if (Model.HasLogs)
-    {
-        <link href="~/lib/codemirror/lib/codemirror.min.css" type="text/css" rel="stylesheet" />
-        <link href="~/lib/codemirror/theme/darcula.min.css" type="text/css" rel="stylesheet" />
-    }
-}
-

@@ -4,15 +4,9 @@ using Triceratops.Libraries.Http.Api.Interfaces;
 
 namespace Triceratops.Libraries.Http.Api.ResponseModels
 {
-    public class ServerOperationResponse : ITimedResponse, IServerApiResponse
+    public class ServerOperationResponse : AbstractEndpointResponse, ITimedResponse
     {
         public Guid ServerId { get; set; }
-
-        public bool Success { get; set; } = true;
-
-        public string Error { get; set; }
-
-        public bool IsRunning { get; set; }
 
         [JsonIgnore]
         public TimeSpan Duration
@@ -26,8 +20,6 @@ namespace Triceratops.Libraries.Http.Api.ResponseModels
             get => _duration.Ticks;
             set => _duration = TimeSpan.FromTicks(value);
         }
-
-        public string Message { get; set; }
 
         private TimeSpan _duration;
     }

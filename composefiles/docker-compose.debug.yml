@@ -9,6 +9,8 @@ services:
     build:
       args:
         BUILD_CONFIGURATION: Debug
+    ports:
+      - "81:80"
 
   triceratops.dashboard:
     environment:
@@ -16,6 +18,8 @@ services:
     build:
       args:
         BUILD_CONFIGURATION: Debug
+    ports:
+      - "82:80"
 
   triceratops.mongo:
     ports:

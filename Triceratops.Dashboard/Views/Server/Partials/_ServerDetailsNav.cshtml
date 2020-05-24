@@ -1,7 +1,7 @@
 ﻿@model ServerViewModel
 
 @{ 
-    var backgroundClass = Model.AllRunning ? "serverNavBar_Running" : "serverNavBar_Stopped";
+    var backgroundClass = Model.IsRunning ? "serverNavBar_Running" : "serverNavBar_Stopped";
 }
 
 <div class="navbar navbar-dark navbar-expand-sm server-details-navbar @backgroundClass">

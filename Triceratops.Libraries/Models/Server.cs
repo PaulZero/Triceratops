@@ -45,9 +45,9 @@ namespace Triceratops.Libraries.Models
 
         private string _name;
 
-        public object DeserialiseConfiguration()
+        public AbstractServerConfiguration DeserialiseConfiguration()
         {
-            return JsonHelper.Deserialise(JsonConfiguration, ConfigurationType);
+            return JsonHelper.Deserialise(JsonConfiguration, ConfigurationType) as AbstractServerConfiguration;
         }
 
         public void SetConfiguration(AbstractServerConfiguration configuration)

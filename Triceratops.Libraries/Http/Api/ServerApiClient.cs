@@ -31,11 +31,6 @@ namespace Triceratops.Libraries.Http.Api
             .GetAsync<ServerListResponse>(GetRelativeUrl(ServerApiRoutes.GetServerList))
             .ValidateApiResponse("Failed to get server list");
 
-        public Task<ServerLogResponse> GetServerLogsAsync(Guid serverId) =>
-            Client
-            .GetAsync<ServerLogResponse>(GetRelativeUrl(ServerApiRoutes.GetServerLogs, new { serverId }))
-            .ValidateApiResponse("Failed to get server logs");
-
         public Task<ServerOperationResponse> StartServerAsync(Guid serverId) =>
             Client
             .PostAsync<ServerOperationResponse>(GetRelativeUrl(ServerApiRoutes.StartServer, new { serverId }))
@@ -65,7 +60,7 @@ namespace Triceratops.Libraries.Http.Api
     internal static class ServerApiClientTaskExtensions
     {
         public static async Task<T> ValidateApiResponse<T>(this Task<T> task, string validationError)
-            where T : IApiResponse
+            where T : AbstractEndpointResponse
         {
             var response = await task;
 
@@ -76,12 +71,7 @@ namespace Triceratops.Libraries.Http.Api
 
             if (!response.Success)
             {
-                if (response is IServerApiResponse serverResponse)
-                {
-                    throw new ApiResponseFailureException(validationError, serverResponse);
-                }
-
-                throw new ApiResponseFailureException(validationError, response);
+                throw new ApiResponseFailureException(validationError);
             }
 
             return response;

@@ -50,16 +50,16 @@ namespace Triceratops.Dashboard.Controllers
                 var factory = new ServerConfigurationFactory();
                 var configuration = factory.CreateFromDictionary(formFields);
 
-                var server = await _apiClient.Servers.CreateServerAsync(new CreateServerRequest(configuration));
+                var createServerResponse = await _apiClient.Servers.CreateServerAsync(new CreateServerRequest(configuration));
 
-                if (!server?.Success ?? false)
+                if (!createServerResponse?.Success ?? false)
                 {
                     _notificationService.PushMessage("Unable to create new server.", MessageLevel.Error);
 
                     return RedirectToRoute(DashboardRoutes.Home);
                 }   
                 
-                return RedirectToRoute(DashboardRoutes.ViewServerDetails, new { slug = server.Slug });                
+                return RedirectToRoute(DashboardRoutes.ViewServerDetails, new { slug = createServerResponse.Server.Slug });                
             }
             catch (Exception exception)
             {

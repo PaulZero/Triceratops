@@ -1,16 +1,20 @@
 using CoreRCON;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Triceratops.Api.Services.DockerService;
 using Triceratops.Api.Services.ServerService;
+using Triceratops.DockerService;
 using Triceratops.Libraries.Enums;
 using Triceratops.Libraries.Helpers;
 using Triceratops.Libraries.Http.Api.Interfaces;
 using Triceratops.Libraries.Http.Api.Interfaces.Server;
+using Triceratops.Libraries.Http.Api.Models;
 using Triceratops.Libraries.Http.Api.RequestModels;
 using Triceratops.Libraries.Http.Api.ResponseModels;
 using Triceratops.Libraries.Models;
@@ -19,7 +23,6 @@ using Triceratops.Libraries.Models.ServerConfiguration.Minecraft;
 using Triceratops.Libraries.Models.ServerConfiguration.Terraria;
 using Triceratops.Libraries.RouteMapping.Attributes;
 using Triceratops.Libraries.RouteMapping.Enums;
-using static Triceratops.Libraries.Http.Api.ResponseModels.ServerLogResponse;
 
 namespace Triceratops.Api.Controllers
 {
@@ -27,11 +30,11 @@ namespace Triceratops.Api.Controllers
     {
         private readonly IServerService _servers;
 
-        private readonly IDockerService _dockerService;
+        private readonly ITriceratopsDockerClient _dockerService;
 
         private readonly ILogger _logger;
 
-        public ServerController(IServerService serverService, IDockerService dockerService, ILogger<ServerController> logger)
+        public ServerController(IServerService serverService, ITriceratopsDockerClient dockerService, ILogger<ServerController> logger)
         {
             _dockerService = dockerService;
             _servers = serverService;
@@ -44,50 +47,29 @@ namespace Triceratops.Api.Controllers
             try
             {
                 var servers = await _servers.GetServerListAsync();
-                var responses = await Task.WhenAll(servers.Select(CreateResponseFromServerAsync));
+                var serverDetails = await Task.WhenAll(servers.Select(async s =>
+                {
+                    var containerDetails = await CreateContainerDetailsForServer(s);
+                    var isRunning = containerDetails.All(c => c.State == ServerContainerState.Running);
+
+                    return new ServerBasicDetails(s, isRunning);
+                }));
 
                 return new ServerListResponse
                 {
                     Success = true,
-                    Servers = responses
+                    Servers = serverDetails
                 };
             }
             catch (Exception exception)
             {
                 _logger.LogError($"Failed to get list of servers: {exception.Message}");
 
-                return CreateErrorResponse<ServerListResponse>("Failed to get list of servers");
-            }
-        }
-
-        [ServerApiRoute(ServerApiRoutes.GetServerLogs)]
-        public async Task<ServerLogResponse> GetServerLogsAsync(Guid serverId)
-        {
-            try
-            {
-                var server = await _servers.GetServerByIdAsync(serverId);
-                var logDictionary = await _servers.GetServerLogsAsync(serverId, 300);
-
-                return new ServerLogResponse
+                return new ServerListResponse
                 {
-                    ServerId = server.Id,
-                    ServerName = server.Name,
-                    ContainerLogItems = server.Containers.Select(c =>
-                    {
-                        return new ContainerLogItem
-                        {
-                            ContainerId = c.Id,
-                            ContainerName = c.Name,
-                            LogRows = logDictionary[c.Id]
-                        };
-                    }).ToArray()
+                    Success = false,
+                    Error = $"Failed to get list of servers: {exception.Message}"
                 };
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError($"Failed to fetch server logs: {exception.Message}");
-
-                return CreateErrorResponse<ServerLogResponse>("Failed to fetch server logs");
             }
         }
 
@@ -98,13 +80,21 @@ namespace Triceratops.Api.Controllers
             {
                 var server = await _servers.GetServerByIdAsync(serverId);
 
-                return await CreateResponseFromServerAsync(server);
+                return new ServerDetailsResponse
+                {
+                    Success = true,
+                    Server = new ServerExtendedDetails(server, await CreateContainerDetailsForServer(server))
+                };
             }
             catch (Exception exception)
             {
                 _logger.LogError($"Failed to fetch server: {exception.Message}");
 
-                return CreateErrorResponse<ServerDetailsResponse>("Failed to fetch server");
+                return new ServerDetailsResponse
+                {
+                    Success = false,
+                    Error = $"Failed to fetch server: {exception.Message}"
+                };
             }
         }
 
@@ -115,13 +105,21 @@ namespace Triceratops.Api.Controllers
             {
                 var server = await _servers.GetServerBySlugAsync(slug);
 
-                return await CreateResponseFromServerAsync(server);
+                return new ServerDetailsResponse
+                {
+                    Success = true,
+                    Server = new ServerExtendedDetails(server, await CreateContainerDetailsForServer(server))
+                };
             }
             catch (Exception exception)
             {
                 _logger.LogError($"Failed to fetch server: {exception.Message}");
 
-                return CreateErrorResponse<ServerDetailsResponse>("Failed to fetch server");
+                return new ServerDetailsResponse
+                {
+                    Success = false,
+                    Error = $"Failed to fetch server: {exception.Message}"
+                };
             }
         }
 
@@ -130,25 +128,23 @@ namespace Triceratops.Api.Controllers
         {
             try
             {
-                var server = await _servers.GetServerByIdAsync(serverId);
-
-                await _servers.StartServerAsync(server);
+                await _servers.StartServerAsync(serverId);
 
                 return new ServerOperationResponse
                 {
                     ServerId = serverId,
-                    IsRunning = await IsServerRunningAsync(server),
                     Success = true
                 };
             }
             catch (Exception exception)
             {
+                _logger.LogError($"Failed to start server: {exception.Message}");
+
                 return new ServerOperationResponse
                 {
                     ServerId = serverId,
-                    IsRunning = await IsServerRunningAsync(serverId),
                     Success = false,
-                    Message = exception.Message
+                    Error = $"Failed to start server: {exception.Message}"
                 };
             }
         }
@@ -158,25 +154,23 @@ namespace Triceratops.Api.Controllers
         {
             try
             {
-                var server = await _servers.GetServerByIdAsync(serverId);
-
-                await _servers.StopServerAsync(server);
+                await _servers.StopServerAsync(serverId);
 
                 return new ServerOperationResponse
                 {
                     ServerId = serverId,
-                    IsRunning = await IsServerRunningAsync(server),
                     Success = true
                 };
             }
             catch (Exception exception)
             {
+                _logger.LogError($"Failed to stop server: {exception.Message}");
+
                 return new ServerOperationResponse
                 {
                     ServerId = serverId,
-                    IsRunning = await IsServerRunningAsync(serverId),
                     Success = false,
-                    Message = exception.Message
+                    Error = $"Failed to stop server: {exception.Message}"
                 };
             }
         }
@@ -186,20 +180,24 @@ namespace Triceratops.Api.Controllers
         {
             try
             {
-                var server = await _servers.GetServerByIdAsync(serverId);
-
-                await _servers.RestartServerAsync(server);
+                await _servers.RestartServerAsync(serverId);
 
                 return new ServerOperationResponse
                 {
                     ServerId = serverId,
-                    IsRunning = await IsServerRunningAsync(server),
                     Success = true
                 };
             }
             catch (Exception exception)
             {
-                return CreateErrorResponse<ServerOperationResponse>(exception.Message);
+                _logger.LogError($"Failed to restart server: {exception.Message}");
+
+                return new ServerOperationResponse
+                {
+                    ServerId = serverId,
+                    Success = false,
+                    Error = $"Failed to restart server: {exception.Message}"
+                };
             }
         }
 
@@ -208,20 +206,24 @@ namespace Triceratops.Api.Controllers
         {
             try
             {
-                var server = await _servers.GetServerByIdAsync(serverId);
-
-                await _servers.DeleteServerAsync(server);
+                await _servers.DeleteServerAsync(serverId);
 
                 return new ServerOperationResponse
                 {
                     ServerId = serverId,
-                    IsRunning = await IsServerRunningAsync(server),
                     Success = true
                 };
             }
             catch (Exception exception)
             {
-                return CreateErrorResponse<ServerOperationResponse>(exception.Message);
+                _logger.LogError($"Failed to delete server: {exception.Message}");
+
+                return new ServerOperationResponse
+                {
+                    ServerId = serverId,
+                    Success = false,
+                    Error = $"Failed to delete server: {exception.Message}"
+                };
             }
         }
 
@@ -245,7 +247,11 @@ namespace Triceratops.Api.Controllers
                 {
                     var server = await _servers.CreateServerFromConfigurationAsync(configuration);
 
-                    return await CreateResponseFromServerAsync(server);
+                    return new ServerDetailsResponse
+                    {
+                        Success = true,
+                        Server = new ServerExtendedDetails(server, await CreateContainerDetailsForServer(server))
+                    };
                 }
 
                 throw new Exception($"Unsupported configuration: {request.ConfigurationTypeName}");
@@ -254,7 +260,11 @@ namespace Triceratops.Api.Controllers
             {
                 _logger.LogError($"Failed to create new server: {exception.Message}");
 
-                return CreateErrorResponse<ServerDetailsResponse>(exception.Message);
+                return new ServerDetailsResponse
+                {
+                    Success = false,
+                    Error = $"Failed to create new server: {exception.Message}"
+                };
             }
         }
         
@@ -296,56 +306,19 @@ namespace Triceratops.Api.Controllers
             return Json($"We got help from the server: {help}");
         }
 
-        private async Task<ServerDetailsResponse> CreateResponseFromServerAsync(Server server)
+        private async Task<IEnumerable<ContainerBasicDetails>> CreateContainerDetailsForServer(Server server)
         {
-            var response = new ServerDetailsResponse(server);
-
-            foreach (var container in server.Containers)
+            return await Task.WhenAll(server.Containers.Select(async c =>
             {
-                var details = await _dockerService.GetContainerStatusAsync(container);
+                var details = await _dockerService.GetContainerStatusAsync(c);
 
-                response.Containers.Add(new ContainerResponse(container, details.State, details.Created));
-            }
+                if (!details.Success)
+                {
+                    throw new Exception($"Unable to read details for container {c.Id}");
+                }
 
-            return response;
-        }
-
-        private async Task<bool> IsServerRunningAsync(Guid serverId)
-            => await IsServerRunningAsync(await _servers.GetServerByIdAsync(serverId));
-
-        private async Task<bool> IsServerRunningAsync(Server server)
-        {
-            try
-            {
-                var containerStatus = await Task.WhenAll(server.Containers.Select(c => _dockerService.GetContainerStatusAsync(c)));
-
-                return containerStatus.All(s => s.State == ServerContainerState.Running);
-            }
-            catch
-            {
-                return false;
-            }
-        }
-        
-        private T CreateErrorResponse<T>(string error)
-            where T : IApiResponse, new()
-        {
-            return new T
-            {
-                Success = false,
-                Error = error
-            };
-        }
-
-        private T CreateErrorResponse<T>(string error, Guid serverId)
-            where T : IServerApiResponse, new()
-        {
-            return new T
-            {
-                Success = false,
-                Error = error,
-                ServerId = serverId
-            };
+                return new ContainerBasicDetails(c, details.State, details.Created);
+            }));
         }
     }
 }

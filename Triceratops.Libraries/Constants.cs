@@ -4,6 +4,8 @@
     {
         public const string InternalApiUrl = "http://Triceratops.Api";
 
-        public const string InternalVolumeManagerUrl = "http://Triceratops.VolumeManager";
+        public const string DockerSourcesPath = "/app/dockersources";
+
+        public const string VolumeInspectorVolumesPath = "/volumes";
     }
 }

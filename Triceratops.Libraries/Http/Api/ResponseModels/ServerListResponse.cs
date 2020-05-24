@@ -1,14 +1,10 @@
 ﻿using System.Collections.Generic;
-using Triceratops.Libraries.Http.Api.Interfaces;
+using Triceratops.Libraries.Http.Api.Models;
 
 namespace Triceratops.Libraries.Http.Api.ResponseModels
 {
-    public class ServerListResponse : IApiResponse
+    public class ServerListResponse : AbstractEndpointResponse
     {
-        public bool Success { get; set; } = true;
-
-        public string Error { get; set; }
-
-        public IEnumerable<ServerDetailsResponse> Servers { get; set; } = new ServerDetailsResponse[0];
+        public IEnumerable<ServerBasicDetails> Servers { get; set; } = new ServerBasicDetails[0];
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Diagnostics;
-using Triceratops.Libraries.Http.Api.ResponseModels;
+using Triceratops.Libraries.Http.Api.Interfaces;
 
 namespace Triceratops.Api.Models.ActionFilters
 {

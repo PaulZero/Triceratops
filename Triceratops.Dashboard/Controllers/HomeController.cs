@@ -51,7 +51,7 @@ namespace Triceratops.Dashboard.Controllers
                 PushMessageForServerOperationResponse(
                     response,
                     "Server started.",
-                    $"Server could not be started: {response.Message ?? "No error received"}"
+                    $"Server could not be started: {response.Error ?? "No error received"}"
                 );
             }
             catch (Exception exception)
@@ -75,7 +75,7 @@ namespace Triceratops.Dashboard.Controllers
                 PushMessageForServerOperationResponse(
                     response,
                     "Server stopped.",
-                    $"Server could not be stopped: {response.Message ?? "No error received"}"
+                    $"Server could not be stopped: {response.Error ?? "No error received"}"
                 );
             }
             catch (Exception exception)
@@ -98,7 +98,7 @@ namespace Triceratops.Dashboard.Controllers
                 PushMessageForServerOperationResponse(
                     response,
                     "Server restarted.",
-                    $"Server could not be restarted: {response.Message ?? "No error received"}"
+                    $"Server could not be restarted: {response.Error ?? "No error received"}"
                 );
             }
             catch (Exception exception)
@@ -122,7 +122,7 @@ namespace Triceratops.Dashboard.Controllers
                 PushMessageForServerOperationResponse(
                     response,
                     "Server deleted.",
-                    $"Server could not be deleted: {response.Message ?? "No error received"}"
+                    $"Server could not be deleted: {response.Error ?? "No error received"}"
                 );
             }
             catch (Exception exception)
@@ -149,9 +149,9 @@ namespace Triceratops.Dashboard.Controllers
 
         private async Task<Guid> GetGuidFromServerSlug(string slug)
         {
-            var server = await _apiClient.Servers.GetServerBySlugAsync(slug);
+            var serverResponse = await _apiClient.Servers.GetServerBySlugAsync(slug);
 
-            return server.ServerId;
+            return serverResponse.Server.ServerId;
         }
 
         private void PushErrorMessage(string errorMessage)
