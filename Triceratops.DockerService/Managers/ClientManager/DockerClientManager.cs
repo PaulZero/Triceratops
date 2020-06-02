@@ -447,7 +447,7 @@ namespace Triceratops.DockerService.Managers.ClientManager
                     Tag = imageId.Tag
                 };
 
-                await dockerClient.Images.CreateImageAsync(parameters, null, null);
+                await dockerClient.Images.CreateImageAsync(parameters, null, new Progress<JSONMessage>());
 
                 _logger.LogInformation("Image downloaded");
 
