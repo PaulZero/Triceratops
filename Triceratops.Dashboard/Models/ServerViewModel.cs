@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Triceratops.Libraries.Enums;
 using Triceratops.Libraries.Http.Api.Models;
 using Triceratops.Libraries.Http.Api.ResponseModels;
@@ -46,6 +47,11 @@ namespace Triceratops.Dashboard.Models
             : this(basicDetails)
         {
             Volumes = volumes;
+        }
+
+        public (string, int) DoPiss()
+        {
+            return ("", 5);
         }
     }
 }

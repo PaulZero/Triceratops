@@ -1,4 +1,4 @@
-namespace Triceratops.Dashboard.Models
+﻿namespace Triceratops.Dashboard.Models
 {
     public class ErrorViewModel
     {

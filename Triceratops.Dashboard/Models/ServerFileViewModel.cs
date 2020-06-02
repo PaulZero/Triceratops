@@ -11,5 +11,15 @@
         public string ServerName { get; set; }
 
         public string ServerSlug { get; set; }
+
+        private void DoThing()
+        {
+
+        }
+
+        public void DoTheActualThing()
+        {
+
+        }
     }
 }

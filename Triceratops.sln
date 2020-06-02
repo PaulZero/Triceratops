@@ -17,7 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.VolumeInspector
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Triceratops.Vue", "Triceratops.Vue\Triceratops.Vue.njsproj", "{192A314E-EDAD-4E42-B0D3-6B56154C60F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triceratops.DockerService", "..\Triceratops.DockerService\Triceratops.DockerService.csproj", "{47F9313A-3A72-4D60-A5DD-D875F924D12C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.DockerService", "..\Triceratops.DockerService\Triceratops.DockerService.csproj", "{47F9313A-3A72-4D60-A5DD-D875F924D12C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{180AC982-089C-48EF-8CB0-8DB946740D08}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
