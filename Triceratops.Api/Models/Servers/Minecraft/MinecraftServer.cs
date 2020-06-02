@@ -9,7 +9,7 @@ namespace Triceratops.Api.Models.Servers.Minecraft
     {
         protected const string DockerImageName = "itzg/minecraft-server";
 
-        protected const string DockerImageTag = "latest";
+        protected const string DockerImageTag = "multiarch";
 
         public MinecraftServer(Server server) : base(server)
         {
