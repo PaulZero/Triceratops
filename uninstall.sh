@@ -1,4 +1,2 @@
 #!/bin/bash
-docker container rm -f Triceratops.VolumeManager
-docker image rm -f triceratops_volumemanager:latest
-docker-compose down -v --rmi all
+docker-compose  -f composefiles/docker-compose.production.yml -f composefiles/docker-compose.linux.yml down -v --rmi all
