@@ -38,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Triceratops.DockerService\Triceratops.DockerService.csproj" />
+    <ProjectReference Include="..\Triceratops.DockerService\Triceratops.DockerService.csproj" />
     <ProjectReference Include="..\dockersources\VolumeInspector\Triceratops.VolumeInspector.csproj" />
     <ProjectReference Include="..\Triceratops.Libraries\Triceratops.Libraries.csproj" />
   </ItemGroup>
