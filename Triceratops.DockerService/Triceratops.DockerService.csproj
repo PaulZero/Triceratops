@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Triceratops\Triceratops.Libraries\Triceratops.Libraries.csproj" />
+    <ProjectReference Include="..\Triceratops.Libraries\Triceratops.Libraries.csproj" />
   </ItemGroup>
 
 </Project>

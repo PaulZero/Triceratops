@@ -17,12 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.VolumeInspector
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Triceratops.Vue", "Triceratops.Vue\Triceratops.Vue.njsproj", "{192A314E-EDAD-4E42-B0D3-6B56154C60F1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.DockerService", "..\Triceratops.DockerService\Triceratops.DockerService.csproj", "{47F9313A-3A72-4D60-A5DD-D875F924D12C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{180AC982-089C-48EF-8CB0-8DB946740D08}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Triceratops.DockerService", "Triceratops.DockerService\Triceratops.DockerService.csproj", "{2E2C1321-8306-476B-A25B-7171D06969FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,14 +88,14 @@ Global
 		{192A314E-EDAD-4E42-B0D3-6B56154C60F1}.DockerToolboxDebug|Any CPU.Build.0 = Debug|Any CPU
 		{192A314E-EDAD-4E42-B0D3-6B56154C60F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{192A314E-EDAD-4E42-B0D3-6B56154C60F1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{47F9313A-3A72-4D60-A5DD-D875F924D12C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47F9313A-3A72-4D60-A5DD-D875F924D12C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{47F9313A-3A72-4D60-A5DD-D875F924D12C}.DockerDesktopDebug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47F9313A-3A72-4D60-A5DD-D875F924D12C}.DockerDesktopDebug|Any CPU.Build.0 = Debug|Any CPU
-		{47F9313A-3A72-4D60-A5DD-D875F924D12C}.DockerToolboxDebug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47F9313A-3A72-4D60-A5DD-D875F924D12C}.DockerToolboxDebug|Any CPU.Build.0 = Debug|Any CPU
-		{47F9313A-3A72-4D60-A5DD-D875F924D12C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{47F9313A-3A72-4D60-A5DD-D875F924D12C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E2C1321-8306-476B-A25B-7171D06969FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E2C1321-8306-476B-A25B-7171D06969FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E2C1321-8306-476B-A25B-7171D06969FB}.DockerDesktopDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E2C1321-8306-476B-A25B-7171D06969FB}.DockerDesktopDebug|Any CPU.Build.0 = Debug|Any CPU
+		{2E2C1321-8306-476B-A25B-7171D06969FB}.DockerToolboxDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E2C1321-8306-476B-A25B-7171D06969FB}.DockerToolboxDebug|Any CPU.Build.0 = Debug|Any CPU
+		{2E2C1321-8306-476B-A25B-7171D06969FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E2C1321-8306-476B-A25B-7171D06969FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
