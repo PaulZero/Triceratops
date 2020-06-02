@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using Triceratops.DockerService;
@@ -27,7 +28,7 @@ namespace Triceratops.DockerService.Managers.ClientManager
         public DockerClientManager(Uri dockerDaemonUri, ILoggerFactory loggerFactory)
         {
             _dockerDaemonUri = dockerDaemonUri;
-            _imageSourceManager = new ImageSourceManager(loggerFactory.CreateLogger<ImageSourceManager>());
+            _imageSourceManager = new ImageSourceManager(loggerFactory.CreateLogger<ImageSourceManager>(), new FileSystem());
             _logger = loggerFactory.CreateLogger<DockerClientManager>();
         }
 
@@ -272,7 +273,7 @@ namespace Triceratops.DockerService.Managers.ClientManager
 
         private async Task<bool> BuildImageSourceAsync(
             DockerImageId imageId,
-            DirectoryInfo sourceDirectory,
+            IDirectoryInfo sourceDirectory,
             DockerClient dockerClient
         )
         {

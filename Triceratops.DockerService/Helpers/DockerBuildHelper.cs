@@ -34,7 +34,7 @@ namespace Triceratops.DockerService.Helpers
 
                     lines.Add(line);
                 }
-                while (reader.EndOfStream);
+                while (!reader.EndOfStream);
 
                 return true;
             }

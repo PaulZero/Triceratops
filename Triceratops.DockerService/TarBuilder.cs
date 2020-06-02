@@ -1,5 +1,6 @@
 ﻿using ICSharpCode.SharpZipLib.Tar;
 using System.IO;
+using System.IO.Abstractions;
 using System.Threading.Tasks;
 
 namespace Triceratops.DockerService
@@ -8,7 +9,7 @@ namespace Triceratops.DockerService
     {
         private string _routePath;
 
-        public async Task<MemoryStream> BuildFromDirectory(DirectoryInfo directory)
+        public async Task<MemoryStream> BuildFromDirectory(IDirectoryInfo directory)
         {
             _routePath = directory.FullName;
 
@@ -27,7 +28,7 @@ namespace Triceratops.DockerService
             return tarball;
         }
 
-        private string GetRelativePath(FileSystemInfo item)
+        private string GetRelativePath(IFileSystemInfo item)
         {
             var relativePath = item.FullName.Substring(_routePath.Length);
 
@@ -39,7 +40,7 @@ namespace Triceratops.DockerService
             return relativePath;
         }
 
-        private async Task AddDirectoryFilesToTar(TarOutputStream tarArchive, DirectoryInfo directory)
+        private async Task AddDirectoryFilesToTar(TarOutputStream tarArchive, IDirectoryInfo directory)
         {
             if (!string.IsNullOrWhiteSpace(GetRelativePath(directory)))
             {

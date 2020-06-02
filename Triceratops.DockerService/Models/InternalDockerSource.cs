@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Triceratops.DockerService.Structs;
 
@@ -6,11 +7,11 @@ namespace Triceratops.DockerService.Models
 {
     public class InternalDockerSource
     {
-        public DirectoryInfo Directory { get; }
+        public IDirectoryInfo Directory { get; }
 
         public ImageConfig Config { get; }
 
-        public InternalDockerSource(DirectoryInfo directory, ImageConfig config)
+        public InternalDockerSource(IDirectoryInfo directory, ImageConfig config)
         {
             Directory = directory;
             Config = config;

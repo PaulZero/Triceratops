@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Triceratops.DockerService.Models;
 using Triceratops.DockerService.Structs;
@@ -11,15 +12,18 @@ namespace Triceratops.DockerService.Managers
 {
     public class ImageSourceManager
     {
-        private const string InternalSourcesPath = "/app/dockersources";
+        public const string InternalSourcesPath = "/app/dockersources";
 
         private readonly List<InternalDockerSource> _internalSources = new List<InternalDockerSource>();
 
         private readonly ILogger _logger;
 
-        public ImageSourceManager(ILogger logger)
+        private readonly IFileSystem _fileSystem;
+
+        public ImageSourceManager(ILogger logger, IFileSystem fileSystem)
         {
             _logger = logger;
+            _fileSystem = fileSystem;
 
             RefreshInternalSources();
         }
@@ -38,7 +42,7 @@ namespace Triceratops.DockerService.Managers
         {
             try
             {
-                var sourcesDirectory = new DirectoryInfo(InternalSourcesPath);
+                var sourcesDirectory = _fileSystem.DirectoryInfo.FromDirectoryName(InternalSourcesPath);
 
                 _internalSources.Clear();
 
@@ -74,12 +78,15 @@ namespace Triceratops.DockerService.Managers
             }
         }
 
-        private InternalDockerSource CreateFromImageConfigFile(FileInfo file)
+        private InternalDockerSource CreateFromImageConfigFile(IFileInfo file)
         {
             try
             {
-                var imageConfigContents = File.ReadAllText(file.FullName);
-                var imageConfig = JsonHelper.Deserialise<ImageConfig>(imageConfigContents);
+                using var readStream = file.OpenRead();
+                using var reader = new StreamReader(readStream);
+                var fileContents = reader.ReadToEnd();
+
+                var imageConfig = JsonHelper.Deserialise<ImageConfig>(fileContents);
 
                 return new InternalDockerSource(file.Directory, imageConfig);
             }
