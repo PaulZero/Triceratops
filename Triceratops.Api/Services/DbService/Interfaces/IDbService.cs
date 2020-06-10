@@ -1,4 +1,6 @@
-﻿namespace Triceratops.Api.Services.DbService.Interfaces
+﻿using System;
+
+namespace Triceratops.Api.Services.DbService.Interfaces
 {
     public interface IDbService
     {
@@ -7,5 +9,7 @@
         IServerRepo Servers { get; }
 
         IVolumeRepo Volumes { get; }
+
+        ITransaction StartTransaction();
     }
 }

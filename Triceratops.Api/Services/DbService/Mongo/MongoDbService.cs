@@ -55,5 +55,10 @@ namespace Triceratops.Api.Services.DbService.Mongo
 
             return new MongoClient(new MongoUrl($"mongodb://{_mongoUsername}:{_mongoPassword}@Triceratops.Mongo"));
         }
+
+        public ITransaction StartTransaction()
+        {
+            return new MongoTransaction(_mongoClient.StartSession());
+        }
     }
 }

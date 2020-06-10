@@ -64,29 +64,31 @@ namespace Triceratops.Api.Services.ServerService
 
         public async Task CreateServerAsync(Server server)
         {
-            foreach (var container in server.Containers)
-            {
-                var dockerResponse = await _dockerService.CreateContainerAsync(container);
+            using var transaction = _dbService.StartTransaction();
 
-                if (dockerResponse.Success)
+            try
+            {
+                foreach (var container in server.Containers)
                 {
+                    var dockerResponse = await _dockerService.CreateContainerAsync(container);
+
+                    if (!dockerResponse.Success)
+                    {
+                        throw new Exception($"Failed to create container {container.DisplayName}");
+                    }
+
                     await _dbService.Containers.SaveAsync(container);
 
                     await Task.Delay(TimeSpan.FromSeconds(5));
                 }
-                else
-                {
-                    await CleanUpFailedServer(server);
 
-                    return;
-                }
+                await _dbService.Servers.SaveAsync(server);
+
+                transaction.Commit();
             }
-
-            await _dbService.Servers.SaveAsync(server);
-
-            if (server.HasVolumes)
+            catch
             {
-                // Refresh!
+                transaction.Rollback();
             }
         }
 
